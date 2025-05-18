@@ -1,0 +1,93 @@
+{% load humanize %}
+
+<div class="card shadow-sm h-100">
+    <div class="card-header bg-transparent d-flex align-items-center">
+        <i class="fas fa-bell text-danger me-2"></i>
+        <h5 class="mb-0">Upcoming Bills & Reminders</h5>
+    </div>
+    <div class="card-body">
+        {% if bills_due_soon %}
+            <div class="bills-list">
+                {% for bill in bills_due_soon %}
+                    <div class="bill-item p-2 rounded mb-2 {% if bill.days_left <= 0 %}bg-danger bg-opacity-10{% elif bill.days_left <= 3 %}bg-warning bg-opacity-10{% else %}bg-light{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">{{ bill.bill.name }}</h6>
+                                <span class="text-muted">UGX {{ bill.bill.amount|intcomma }}</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge {% if bill.days_left <= 0 %}bg-danger{% elif bill.days_left <= 3 %}bg-warning{% else %}bg-info{% endif %}">
+                                    {% if bill.days_left <= 0 %}
+                                        Due Today!
+                                    {% else %}
+                                        {{ bill.days_left }} day{{ bill.days_left|pluralize }}
+                                    {% endif %}
+                                </span>
+                                <small class="d-block text-muted">{{ bill.bill.due_date|date:"M d" }}</small>
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <button class="btn btn-sm btn-outline-success mark-paid-btn" data-bill-id="{{ bill.bill.id }}">
+                                <i class="fas fa-check me-1"></i>Mark as Paid
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <p class="text-muted mb-0">No upcoming bills due soon!</p>
+            </div>
+        {% endif %}
+        <a href="#" class="btn btn-outline-primary btn-sm w-100 mt-3" data-bs-toggle="modal" data-bs-target="#addBillModal">
+            <i class="fas fa-plus me-1"></i>Add New Bill
+        </a>
+    </div>
+</div>
+
+<!-- Add Bill Modal -->
+<div class="modal fade" id="addBillModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Bill</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'add_bill' %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Bill Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount (UGX)</label>
+                        <input type="number" name="amount" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Due Date</label>
+                        <input type="date" name="due_date" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Frequency</label>
+                        <select name="frequency" class="form-select">
+                            <option value="monthly">Monthly</option>
+                            <option value="weekly">Weekly</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select name="category" class="form-select">
+                            <option value="utilities">Utilities</option>
+                            <option value="rent">Rent</option>
+                            <option value="subscription">Subscription</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Bill</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

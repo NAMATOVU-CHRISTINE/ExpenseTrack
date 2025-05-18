@@ -1,0 +1,53 @@
+<!-- Add Family Member Modal -->
+<div class="modal fade" id="addFamilyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Add Family Member
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'add_family_member' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="id_name" class="form-label">Name</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="text-danger small">{{ form.name.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_relationship" class="form-label">Relationship</label>
+                        {{ form.relationship }}
+                        {% if form.relationship.errors %}
+                            <div class="text-danger small">{{ form.relationship.errors|striptags }}</div>
+                        {% endif %}
+                        <small class="text-muted">e.g., Spouse, Child, Parent</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label">Email (Optional)</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small">{{ form.email.errors|striptags }}</div>
+                        {% endif %}
+                        <small class="text-muted">Add email to enable expense sharing</small>
+                    </div>
+                    <div class="form-check mb-3">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="id_is_active">
+                            This family member is currently active
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Add Family Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

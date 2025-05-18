@@ -1,0 +1,320 @@
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editProfileModalLabel">
+                    <i class="fas fa-user-edit me-2 text-primary"></i>Edit Profile
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="mb-3 fw-bold">Personal Information</h6>
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" value="Joanitak">
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" value="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="firstName" value="">
+                        </div>
+                        <div class="mb-3">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="lastName" value="">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-3 fw-bold">Preferences</h6>
+                        <div class="mb-3">
+                            <label for="monthlySavingsTarget" class="form-label">Monthly Savings Target (UGX)</label>
+                            <input type="number" class="form-control" id="monthlySavingsTarget" value="0.00" min="0" step="1000">
+                        </div>
+                        <div class="mb-3">
+                            <label for="preferredCurrency" class="form-label">Preferred Currency</label>
+                            <select class="form-select" id="preferredCurrency">
+                                <option value="UGX" selected>UGX - Ugandan Shilling</option>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 mt-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="darkMode">
+                                <label class="form-check-label" for="darkMode">
+                                    <i class="fas fa-moon me-2"></i>Enable Dark Mode
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                <label class="form-check-label" for="emailNotifications">
+                                    <i class="fas fa-bell me-2"></i>Enable Email Notifications
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary save-profile-btn">
+                    <i class="fas fa-save me-1"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Additional styles for Quick Stats animation */
+    @keyframes highlight-text {
+        0% { color: inherit; }
+        30% { color: #7755cc; font-weight: 700; }
+        80% { color: #7755cc; font-weight: 700; }
+        100% { color: inherit; }
+    }
+    
+    .text-highlight {
+        animation: highlight-text 1.5s ease;
+    }
+    
+    #editProfileModal .modal-content {
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+    
+    #editProfileModal .modal-header {
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1rem 1.5rem;
+        background-color: #f8f9fa;
+    }
+    
+    #editProfileModal .modal-body {
+        padding: 1.5rem;
+    }
+    
+    #editProfileModal .modal-footer {
+        border-top: 1px solid rgba(0,0,0,0.05);
+        padding: 1rem 1.5rem;
+    }
+    
+    #editProfileModal .form-label {
+        font-weight: 500;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    #editProfileModal .form-control,
+    #editProfileModal .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        transition: all 0.2s;
+    }
+    
+    #editProfileModal .form-control:focus,
+    #editProfileModal .form-select:focus {
+        border-color: #7755cc;
+        box-shadow: 0 0 0 0.25rem rgba(119, 85, 204, 0.15);
+    }
+    
+    #editProfileModal .form-check-input:checked {
+        background-color: #7755cc;
+        border-color: #7755cc;
+    }
+    
+    #editProfileModal .btn-primary {
+        background-color: #7755cc;
+        border-color: #7755cc;
+    }
+    
+    #editProfileModal .btn-primary:hover {
+        background-color: #6644bb;
+        border-color: #6644bb;
+    }
+    
+    #editProfileModal .form-switch .form-check-input {
+        width: 2.5em;
+        height: 1.25em;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get elements
+    const editProfileModal = document.getElementById('editProfileModal');
+    const saveProfileBtn = editProfileModal.querySelector('.save-profile-btn');
+    
+    // Initialize fields with stored values when modal opens
+    editProfileModal.addEventListener('shown.bs.modal', function() {
+        // Get current values from localStorage or use defaults
+        document.getElementById('username').value = localStorage.getItem('username') || 'Joanitak';
+        document.getElementById('email').value = localStorage.getItem('email') || '';
+        document.getElementById('firstName').value = localStorage.getItem('firstName') || '';
+        document.getElementById('lastName').value = localStorage.getItem('lastName') || '';
+        document.getElementById('monthlySavingsTarget').value = localStorage.getItem('monthlySavingsTarget') || '0.00';
+        
+        // Set selected currency
+        const currency = localStorage.getItem('preferredCurrency') || 'UGX';
+        document.getElementById('preferredCurrency').value = currency;
+        
+        // Set toggle switches
+        document.getElementById('darkMode').checked = localStorage.getItem('darkMode') === 'true';
+        document.getElementById('emailNotifications').checked = localStorage.getItem('emailNotifications') !== 'false';
+    });
+    
+    // Save profile information
+    saveProfileBtn.addEventListener('click', function() {
+        // Get values from form
+        const username = document.getElementById('username').value;
+        const email = document.getElementById('email').value;
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const monthlySavingsTarget = document.getElementById('monthlySavingsTarget').value;
+        const preferredCurrency = document.getElementById('preferredCurrency').value;
+        const darkMode = document.getElementById('darkMode').checked;
+        const emailNotifications = document.getElementById('emailNotifications').checked;
+        
+        // Validate required fields
+        if (!username.trim()) {
+            if (typeof window.showToast === 'function') {
+                window.showToast('Username is required', 'warning');
+            } else {
+                alert('Username is required');
+            }
+            return;
+        }
+        
+        // Save to localStorage for persistence
+        localStorage.setItem('username', username);
+        localStorage.setItem('email', email);
+        localStorage.setItem('firstName', firstName);
+        localStorage.setItem('lastName', lastName);
+        localStorage.setItem('monthlySavingsTarget', monthlySavingsTarget);
+        localStorage.setItem('preferredCurrency', preferredCurrency);
+        localStorage.setItem('darkMode', darkMode);
+        localStorage.setItem('emailNotifications', emailNotifications);
+        
+        // Update profile name in the UI
+        const profileName = document.querySelector('.profile-card h5.fw-bold');
+        if (profileName) {
+            const fullName = `${firstName} ${lastName}`.trim();
+            profileName.textContent = fullName || username;
+        }
+        
+        // Update savings target in financial data
+        if (window.financialData && window.updateFinancialData) {
+            const target = parseFloat(monthlySavingsTarget);
+            if (!isNaN(target)) {
+                window.financialData.savings.target = target;
+                // Update UI if the updateFinancialData function exists
+                window.updateFinancialData('target', target);
+                
+                // Update Quick Stats in the sidebar
+                updateQuickStats();
+            }
+        }
+        
+        // Show success message
+        if (typeof window.showToast === 'function') {
+            window.showToast('Profile updated successfully', 'success');
+        } else {
+            alert('Profile updated successfully');
+        }
+        
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(editProfileModal);
+        if (modal) {
+            modal.hide();
+        }
+    });
+    
+    // Function to update Quick Stats card
+    function updateQuickStats() {
+        if (!window.financialData) return;
+        
+        // Get Quick Stats elements
+        const quickStatsItems = document.querySelectorAll('.sidebar-card .d-flex.justify-content-between.small, .sidebar-card .d-flex.justify-content-between.mb-1.small');
+        
+        quickStatsItems.forEach(item => {
+            const label = item.querySelector('.text-muted');
+            const value = item.querySelector('.fw-bold');
+            
+            if (!label || !value) return;
+            
+            const labelText = label.textContent.trim().toLowerCase();
+            
+            if (labelText === 'savings') {
+                // Update Savings value
+                const savingsAmount = window.financialData.savings.current;
+                value.textContent = formatCurrencyShort(savingsAmount);
+                
+                // Add animation effect
+                value.classList.add('text-highlight');
+                setTimeout(() => {
+                    value.classList.remove('text-highlight');
+                }, 1500);
+            } 
+            else if (labelText === 'budget') {
+                // Update Budget value
+                const budgetAmount = window.financialData.budget.total;
+                value.textContent = formatCurrencyShort(budgetAmount);
+                
+                // Add animation effect
+                value.classList.add('text-highlight');
+                setTimeout(() => {
+                    value.classList.remove('text-highlight');
+                }, 1500);
+            }
+            else if (labelText === 'goals') {
+                // Count active goals
+                const activeGoals = 2; // Default value, ideally from data
+                if (window.financialData.goals && Array.isArray(window.financialData.goals)) {
+                    activeGoals = window.financialData.goals.filter(goal => goal.active).length;
+                }
+                value.textContent = `${activeGoals} Active`;
+                
+                // Add animation effect
+                value.classList.add('text-highlight');
+                setTimeout(() => {
+                    value.classList.remove('text-highlight');
+                }, 1500);
+            }
+        });
+    }
+    
+    // Format currency with K/M suffix for compact display
+    function formatCurrencyShort(amount) {
+        if (!amount && amount !== 0) return 'UGX 0';
+        
+        // Format large numbers with K or M suffix
+        let formattedAmount;
+        if (amount >= 1000000) {
+            formattedAmount = `UGX ${(amount / 1000000).toFixed(1)}M`;
+        } else if (amount >= 1000) {
+            formattedAmount = `UGX ${(amount / 1000).toFixed(0)}K`;
+        } else {
+            formattedAmount = `UGX ${amount}`;
+        }
+        
+        return formattedAmount;
+    }
+    
+    // Make updateQuickStats available globally
+    window.updateQuickStats = updateQuickStats;
+    
+    // Initial update of Quick Stats if data is available
+    if (window.financialData) {
+        updateQuickStats();
+    }
+});
+</script> 

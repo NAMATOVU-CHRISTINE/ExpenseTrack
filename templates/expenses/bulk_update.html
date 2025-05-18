@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    body { background: #f7f8fa; }
+    .bulk-update-card {
+        max-width: 500px;
+        margin: 60px auto;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(80, 80, 160, 0.10), 0 1.5px 6px rgba(80, 80, 160, 0.08);
+        background: #fff;
+        padding: 2.5rem 2rem 2rem 2rem;
+    }
+    .bulk-update-card h2 {
+        color: #7c6ee6;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        text-align: center;
+        font-size: 2rem;
+    }
+    .bulk-update-card .form-label {
+        font-weight: 500;
+        color: #444;
+    }
+    .bulk-update-card .form-select, .bulk-update-card .form-control {
+        border-radius: 10px;
+        font-size: 1.1rem;
+    }
+    .bulk-update-card .btn-primary {
+        background: linear-gradient(90deg, #7c6ee6 0%, #a084ee 100%);
+        border: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        padding: 0.6rem 1.5rem;
+        box-shadow: 0 2px 8px rgba(124, 110, 230, 0.08);
+    }
+</style>
+<div class="bulk-update-card animate__animated animate__fadeIn">
+    <h2><i class="fas fa-tasks me-2"></i>Bulk Update Categories</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} animate__animated animate__fadeInDown mb-3" role="alert">
+                <i class="fas fa-info-circle me-2"></i>{{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="form-label">Select Category</label>
+            {{ form.category }}
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Select Expenses</label>
+            {{ form.expenses }}
+            <div class="form-text">Hold Ctrl/Cmd to select multiple expenses.</div>
+        </div>
+        <div class="d-grid">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Update Categories
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %} 

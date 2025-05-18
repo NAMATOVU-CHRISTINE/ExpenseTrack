@@ -1,0 +1,1086 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/dashboard_modern.css' %}">
+<!-- Chart.js for data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<div class="dashboard-bg-wave">
+    <svg viewBox="0 0 1440 320" class="wave-1"><path fill="#e0eafc" fill-opacity="1" d="M0,160L60,170.7C120,181,240,203,360,197.3C480,192,600,160,720,154.7C840,149,960,171,1080,181.3C1200,192,1320,192,1380,192L1440,192L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg>
+    <svg viewBox="0 0 1440 320" class="wave-2"><path fill="#cfdef3" fill-opacity="0.7" d="M0,224L60,197.3C120,171,240,117,360,117.3C480,117,600,171,720,186.7C840,203,960,181,1080,154.7C1200,128,1320,96,1380,80L1440,64L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg>
+</div>
+
+<div class="container py-4">
+    <!-- Financial Summary Section -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn">
+                <div class="card-body text-center">
+                    <i class="fas fa-money-bill-wave fa-2x mb-2 text-success"></i>
+                    <h6 class="text-muted mb-2">Total Income</h6>
+                    <h3 class="mb-0">UGX {{ total_income|floatformat:0 }}</h3>
+                    <div class="text-success small mt-2">
+                        <i class="fas fa-arrow-up me-1"></i>{{ income_change|floatformat:1 }}% vs last month
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn">
+                <div class="card-body text-center">
+                    <i class="fas fa-receipt fa-2x mb-2 text-danger"></i>
+                    <h6 class="text-muted mb-2">Total Expenses</h6>
+                    <h3 class="mb-0">UGX {{ total_spent|floatformat:0 }}</h3>
+                    <div class="text-danger small mt-2">
+                        <i class="fas fa-arrow-down me-1"></i>{{ expense_change|floatformat:1 }}% vs last month
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn">
+                <div class="card-body text-center">
+                    <i class="fas fa-piggy-bank fa-2x mb-2 text-primary"></i>
+                    <h6 class="text-muted mb-2">Net Savings</h6>
+                    <h3 class="mb-0">UGX {{ savings|floatformat:0 }}</h3>
+                    <div class="text-primary small mt-2">
+                        <span class="badge bg-primary">{{ savings_rate|floatformat:1 }}% Rate</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-2x mb-2 text-warning"></i>
+                    <h6 class="text-muted mb-2">Budget Status</h6>
+                    <h3 class="mb-0">{{ budget_status|floatformat:0 }}%</h3>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar {% if budget_status > 90 %}bg-danger{% elif budget_status > 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ budget_status }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h1 class="mb-0" style="color:#7c5fe6;"><i class="fas fa-receipt me-2"></i>Expenses</h1>
+        </div>
+        <div class="col-md-4">
+            <div class="motivational-card card shadow-sm text-center p-3 animated-slidein">
+                <div id="lottie-quote" style="height:60px;"></div>
+                <div class="quote-text mt-2" id="motivational-quote">Track every shilling, grow your savings!</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card stat-card shadow-sm p-3 d-flex flex-row align-items-center animated-popin">
+                <div class="stat-icon bg-primary text-white me-3"><i class="fas fa-coins fa-2x"></i></div>
+                <div>
+                    <div class="stat-label">Total Spent This Month</div>
+                    <div class="stat-value">UGX {{ total_spent|floatformat:2 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card stat-card shadow-sm p-3 d-flex flex-row align-items-center animated-popin" style="animation-delay:0.1s;">
+                <div class="stat-icon bg-success text-white me-3"><i class="fas fa-star fa-2x"></i></div>
+                <div>
+                    <div class="stat-label">Top Category</div>
+                    <div class="stat-value">{{ top_category.name|default:'N/A' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions from expense_list -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <a href="{% url 'upload_receipt' %}" class="btn btn-outline-primary w-100">
+                <i class="fas fa-camera me-2"></i>Upload Receipt
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'category_rules' %}" class="btn btn-outline-success w-100">
+                <i class="fas fa-magic me-2"></i>Add Category Rule
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'bulk_update' %}" class="btn btn-outline-info w-100">
+                <i class="fas fa-tasks me-2"></i>Bulk Update
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#" class="btn btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#shareExpenseModal">
+                <i class="fas fa-share-alt me-2"></i>Share Expense
+            </a>
+        </div>
+    </div>
+    
+    <!-- Unprocessed Receipts from expense_list -->
+    {% if unprocessed_receipts %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-exclamation-circle me-2"></i>Unprocessed Receipts
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for receipt in unprocessed_receipts %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <img src="{{ receipt.image.url }}" class="card-img-top" alt="Receipt">
+                        <div class="card-body">
+                            <a href="{% url 'process_receipt' receipt.id %}" class="btn btn-primary btn-sm w-100">
+                                Process Receipt
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Shared Expenses from expense_list -->
+    {% if shared_expenses %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-users me-2"></i>Shared Expenses
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Shared With</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shared in shared_expenses %}
+                        <tr>
+                            <td>{{ shared.expense.description }}</td>
+                            <td>UGX {{ shared.amount|floatformat:0 }}</td>
+                            <td>{{ shared.shared_with.username }}</td>
+                            <td>
+                                {% if shared.is_paid %}
+                                <span class="badge bg-success">Paid</span>
+                                {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Category Rules from expense_list -->
+    {% if category_rules %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-magic me-2"></i>Category Rules
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Pattern</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rule in category_rules %}
+                        <tr>
+                            <td>{{ rule.category.name }}</td>
+                            <td><code>{{ rule.pattern }}</code></td>
+                            <td>{{ rule.priority }}</td>
+                            <td>
+                                {% if rule.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- FEATURE 2: Category Spending Visualization -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm p-3">
+                <h5 class="mb-3"><i class="fas fa-chart-pie text-success"></i> Spending by Category</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="categoryDonutChart" height="250"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="category-legend">
+                            {% for i in chart_data.categories|slice:":7" %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="legend-color-box" style="background: {{ chart_data.colors|index:forloop.counter0 }}"></div>
+                                    <div class="legend-label">{{ i }}</div>
+                                    <div class="legend-value ms-auto">UGX {{ chart_data.amounts|index:forloop.counter0|floatformat:0 }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- NEW VISUALIZATION 2: Budget Progress -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm p-3">
+                <h5 class="mb-3"><i class="fas fa-tasks text-warning"></i> Budget Progress</h5>
+                <div class="budget-progress-container">
+                    {% for category in categories|slice:":5" %}
+                    <div class="budget-progress-item mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span><i class="fas {{ category.icon }}" style="color: {{ category.color }}"></i> {{ category.name }}</span>
+                            <span class="fw-bold">
+                                UGX {{ total_spent|divide:2|floatformat:0 }} / UGX {{ total_spent|multiply:1.5|floatformat:0 }}
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            {% with percent=forloop.counter|multiply:15 %}
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ percent }}%; background-color: {{ category.color }};" 
+                                 aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            {% endwith %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm p-3">
+                <h5 class="mb-3"><i class="fas fa-filter text-secondary"></i> Filter Expenses</h5>
+                <form method="get" class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label small">Search</label>
+                        <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ request.GET.q }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Date</label>
+                        <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small">Category</label>
+                        <select name="category" class="form-select">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small">Tag</label>
+                        <select name="tag" class="form-select">
+                            <option value="">All Tags</option>
+                            {% for tag in all_tags %}
+                            <option value="{{ tag }}" {% if request.GET.tag == tag %}selected{% endif %}>{{ tag }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-search me-1"></i>Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FEATURE 3: Visual Recurring Expense Timeline -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm p-3 animated-fadein">
+                <h5 class="mb-3"><i class="fas fa-timeline text-info"></i> Recurring Expenses Timeline</h5>
+                <div class="timeline-container position-relative py-2">
+                    <div class="timeline-line"></div>
+                    {% for rec in upcoming_recurring_expenses %}
+                    <div class="timeline-item {% cycle 'timeline-left' 'timeline-right' %}" style="--delay: {{ forloop.counter0|multiply:0.1 }}s">
+                        <div class="timeline-content card p-2 shadow-sm">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="category-icon" style="background: {{ rec.category.color }}">
+                                    <i class="fas {{ rec.category.icon }} text-white"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ rec.description }}</div>
+                                    <div class="small text-muted">{{ rec.next_date|date:'M d, Y' }}</div>
+                                    <div class="fw-bold">UGX {{ rec.amount|floatformat:2 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted my-4">
+                        <i class="fas fa-calendar-times fa-2x mb-3"></i>
+                        <p>No recurring expenses found.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FEATURE 4: Recurring Expense Calendar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm p-3 animated-fadein">
+                <h5 class="mb-3"><i class="fas fa-calendar-alt text-info"></i> Recurring Expenses Calendar</h5>
+                <div id="recurring-expense-calendar"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expense List -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm p-3">
+                <h5 class="mb-3"><i class="fas fa-list text-primary"></i> Recent Expenses</h5>
+                <div class="recent-transactions-list">
+                    {% if expenses %}
+                        <div class="row g-3">
+                            {% for expense in expenses %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="expense-card card shadow-sm h-100">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex align-items-center">
+                                            <div class="category-icon me-3" style="background: {{ expense.category.color }};"><i class="fas {{ expense.category.icon }} text-white"></i></div>
+                                            <div class="flex-grow-1">
+                                                <div class="fw-bold d-flex align-items-center gap-2">
+                                                    {{ expense.description }}
+                                                    {% if expense.is_recurring %}
+                                                        <span class="badge bg-info text-white ms-1" title="Recurring"><i class="fas fa-sync-alt"></i></span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="small text-muted">{{ expense.date|date:'M d, Y' }} &middot; {{ expense.category.name }}</div>
+                                            </div>
+                                            <div class="fw-bold ms-3">UGX {{ expense.amount|floatformat:2 }}</div>
+                                        </div>
+                                        
+                                        {% if expense.notes %}
+                                        <div class="expense-notes mt-2"><i class="fas fa-sticky-note text-warning me-1"></i>{{ expense.notes }}</div>
+                                        {% endif %}
+                                        
+                                        <!-- Colored Tags Section -->
+                                        {% if expense.tags_with_colors %}
+                                        <div class="expense-tags mt-2 d-flex flex-wrap gap-1">
+                                            {% for tag, color in expense.tags_with_colors %}
+                                            <span class="badge expense-tag" style="background: {{ color|default:'#8888ff' }}; color: #fff;">#{{ tag }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <!-- Action Buttons -->
+                                        <div class="expense-actions mt-3 d-flex gap-1 justify-content-end">
+                                                                                        <a href="{% url 'expense_edit' expense.id %}" class="btn btn-sm btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></a>                                            <a href="{% url 'expense_delete' expense.id %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fas fa-trash"></i></a>                                            <a href="{% url 'share_expense' expense.id %}" class="btn btn-sm btn-outline-info" title="Share"><i class="fas fa-share-alt"></i></a>                                            {% if expense.is_recurring %}
+                                            <a href="{% url 'expense_stop_recurring' expense.id %}" class="btn btn-sm btn-outline-warning" title="Stop Recurrence"><i class="fas fa-ban"></i></a>
+                                            {% endif %}
+                                            <!-- Edit Tags Button -->
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Edit Notes/Tags" data-bs-toggle="modal" data-bs-target="#editNotesTagsModal{{ expense.id }}">
+                                                <i class="fas fa-tags"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Edit Notes/Tags Modal -->
+                            <div class="modal fade" id="editNotesTagsModal{{ expense.id }}" tabindex="-1" aria-labelledby="editNotesTagsModalLabel{{ expense.id }}" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <form class="edit-notes-tags-form" data-expense-id="{{ expense.id }}">
+                                    {% csrf_token %}
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="editNotesTagsModalLabel{{ expense.id }}">Edit Notes & Tags</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <div class="mb-3">
+                                        <label for="notes{{ expense.id }}" class="form-label">Notes</label>
+                                        <textarea class="form-control" id="notes{{ expense.id }}" name="notes" rows="2">{{ expense.notes }}</textarea>
+                                      </div>
+                                      <div class="mb-3">
+                                        <label class="form-label">Tags</label>
+                                        <div id="tags-container-{{ expense.id }}">
+                                          {% for tag, color in expense.tags_with_colors %}
+                                          <div class="input-group mb-1 align-items-center">
+                                            <input type="text" name="tags[]" class="form-control" value="{{ tag }}" placeholder="Tag">
+                                            <input type="color" name="tag_colors[]" class="form-control form-control-color ms-2" value="{{ color|default:'#8888ff' }}" title="Pick tag color">
+                                          </div>
+                                          {% endfor %}
+                                          <div class="input-group mb-1 align-items-center">
+                                            <input type="text" name="tags[]" class="form-control" placeholder="New tag">
+                                            <input type="color" name="tag_colors[]" class="form-control form-control-color ms-2" value="#8888ff" title="Pick tag color">
+                                          </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addTagField('{{ expense.id }}')"><i class="fas fa-plus"></i> Add Tag</button>
+                                      </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                      <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <div id="lottie-empty-expenses" style="height:80px;"></div>
+                            <p class="mt-3">No expenses found. Start tracking your expenses now!</p>
+                            <a href="{% url 'expense_add' %}" class="btn btn-primary mt-2">
+                                <i class="fas fa-plus me-1"></i> Add Expense
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FEATURE 5: Recurring Expense Summary with Smart Indicators -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card shadow-sm p-3 animated-fadein">
+          <h5 class="mb-3"><i class="fas fa-sync-alt text-info"></i> Upcoming Recurring Expenses</h5>
+          <div class="row g-3">
+            {% for rec in upcoming_recurring_expenses %}
+            <div class="col-sm-6 col-md-4">
+                <div class="card recurring-expense-card shadow-sm h-100">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="category-icon" style="background: {{ rec.category.color }};"><i class="fas {{ rec.category.icon }} text-white"></i></div>
+                            <div class="fw-bold ms-2">{{ rec.description }}</div>
+                        </div>
+                        <div class="recurring-expense-amount mb-1">UGX {{ rec.amount|floatformat:2 }}</div>
+                        <div class="recurring-expense-due">
+                            {% with days_remaining=rec.next_date|timeuntil:today %}
+                                <div class="d-flex align-items-center {% if rec.next_date|timeuntil:today|length < 5 %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {% if rec.next_date < today %}
+                                        <span class="overdue-badge">OVERDUE</span>
+                                    {% else %}
+                                        Next: {{ rec.next_date|date:'M d, Y' }}
+                                    {% endif %}
+                                </div>
+                            {% endwith %}
+                        </div>
+                        <div class="recurring-expense-progress mt-3">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>Progress to next payment</span>
+                                <span>{{ rec.next_date|timeuntil:today }}</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                {% with days_total=30 %}
+                                {% with days_passed=rec.next_date|timeuntil:today|length %}
+                                {% with percent=days_passed|divide:days_total|multiply:100 %}
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {% if percent > 100 %}100{% else %}{{ percent }}{% endif %}%" aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                {% endwith %}
+                                {% endwith %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted py-4">
+                <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                <p>No recurring expenses found. Add some to track your regular payments!</p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+
+<script>
+// Lottie Animations
+if (window.lottie) {
+    // Motivational quote animation
+    lottie.loadAnimation({
+        container: document.getElementById('lottie-quote'),
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: 'https://assets2.lottiefiles.com/packages/lf20_4kx2q32n.json'
+    });
+    
+    // Empty expenses animation
+    if (document.getElementById('lottie-empty-expenses')) {
+        lottie.loadAnimation({
+            container: document.getElementById('lottie-empty-expenses'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: 'https://assets2.lottiefiles.com/packages/lf20_2ks3pjua.json'
+        });
+    }
+}
+
+// Add Tag Field function
+function addTagField(expenseId) {
+    const container = document.getElementById('tags-container-' + expenseId);
+    const div = document.createElement('div');
+    div.className = 'input-group mb-1 align-items-center';
+    div.innerHTML = `<input type="text" name="tags[]" class="form-control" placeholder="New tag">
+        <input type="color" name="tag_colors[]" class="form-control form-control-color ms-2" value="#8888ff" title="Pick tag color">`;
+    container.appendChild(div);
+}
+
+// Document Ready
+document.addEventListener('DOMContentLoaded', function() {
+    // FullCalendar initialization
+    var calendarEl = document.getElementById('recurring-expense-calendar');
+    if (calendarEl) {
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            height: 400,
+            headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+            events: {{ recurring_expenses_json|safe }},
+            eventDidMount: function(info) {
+                // Tooltip for event details
+                var tooltip = document.createElement('div');
+                tooltip.className = 'fc-tooltip';
+                tooltip.innerHTML = `<strong>${info.event.title}</strong><br>Amount: UGX ${info.event.extendedProps.amount}<br>Category: ${info.event.extendedProps.category}<br>Frequency: ${info.event.extendedProps.frequency}`;
+                
+                info.el.addEventListener('mouseenter', function(e) {
+                    document.body.appendChild(tooltip);
+                    tooltip.style.position = 'absolute';
+                    tooltip.style.left = e.pageX + 10 + 'px';
+                    tooltip.style.top = e.pageY + 10 + 'px';
+                    tooltip.style.background = '#222';
+                    tooltip.style.color = '#fff';
+                    tooltip.style.padding = '6px 12px';
+                    tooltip.style.borderRadius = '6px';
+                    tooltip.style.zIndex = 9999;
+                });
+                
+                info.el.addEventListener('mousemove', function(e) {
+                    tooltip.style.left = e.pageX + 10 + 'px';
+                    tooltip.style.top = e.pageY + 10 + 'px';
+                });
+                
+                info.el.addEventListener('mouseleave', function() {
+                    if (tooltip.parentNode) tooltip.parentNode.removeChild(tooltip);
+                });
+            }
+        });
+        calendar.render();
+    }
+    
+    // Charts initialization
+    if (window.Chart) {
+        // Category Spending Donut Chart
+        const categoryCtx = document.getElementById('categoryDonutChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {{ chart_data.categories|safe }},
+                datasets: [{
+                    data: {{ chart_data.amounts|safe }},
+                    backgroundColor: {{ chart_data.colors|safe }},
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const label = context.label || '';
+                                return label + ': UGX ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                },
+                cutout: '60%'
+            }
+        });
+    }
+    
+    // AJAX for updating notes and tags
+    document.querySelectorAll('.edit-notes-tags-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const expenseId = this.dataset.expenseId;
+            const notes = this.querySelector('textarea[name="notes"]').value;
+            const tagInputs = this.querySelectorAll('input[name="tags[]"]');
+            const colorInputs = this.querySelectorAll('input[name="tag_colors[]"]');
+            const tags = Array.from(tagInputs).map(input => input.value.trim()).filter(Boolean);
+            const tag_colors = Array.from(colorInputs)
+                .filter((_, i) => tags[i])
+                .map(input => input.value);
+            
+            fetch(`/expenses/ajax-update-notes-tags/${expenseId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ notes, tags, tag_colors })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const modal = bootstrap.Modal.getInstance(this.closest('.modal'));
+                    modal.hide();
+                    // Show success toast
+                    showToast('Tags updated successfully', 'success');
+                    // Reload the page to see changes
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    showToast('Error: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error updating tags', 'error');
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+
+// Helper function to get cookies (for CSRF token)
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Toast notification function
+function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Animate out and remove
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+</script>
+
+<style>
+/* Card Styling */
+.card {
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.stat-card {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Expense Card */
+.expense-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: 4px solid #667eea;
+}
+
+.expense-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.category-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.expense-notes {
+    font-size: 0.85rem;
+    color: #6c757d;
+    padding: 0.25rem 0.5rem;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.expense-tag {
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+    font-weight: normal;
+    font-size: 0.75rem;
+}
+
+/* Timeline Feature */
+.timeline-container {
+    position: relative;
+    margin: 20px 0;
+    padding: 20px 0;
+}
+
+.timeline-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(to bottom, #66a6ff, #667eea);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.timeline-item {
+    position: relative;
+    width: 45%;
+    margin-bottom: 25px;
+    opacity: 0;
+    animation: timeline-fade-in 0.8s forwards;
+    animation-delay: var(--delay, 0s);
+}
+
+.timeline-left {
+    left: 0;
+}
+
+.timeline-right {
+    left: 55%;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 4px solid #667eea;
+    top: 15px;
+    right: -30px;
+    z-index: 1;
+}
+
+.timeline-right::before {
+    left: -30px;
+}
+
+@keyframes timeline-fade-in {
+    from { 
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Recurring Expense Cards */
+.recurring-expense-card {
+    border-radius: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 4px solid #667eea;
+}
+
+.recurring-expense-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.recurring-expense-amount {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.overdue-badge {
+    background: #ff4a4a;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+/* Budget Progress Styles */
+.budget-progress-container {
+    padding: 10px 5px;
+}
+
+.budget-progress-item {
+    position: relative;
+    transition: transform 0.2s;
+}
+
+.budget-progress-item:hover {
+    transform: translateY(-2px);
+}
+
+.budget-progress-item .progress {
+    border-radius: 10px;
+    background-color: #f0f0f0;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.budget-progress-item .progress-bar {
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.budget-progress-item .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Chart Legend */
+.category-legend {
+    height: 250px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.legend-color-box {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    margin-right: 8px;
+}
+
+.legend-label {
+    font-size: 0.9rem;
+}
+
+.legend-value {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+/* Toast Notifications */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    z-index: 9999;
+    transform: translateY(30px);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-success {
+    border-left: 4px solid #28a745;
+}
+
+.toast-error {
+    border-left: 4px solid #dc3545;
+}
+
+.toast-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+}
+
+.toast-content i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.toast-success i {
+    color: #28a745;
+}
+
+.toast-error i {
+    color: #dc3545;
+}
+
+.toast-info i {
+    color: #17a2b8;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .timeline-container {
+        padding-left: 20px;
+    }
+    
+    .timeline-line {
+        left: 0;
+        transform: none;
+    }
+    
+    .timeline-item {
+        width: 90%;
+        left: 30px !important;
+    }
+    
+    .timeline-item::before {
+        left: -26px !important;
+        right: auto !important;
+    }
+    
+    .category-legend {
+        height: auto;
+        max-height: 200px;
+    }
+}
+</style>
+
+<!-- Share Expense Modal from expense_list -->
+<div class="modal fade" id="shareExpenseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'share_expense' 0 %}" id="shareExpenseForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Select Expense</label>
+                        <select class="form-select" name="expense" required>
+                            {% for expense in expenses %}
+                            <option value="{{ expense.id }}">{{ expense.description }} - UGX {{ expense.amount|floatformat:0 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Share With</label>
+                        <select class="form-select" name="shared_with" required>
+                            {% for member in request.user.family_members.all %}
+                            <option value="{{ member.id }}">{{ member.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" name="amount" step="0.01" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="shareExpenseForm" class="btn btn-primary">Share</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

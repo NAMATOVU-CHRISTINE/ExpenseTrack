@@ -1,0 +1,528 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            <i class="fas fa-wallet me-2"></i>Budgets
+        </h2>
+        <a href="{% url 'budget_add' %}" class="btn btn-primary animate__animated animate__fadeInRight" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+            <i class="fas fa-plus-circle me-2"></i>Add Budget
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} animate__animated animate__fadeInDown mb-4" role="alert">
+                <i class="fas fa-info-circle me-2"></i>{{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- FEATURE 1: Budget Overview Summary -->
+    <div class="card shadow-sm mb-4 animate__animated animate__fadeIn">
+        <div class="card-body">
+            <h5 class="card-title mb-4">
+                <i class="fas fa-chart-pie me-2" style="color: #667eea;"></i>
+                Budget Overview for {{ selected_month|date:"F Y" }}
+            </h5>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card text-center p-3 rounded h-100">
+                        <i class="fas fa-money-bill-wave fa-2x mb-2" style="color: #667eea;"></i>
+                        <h3 class="mb-0">UGX {{ total_budget|floatformat:0 }}</h3>
+                        <p class="text-muted mb-0">Total Budget</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card text-center p-3 rounded h-100">
+                        <i class="fas fa-shopping-cart fa-2x mb-2" style="color: #fd7e14;"></i>
+                        <h3 class="mb-0">UGX {{ total_spent|floatformat:0 }}</h3>
+                        <p class="text-muted mb-0">Total Spent</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card text-center p-3 rounded h-100">
+                        <i class="fas fa-wallet fa-2x mb-2" style="color: #28a745;"></i>
+                        <h3 class="mb-0">UGX {{ total_remaining|floatformat:0 }}</h3>
+                        <p class="text-muted mb-0">Remaining</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stat-card text-center p-3 rounded h-100">
+                        <i class="fas fa-chart-line fa-2x mb-2" style="color: #dc3545;"></i>
+                        <h3 class="mb-0">{{ mom_change }}%</h3>
+                        <p class="text-muted mb-0">Month-over-Month</p>
+                    </div>
+                </div>
+            </div>
+            <div class="progress mt-3" style="height: 15px; border-radius: 8px;">
+                <div class="progress-bar" 
+                     role="progressbar" 
+                     style="width: {{ budget_usage_percent }}%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" 
+                     aria-valuenow="{{ budget_usage_percent }}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100">
+                    {{ budget_usage_percent }}%
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <!-- FEATURE 2: Monthly Trend Analysis -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.1s;">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-chart-line me-2" style="color: #667eea;"></i>
+                        Monthly Trends
+                    </h5>
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="monthlyTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- FEATURE 3: Category Budget Distribution -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.2s;">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-chart-bar me-2" style="color: #667eea;"></i>
+                        Category Distribution
+                    </h5>
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="categoryDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <!-- FEATURE 4: Spending Alerts -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.3s;">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-bell me-2" style="color: #fd7e14;"></i>
+                        Spending Alerts
+                    </h5>
+                    {% if spending_alerts %}
+                        <div class="alerts-container">
+                            {% for alert in spending_alerts %}
+                                <div class="alert alert-{{ alert.type }} mb-2 animate__animated animate__fadeIn" style="animation-delay: {{ forloop.counter0 }}00ms;">
+                                    <i class="fas {{ alert.icon }} me-2"></i> {{ alert.message }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle fa-3x mb-3" style="color: #28a745;"></i>
+                            <p class="text-muted">No spending alerts for this month!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- FEATURE 5: Smart Budget Recommendations -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.4s;">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">
+                        <i class="fas fa-lightbulb me-2" style="color: #ffc107;"></i>
+                        Budget Recommendations
+                    </h5>
+                    {% if budget_recommendations %}
+                        <div class="recommendations-container">
+                            {% for recommendation in budget_recommendations %}
+                                <div class="card mb-3 border-0 shadow-sm recommendation-card animate__animated animate__fadeIn" style="animation-delay: {{ forloop.counter0 }}00ms;">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="rounded-circle p-2 me-3" style="background-color: rgba(102, 126, 234, 0.1);">
+                                                <i class="fas {{ recommendation.icon }} fa-lg" style="color: #667eea;"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ recommendation.message }}</h6>
+                                                {% if recommendation.type == 'suggestion' %}
+                                                    <p class="mb-0 small text-muted">Suggested amount: UGX {{ recommendation.suggested_amount|floatformat:0 }}</p>
+                                                {% elif recommendation.type == 'adjustment' %}
+                                                    <p class="mb-0 small text-muted">
+                                                        Current: UGX {{ recommendation.current_amount|floatformat:0 }} →
+                                                        Suggested: UGX {{ recommendation.suggested_amount|floatformat:0 }}
+                                                        ({{ recommendation.percent_diff }}% difference)
+                                                    </p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% if recommendation.type == 'suggestion' %}
+                                            <div class="text-end">
+                                                <a href="{% url 'budget_add' %}?category={{ recommendation.category.id }}&amount={{ recommendation.suggested_amount|floatformat:0 }}" class="btn btn-sm btn-primary">
+                                                    Create Budget
+                                                </a>
+                                            </div>
+                                        {% elif recommendation.type == 'adjustment' %}
+                                            <div class="text-end">
+                                                <a href="{% url 'budget_edit' recommendation.category.id %}?amount={{ recommendation.suggested_amount|floatformat:0 }}" class="btn btn-sm btn-primary">
+                                                    Adjust Budget
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-thumbs-up fa-3x mb-3" style="color: #28a745;"></i>
+                            <p class="text-muted">Your budgets look good! No recommendations for now.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4 animate__animated animate__fadeIn">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="month" class="form-label">
+                        <i class="fas fa-calendar-alt me-2"></i>Filter by Month
+                    </label>
+                    <input type="month" class="form-control" id="month" name="month" value="{{ selected_month|date:'Y-m' }}">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'budget_list' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-times me-2"></i>Clear
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if budgets %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for budget in budgets %}
+                <div class="col animate__animated animate__fadeInUp" style="animation-delay: {{ forloop.counter0 }}00ms">
+                    <div class="card h-100 shadow-sm hover-shadow" style="border-radius: 1rem; transition: all 0.3s ease;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1">
+                                        <i class="fas fa-tag me-2" style="color: #667eea;"></i>
+                                        {{ budget.category.name }}
+                                    </h5>
+                                    <p class="text-muted small mb-0">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        {{ budget.month|date:"F Y" }}
+                                    </p>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'budget_edit' budget.id %}">
+                                                <i class="fas fa-edit me-2"></i>Edit
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'budget_delete' budget.id %}">
+                                                <i class="fas fa-trash-alt me-2"></i>Delete
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'expense_dashboard' %}?category={{ budget.category.id }}&month={{ budget.month|date:'Y-m' }}">
+                                                <i class="fas fa-list me-2"></i>View Expenses
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="small text-muted">Spent</span>
+                                    <span class="small fw-bold {% if budget.spent_percentage > 100 %}text-danger{% elif budget.spent_percentage > 80 %}text-warning{% else %}text-success{% endif %}">
+                                        {{ budget.spent_percentage }}%
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 8px; border-radius: 4px;">
+                                    <div class="progress-bar {% if budget.spent_percentage > 100 %}bg-danger{% elif budget.spent_percentage > 80 %}bg-warning{% else %}bg-success{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ budget.spent_percentage }}%;" 
+                                         aria-valuenow="{{ budget.spent_percentage }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-2 text-center">
+                                <div class="col">
+                                    <div class="p-2 bg-light rounded hover-bg">
+                                        <small class="d-block text-muted">Budget</small>
+                                        <span class="fw-bold">UGX {{ budget.limit|floatformat:0 }}</span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="p-2 bg-light rounded hover-bg">
+                                        <small class="d-block text-muted">Spent</small>
+                                        <span class="fw-bold">UGX {{ budget.spent|floatformat:0 }}</span>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="p-2 bg-light rounded hover-bg">
+                                        <small class="d-block text-muted">Remaining</small>
+                                        <span class="fw-bold">UGX {{ budget.remaining|floatformat:0 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 animate__animated animate__fadeIn">
+            <i class="fas fa-wallet fa-3x mb-3" style="color: #667eea;"></i>
+            <h4 class="mb-3">No Budgets Found</h4>
+            <p class="text-muted mb-4">Start managing your expenses by creating your first budget.</p>
+            <a href="{% url 'budget_add' %}" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                <i class="fas fa-plus-circle me-2"></i>Create Budget
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .progress {
+        background-color: #e9ecef;
+    }
+    .progress-bar {
+        transition: width 0.6s ease;
+    }
+    .dropdown-item {
+        transition: all 0.3s ease;
+    }
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+        color: #667eea;
+    }
+    .hover-bg {
+        transition: all 0.3s ease;
+    }
+    .hover-bg:hover {
+        background-color: #f8f9fa !important;
+        transform: translateY(-2px);
+    }
+    .alert {
+        border: none;
+        border-radius: 1rem;
+    }
+    .alert-success {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+    .alert-danger {
+        background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        color: white;
+    }
+    .alert-warning {
+        background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+        color: white;
+    }
+    .alert-info {
+        background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        color: white;
+    }
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+    .stat-card {
+        background-color: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: all 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    .recommendation-card {
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+    }
+    .recommendation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Monthly Trend Analysis Chart
+        const trendData = {{ trend_data|safe }};
+        const ctx1 = document.getElementById('monthlyTrendChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: trendData.months,
+                datasets: [
+                    {
+                        label: 'Budget',
+                        data: trendData.budget,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Actual Spending',
+                        data: trendData.actual,
+                        borderColor: '#fd7e14',
+                        backgroundColor: 'rgba(253, 126, 20, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += 'UGX ' + context.parsed.y.toLocaleString();
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'UGX ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Category Budget Distribution Chart
+        const categoryData = {{ category_data|safe }};
+        const ctx2 = document.getElementById('categoryDistributionChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: categoryData.labels,
+                datasets: [
+                    {
+                        label: 'Budget',
+                        data: categoryData.budget_values,
+                        backgroundColor: categoryData.colors.map(color => color + '90'), // Add transparency
+                        borderColor: categoryData.colors,
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Spent',
+                        data: categoryData.spent_values,
+                        backgroundColor: categoryData.colors.map(color => color + '50'), // More transparency
+                        borderColor: categoryData.colors,
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += 'UGX ' + context.parsed.y.toLocaleString();
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'UGX ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<!-- Floating Action Button (FAB) -->
+<div class="fab-container">
+    <button class="fab-main-btn" id="fab-main-btn">
+        <i class="fas fa-plus"></i>
+    </button>
+    <div class="fab-actions" id="fab-actions">
+        <a href="{% url 'expense_add' %}" class="fab-action" title="Add Expense">
+            <i class="fas fa-receipt" style="color: #667eea; font-size: 1.2rem;"></i>
+        </a>
+        <a href="{% url 'budget_add' %}" class="fab-action" title="Set Budget">
+            <i class="fas fa-piggy-bank" style="color: #667eea; font-size: 1.2rem;"></i>
+        </a>
+        <a href="{% url 'reports_dashboard' %}" class="fab-action" title="Reports">
+            <i class="fas fa-chart-bar" style="color: #667eea; font-size: 1.2rem;"></i>
+        </a>
+        <a href="{% url 'profile' %}" class="fab-action" title="Settings">
+            <i class="fas fa-user-cog" style="color: #667eea; font-size: 1.2rem;"></i>
+        </a>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{% static 'css/dashboard_modern.css' %}">
+{% endblock %}  

@@ -1,0 +1,73 @@
+/* Color Palette */
+:root {
+    --primary: #2C3E50;
+    --accent: #E67E22;
+    --background: #ECF0F1;
+    --text: #222;
+    --white: #fff;
+}
+
+body {
+    background: var(--background);
+    color: var(--text);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    transition: background 0.3s, color 0.3s;
+}
+
+.navbar {
+    background: var(--primary);
+    color: var(--white);
+    box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+}
+
+.navbar a, .navbar-brand {
+    color: var(--white) !important;
+    transition: color 0.2s;
+}
+
+.btn-accent {
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+.btn-accent:hover {
+    background: #cf711f;
+    box-shadow: 0 2px 8px rgba(230,126,34,0.15);
+}
+
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 2px 16px rgba(44,62,80,0.08);
+    transition: box-shadow 0.3s;
+}
+.card:hover {
+    box-shadow: 0 4px 32px rgba(44,62,80,0.15);
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 1s ease;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: none; }
+}
+
+/* Dark Mode */
+body.dark-mode {
+    background: var(--primary);
+    color: var(--white);
+}
+body.dark-mode .navbar {
+    background: #1a232c;
+}
+body.dark-mode .card {
+    background: #22303a;
+    color: var(--white);
+}
+body.dark-mode .btn-accent {
+    background: var(--accent);
+    color: var(--white);
+} 

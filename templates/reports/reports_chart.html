@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Spending Charts</h2>
+<canvas id="spendingChart" width="400" height="200"></canvas>
+<div class="alert alert-info mt-3">Charts will appear here.</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// Example Chart.js usage
+const ctx = document.getElementById('spendingChart').getContext('2d');
+const spendingChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Food', 'Transport', 'Entertainment'],
+        datasets: [{
+            label: 'Spending',
+            data: [120, 90, 60],
+            backgroundColor: ['#2C3E50', '#E67E22', '#ECF0F1'],
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } }
+    }
+});
+</script>
+{% endblock %} 

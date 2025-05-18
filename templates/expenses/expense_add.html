@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center animate__animated animate__fadeIn" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="max-width: 500px; width: 100%; border-radius: 1.5rem;">
+        <h2 class="mb-4 text-center fw-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            <i class="fas fa-plus-circle me-2"></i>Add Expense
+        </h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate__animated animate__fadeInDown mb-3" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>{{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="post" class="animate__animated animate__fadeInUp">
+            {% csrf_token %}
+            <div class="form-floating mb-3 position-relative">
+                {{ form.category }}
+                <label for="id_category"><i class="fas fa-list me-2"></i>Category</label>
+                <a href="{% url 'category_add' %}" target="_blank" class="btn btn-link p-0 ms-2" style="font-size: 0.95rem; position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);">
+                    <i class="fas fa-plus"></i> Add new
+                </a>
+                {% if form.category.errors %}
+                    <div class="text-danger mt-1 small animate__animated animate__shakeX">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.category.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-floating mb-3">
+                {{ form.amount }}
+                <label for="id_amount"><i class="fas fa-coins me-2"></i>Amount (UGX)</label>
+                {% if form.amount.errors %}
+                    <div class="text-danger mt-1 small animate__animated animate__shakeX">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.amount.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-floating mb-3">
+                {{ form.date }}
+                <label for="id_date"><i class="fas fa-calendar-alt me-2"></i>Date</label>
+                {% if form.date.errors %}
+                    <div class="text-danger mt-1 small animate__animated animate__shakeX">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.date.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-floating mb-3">
+                {{ form.description }}
+                <label for="id_description"><i class="fas fa-align-left me-2"></i>Description</label>
+                {% if form.description.errors %}
+                    <div class="text-danger mt-1 small animate__animated animate__shakeX">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.description.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-check mb-3">
+                {{ form.is_recurring }}
+                <label class="form-check-label" for="id_is_recurring">
+                    <i class="fas fa-sync-alt me-2"></i>Recurring Expense
+                </label>
+                {% if form.is_recurring.errors %}
+                    <div class="text-danger mt-1 small animate__animated animate__shakeX">
+                        <i class="fas fa-exclamation-circle"></i> {{ form.is_recurring.errors|striptags }}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="{% url 'expense_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary px-4 animate__animated animate__pulse animate__infinite" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                    <i class="fas fa-plus-circle me-2"></i>Add Expense
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

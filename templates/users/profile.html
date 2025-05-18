@@ -1,0 +1,924 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 col-md-4">
+            <div class="card shadow-sm profile-card">
+                <div class="card-body p-3 text-center">
+                    <div class="profile-pic-container position-relative mx-auto mb-3">
+                        {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" 
+                                 class="rounded-circle profile-image"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ user.username }}&size=100" alt="Default Profile" 
+                                 class="rounded-circle profile-image"
+                                 style="width: 100px; height: 100px; object-fit: cover;">
+                        {% endif %}
+                        <button class="btn btn-sm btn-primary position-absolute camera-btn"
+                                data-bs-toggle="modal" data-bs-target="#profilePictureModal">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ user.get_full_name|default:"Joanita" }}</h5>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <a href="#" class="btn btn-sm btn-outline-primary" id="editBtn" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-secondary" id="securityBtn" data-bs-toggle="modal" data-bs-target="#securitySettingsModal">
+                            <i class="fas fa-shield-alt me-1"></i>Security
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Cards Container -->
+            <div class="sidebar-cards mt-3">
+                <!-- Quick Stats Card -->
+                <div class="card shadow-sm sidebar-card mb-3">
+                    <div class="card-body p-3">
+                        <h6 class="d-flex align-items-center mb-2">
+                            <i class="fas fa-tachometer-alt text-info me-2"></i>Quick Stats
+                        </h6>
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-muted">Savings</span>
+                            <span class="fw-bold">UGX 520K</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1 small">
+                            <span class="text-muted">Budget</span>
+                            <span class="fw-bold">UGX 550K</span>
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span class="text-muted">Goals</span>
+                            <span class="fw-bold">2 Active</span>
+        </div>
+                                </div>
+                                </div>
+                
+                <!-- Recent Activity Summary -->
+                <div class="card shadow-sm sidebar-card mb-3">
+                    <div class="card-body p-3">
+                        <h6 class="d-flex align-items-center mb-2">
+                            <i class="fas fa-history text-secondary me-2"></i>Recent Activity
+                        </h6>
+                        <div class="smaller">
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fas fa-circle text-success me-2" style="font-size: 6px;"></i>
+                                <span>Added expense (Today)</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-1">
+                                <i class="fas fa-circle text-primary me-2" style="font-size: 6px;"></i>
+                                <span>Updated budget (Yesterday)</span>
+                                </div>
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-circle text-info me-2" style="font-size: 6px;"></i>
+                                <span>Created goal (May 12)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Financial Tips Summary -->
+                <div class="card shadow-sm sidebar-card mb-3">
+                    <div class="card-body p-3">
+                        <h6 class="d-flex align-items-center mb-2">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>Today's Tip
+                        </h6>
+                        <p class="smaller mb-0">Track all expenses for one month to identify spending patterns.</p>
+                    </div>
+                </div>
+                
+                <!-- Family Sharing Compact -->
+                <div class="card shadow-sm sidebar-card">
+                    <div class="card-body p-3">
+                        <h6 class="d-flex align-items-center mb-2">
+                            <i class="fas fa-users text-purple me-2"></i>Family Sharing
+                        </h6>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="smaller">Share your finances</span>
+                            <button class="btn btn-xs btn-purple" data-bs-toggle="modal" data-bs-target="#addFamilyModal">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Main Dashboard -->
+        <div class="col-lg-9 col-md-8">
+            <div class="row mb-4">
+                <!-- Upcoming Bills & Reminders -->
+                <div class="col-md-4">
+                    {% include 'partials/upcoming_bills.html' %}
+                </div>
+
+                <!-- Financial Health Score -->
+                <div class="col-md-4">
+                    {% include 'partials/financial_health.html' %}
+                </div>
+
+                <!-- Smart Savings Goals -->
+                <div class="col-md-4">
+                    {% include 'partials/smart_savings.html' %}
+                </div>
+            </div>
+
+            <!-- User Data Section -->
+    <div class="card shadow-sm mb-4">
+                <div class="card-header bg-transparent">
+            <h5 class="mb-0">
+                        <i class="fas fa-user-shield me-2 text-primary"></i>User Information
+            </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Personal Details</h6>
+                            <div class="mb-3">
+                                <label class="small text-muted d-block">Username</label>
+                                <div class="fw-bold">{{ user.username }}</div>
+        </div>
+                                    <div class="mb-3">
+                                <label class="small text-muted d-block">Email</label>
+                                <div class="fw-bold">{{ user.email }}</div>
+                                        </div>
+                            <div class="mb-3">
+                                <label class="small text-muted d-block">Full Name</label>
+                                <div class="fw-bold">{{ user.get_full_name|default:"Not provided" }}</div>
+                                        </div>
+                                    </div>
+                        <div class="col-md-6">
+                            <h6 class="text-muted mb-2">Account Information</h6>
+                            <div class="mb-3">
+                                <label class="small text-muted d-block">Date Joined</label>
+                                <div class="fw-bold">{{ user.date_joined|date:"F d, Y" }}</div>
+                                    </div>
+                            <div class="mb-3">
+                                <label class="small text-muted d-block">Last Login</label>
+                                <div class="fw-bold">{{ user.last_login|date:"F d, Y H:i" }}</div>
+                                    </div>
+                            <div class="mb-3">
+                                <label class="small text-muted d-block">Account Status</label>
+                                <div class="fw-bold">
+                                    {% if user.is_active %}
+                                        <span class="text-success">Active</span>
+                                    {% else %}
+                                        <span class="text-danger">Inactive</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                    <div class="d-flex justify-content-end">
+                        <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="fas fa-edit me-1"></i>Edit Profile
+                    </button>
+                    </div>
+        </div>
+    </div>
+
+            <!-- Account Settings -->
+    <div class="card shadow-sm mb-4">
+                <div class="card-header bg-transparent">
+            <h5 class="mb-0">
+                        <i class="fas fa-cog me-2 text-secondary"></i>Account Settings
+            </h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Two-factor Authentication</h6>
+                                    <p class="small text-muted mb-0">Add an extra layer of security to your account</p>
+        </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="twoFaSwitch">
+                                            </div>
+                                        </div>
+                                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Email Notifications</h6>
+                                    <p class="small text-muted mb-0">Receive updates and alerts by email</p>
+                                    </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifSwitch" checked>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Dark Mode</h6>
+                                    <p class="small text-muted mb-0">Switch between light and dark themes</p>
+                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="darkModeSwitch">
+                </div>
+        </div>
+    </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center p-3 border rounded">
+                                <div>
+                                    <h6 class="mb-1">Data Privacy</h6>
+                                    <p class="small text-muted mb-0">Manage how your data is used</p>
+        </div>
+                                <button class="btn btn-sm btn-outline-secondary">Manage</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+{% include 'users/modals/profile_picture_modal.html' %}
+{% include 'users/modals/edit_profile_modal.html' %}
+{% include 'users/modals/security_settings_modal.html' %}
+{% include 'users/modals/add_income_modal.html' %}
+{% include 'users/modals/add_goal_modal.html' %}
+{% include 'users/modals/add_family_modal.html' %}
+{% include 'users/modals/budget_management_modal.html' %}
+
+<style>
+    /* Fix the empty space issue by setting appropriate height for containers */
+    html, body {
+        height: 100%;
+        background-color: #f8f9fa;
+    }
+
+    .container {
+        padding-bottom: 1rem !important;
+    }
+
+    /* Base card styling */
+    .card {
+        transition: all 0.3s ease-in-out;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+        border-radius: 0.5rem;
+        margin-bottom: 0 !important;
+    }
+
+    /* Card animation effects */
+    .dashboard-card {
+        transform: translateY(0);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        height: calc(100% - 1px); /* Fix height issues */
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    }
+
+    /* Profile section */
+    .profile-card {
+        position: relative;
+        height: auto !important;
+    }
+    
+    .profile-image {
+        border: 3px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    
+    .profile-image:hover {
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    }
+    
+    .profile-pic-container {
+        position: relative;
+        display: inline-block;
+    }
+    
+    /* Sidebar cards styling */
+    .sidebar-cards {
+        display: flex;
+        flex-direction: column;
+        height: calc(100% - 180px);
+        gap: 10px; /* Add consistent gap between sidebar cards */
+    }
+    
+    .sidebar-card {
+        transition: all 0.3s ease-in-out;
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+        margin-bottom: 10px !important; /* Ensure consistent spacing */
+    }
+    
+    .sidebar-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1) !important;
+    }
+    
+    .sidebar-card .card-body {
+        padding: 15px !important; /* Increase internal padding */
+    }
+    
+    .btn-xs {
+        padding: 2px 6px;
+        font-size: 0.75rem;
+        line-height: 1.5;
+    }
+    
+    .smaller {
+        font-size: 0.75rem;
+    }
+    
+    /* Button styling */
+    .btn {
+        border-radius: 4px;
+        font-weight: 500;
+        padding: 0.375rem 0.75rem;
+        transition: all 0.2s;
+    }
+    
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn-purple {
+        background-color: #7755cc;
+        color: white;
+    }
+    
+    .btn-purple:hover {
+        background-color: #6644bb;
+        color: white;
+    }
+    
+    .text-purple {
+        color: #7755cc;
+    }
+    
+    /* Progress bar animations */
+    .progress {
+        background-color: rgba(0,0,0,0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        border-radius: 10px;
+        animation: progress-fill 1.2s ease-in-out forwards;
+    }
+    
+    @keyframes progress-fill {
+        from { width: 0%; }
+    }
+    
+    /* Card entrance animations */
+    .fade-in-card {
+        animation: fadeIn 0.6s ease-in-out forwards;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Icon animations */
+    .pulse-icon {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.08); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Number counter animation */
+    .counter-number {
+        font-weight: bold;
+        animation: counter 2s ease-out forwards;
+    }
+    
+    @keyframes counter {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    /* Health score ring */
+    .health-score-ring {
+        width: 100px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        margin: 0 auto;
+        background: conic-gradient(
+            from 0deg,
+            #38a169 calc(100 * 1%),
+            #e2e8f0 0
+        );
+        position: relative;
+        animation: rotate-in 1.2s ease-out forwards;
+    }
+    
+    .health-score-ring::before {
+        content: '';
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: white;
+    }
+    
+    .health-score-value {
+        position: relative;
+        font-weight: bold;
+        font-size: 1.75rem;
+    }
+    
+    .health-score-label {
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-top: 5px;
+    }
+    
+    @keyframes rotate-in {
+        from { transform: rotate(-90deg); opacity: 0; }
+        to { transform: rotate(0); opacity: 1; }
+    }
+    
+    /* Camera button */
+    .camera-btn {
+        width: 25px;
+        height: 25px;
+        padding: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50% !important;
+        transform: translate(25%, 25%);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: all 0.3s;
+    }
+    
+    .camera-btn:hover {
+        transform: translate(25%, 25%) scale(1.1);
+    }
+    
+    /* Table styling */
+    .fade-in-row {
+        animation: fadeIn 0.5s ease-in-out forwards;
+    }
+    
+    .table-responsive {
+        overflow-x: auto;
+    }
+    
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table th, .table td {
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+    }
+    
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+    }
+    
+    /* Add goal card */
+    .add-goal-card {
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .add-goal-card:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .add-goal-card .rounded-circle {
+        transition: all 0.3s;
+    }
+    
+    .add-goal-card:hover .rounded-circle {
+        background-color: #e9ecef !important;
+        transform: scale(1.1);
+    }
+    
+    /* Resource card styling */
+    .resource-card {
+        transition: all 0.3s;
+    }
+    
+    .resource-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+    }
+    
+    .resource-card .btn-link {
+        color: #7755cc;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    
+    .resource-card .btn-link:hover {
+        color: #6644bb;
+        text-decoration: underline;
+    }
+    
+    .resource-card .rounded-circle {
+        transition: all 0.3s;
+    }
+    
+    .resource-card:hover .rounded-circle {
+        transform: scale(1.1);
+    }
+</style>
+
+<!-- Animation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Comprehensive financial data object - this would normally come from your backend
+    const financialData = {
+        savings: {
+            current: 520000,
+            target: 1000000
+        },
+        income: {
+            total: 700000,
+            sources: [
+                {name: 'Salary', amount: 600000, frequency: 'monthly', isActive: true},
+                {name: 'Freelance', amount: 80000, frequency: 'monthly', isActive: true},
+                {name: 'Investments', amount: 20000, frequency: 'quarterly', isActive: true}
+            ]
+        },
+        budget: {
+            total: 550000,
+            spent: 11000,
+            categories: [
+                {name: 'Food', amount: 150000, spent: 5000},
+                {name: 'Transportation', amount: 100000, spent: 3000},
+                {name: 'Utilities', amount: 80000, spent: 3000},
+                {name: 'Entertainment', amount: 50000, spent: 0},
+                {name: 'Shopping', amount: 70000, spent: 0},
+                {name: 'Healthcare', amount: 100000, spent: 0}
+            ]
+        },
+        expenses: [
+            {date: 'May 15, 2023', description: 'Grocery Shopping', category: 'Food', amount: 5000},
+            {date: 'May 12, 2023', description: 'Internet Bill', category: 'Utilities', amount: 3000},
+            {date: 'May 10, 2023', description: 'Transport', category: 'Transportation', amount: 3000}
+        ],
+        goals: [
+            {name: 'New Car', target: 5000000, current: 1750000, active: true},
+            {name: 'Emergency Fund', target: 3000000, current: 1860000, active: true},
+            {name: 'Vacation', target: 1500000, current: 0, active: false}
+        ],
+        activity: [
+            {action: 'Added expense', date: 'Today', category: 'success'},
+            {action: 'Updated budget', date: 'Yesterday', category: 'primary'},
+            {action: 'Created goal', date: 'May 12', category: 'info'}
+        ],
+        health: {
+            score: 90,
+            rating: 'Excellent',
+            factors: [
+                {name: 'Savings Rate', score: 8, max: 10},
+                {name: 'Budget Adherence', score: 9, max: 10}
+            ]
+        },
+        insights: {
+            topCategory: 'Food',
+            monthlySpend: 11000,
+            monthlyChange: 0.0
+        },
+        tips: [
+            'Track all expenses for one month to identify spending patterns.',
+            'Set up automatic transfers to your savings account on payday.',
+            'Review and cancel unused subscriptions to save money.',
+            'Create an emergency fund with 3-6 months of expenses.'
+        ],
+        resources: [
+            {title: 'Budgeting Basics', type: 'Article', icon: 'book', color: 'primary', description: 'Learn the fundamentals of creating and maintaining a personal budget.'},
+            {title: 'Investment Strategies', type: 'Video', icon: 'video', color: 'success', description: 'Discover different investment options to grow your wealth over time.'},
+            {title: 'Debt Management', type: 'Calculator', icon: 'calculator', color: 'warning', description: 'Effective strategies for managing and reducing personal debt.'}
+        ]
+    };
+    
+    // Expose financial data to window for other scripts to access
+    window.financialData = financialData;
+    
+    // Expose showToast function globally
+    window.showToast = showToast;
+    
+    // Initialize user profile from localStorage
+    function initializeUserProfile() {
+        // Get profile data from localStorage
+        const firstName = localStorage.getItem('firstName') || '';
+        const lastName = localStorage.getItem('lastName') || '';
+        const username = localStorage.getItem('username') || 'Joanita';
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        
+        // Update profile display name
+        const profileName = document.querySelector('.profile-card h5.fw-bold');
+        if (profileName) {
+            const fullName = `${firstName} ${lastName}`.trim();
+            profileName.textContent = fullName || username;
+        }
+        
+        // Set dark mode if enabled
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+        }
+    }
+    
+    // Update Monthly Savings
+    function updateSavings() {
+        const current = financialData.savings.current;
+        const target = financialData.savings.target;
+        
+        // Format currency values
+        document.querySelector('.savings-current').textContent = formatCurrency(current);
+        document.querySelector('.savings-target').textContent = formatCurrency(target);
+        
+        // Calculate progress percentage
+        let percentage = 0;
+        if (target > 0) {
+            percentage = Math.min(100, (current / target) * 100).toFixed(1);
+        }
+        
+        // Update percentage display and progress bar
+        document.querySelector('.savings-progress').textContent = `${percentage}%`;
+        document.querySelector('.savings-progress-bar').style.width = `${percentage}%`;
+        
+        // Animate progress bar
+        animateProgressBars();
+    }
+    
+    // Update Total Income
+    function updateIncome() {
+        const total = financialData.income.total;
+        animateCounter('.income-total', total);
+        
+        // Update income sources if applicable
+        if (financialData.income.sources && financialData.income.sources.length > 0) {
+            // Logic to update income sources display if needed
+        }
+    }
+    
+    // Update Budget Overview
+    function updateBudget() {
+        const total = financialData.budget.total;
+        const spent = financialData.budget.spent;
+        
+        // Format currency values
+        document.querySelector('.budget-total').textContent = formatCurrency(total);
+        document.querySelector('.budget-spent').textContent = formatCurrency(spent);
+        
+        // Calculate utilization percentage
+        let percentage = 0;
+        if (total > 0) {
+            percentage = Math.min(100, (spent / total) * 100).toFixed(1);
+        }
+        
+        // Update percentage display and progress bar
+        document.querySelector('.budget-percentage').textContent = `${percentage}%`;
+        document.querySelector('.budget-progress-bar').style.width = `${percentage}%`;
+        
+        // Set appropriate color based on percentage
+        const progressBar = document.querySelector('.budget-progress-bar');
+        if (percentage > 90) {
+            progressBar.classList.remove('bg-info');
+            progressBar.classList.add('bg-danger');
+        } else if (percentage > 70) {
+            progressBar.classList.remove('bg-info');
+            progressBar.classList.add('bg-warning');
+        }
+    }
+    
+    // Update Spending Insights
+    function updateInsights() {
+        const insights = financialData.insights;
+        
+        // Update top category
+        const topCategoryElement = document.querySelector('.card-title:contains("Spending Insights")').closest('.card').querySelector('.col-6:first-child .fw-bold');
+        if (topCategoryElement) {
+            topCategoryElement.textContent = insights.topCategory;
+        }
+        
+        // Update monthly spend
+        const monthlySpendElement = document.querySelector('.card-title:contains("Spending Insights")').closest('.card').querySelector('.col-6:nth-child(2) .fw-bold');
+        if (monthlySpendElement) {
+            monthlySpendElement.textContent = formatCurrency(insights.monthlySpend);
+        }
+        
+        // Update monthly change
+        const changeElement = document.querySelector('.card-title:contains("Spending Insights")').closest('.card').querySelector('.d-flex.justify-content-between .fw-bold');
+        if (changeElement) {
+            const change = insights.monthlyChange;
+            changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+            changeElement.className = change >= 0 ? 'fw-bold text-danger' : 'fw-bold text-success';
+        }
+    }
+    
+    // Update Financial Health
+    function updateFinancialHealth() {
+        const health = financialData.health;
+        
+        // Update health score
+        const scoreElement = document.querySelector('.health-score-value');
+        if (scoreElement) {
+            scoreElement.textContent = health.score;
+            
+            // Update conic gradient for score ring
+            const scoreRing = document.querySelector('.health-score-ring');
+            if (scoreRing) {
+                scoreRing.style.background = `conic-gradient(
+                    from 0deg,
+                    #38a169 calc(${health.score} * 1%),
+                    #e2e8f0 0
+                )`;
+            }
+        }
+        
+        // Update health rating
+        const ratingElement = document.querySelector('.health-score-label');
+        if (ratingElement) {
+            ratingElement.textContent = health.rating;
+            
+            // Set appropriate color based on rating
+            if (health.score >= 80) {
+                ratingElement.className = 'health-score-label text-success';
+            } else if (health.score >= 60) {
+                ratingElement.className = 'health-score-label text-warning';
+            } else {
+                ratingElement.className = 'health-score-label text-danger';
+            }
+        }
+        
+        // Update health factors
+        const factorsContainer = document.querySelector('.health-factors-list');
+        if (factorsContainer && health.factors) {
+            // Clear existing factors
+            factorsContainer.innerHTML = '';
+            
+            // Add each factor
+            health.factors.forEach(factor => {
+                const percentage = (factor.score / factor.max) * 100;
+                const colorClass = percentage >= 80 ? 'bg-success' : percentage >= 60 ? 'bg-warning' : 'bg-danger';
+                
+                const factorHTML = `
+                    <div class="mb-2 fade-in-card">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small>${factor.name}</small>
+                            <small class="text-muted">${factor.score}/${factor.max}</small>
+                        </div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar ${colorClass} progress-animate" role="progressbar" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+                
+                factorsContainer.innerHTML += factorHTML;
+            });
+        }
+    }
+    
+    // Update Financial Goals
+    function updateFinancialGoals() {
+        const goals = financialData.goals.filter(goal => goal.active);
+        const goalsContainer = document.querySelector('.goals-scroll');
+        
+        if (goalsContainer && goals.length > 0) {
+            // Clear existing goals
+            goalsContainer.innerHTML = '';
+            
+            // Add each active goal
+            goals.forEach(goal => {
+                const progress = Math.min(100, (goal.current / goal.target) * 100).toFixed(0);
+                
+                const goalHTML = `
+                    <div class="mb-3 fade-in-card">
+                        <h6 class="card-subtitle mb-2">${goal.name}</h6>
+                        <div class="mb-2">
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-primary progress-animate" role="progressbar" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-1">
+                                <small class="text-muted">Progress</small>
+                                <small class="fw-bold">${progress}%</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                goalsContainer.innerHTML += goalHTML;
+            });
+        }
+    }
+    
+    // Update Quick Stats in sidebar
+    function updateQuickStats() {
+        // Update Savings stat
+        const savingsStat = document.querySelector('.sidebar-card:first-child .d-flex:nth-child(2) .fw-bold');
+        if (savingsStat) {
+            savingsStat.textContent = formatCurrencyShort(financialData.savings.current);
+        }
+        
+        // Update Budget stat
+        const budgetStat = document.querySelector('.sidebar-card:first-child .d-flex:nth-child(3) .fw-bold');
+        if (budgetStat) {
+            budgetStat.textContent = formatCurrencyShort(financialData.budget.total);
+        }
+        
+        // Update Goals stat
+        const goalsStat = document.querySelector('.sidebar-card:first-child .d-flex:nth-child(4) .fw-bold');
+        if (goalsStat) {
+            const activeGoals = financialData.goals.filter(goal => goal.active).length;
+            goalsStat.textContent = `${activeGoals} Active`;
+        }
+    }
+    
+    // Update Recent Activity
+    function updateRecentActivity() {
+        const activities = financialData.activity;
+        const activityContainer = document.querySelector('.sidebar-card:nth-child(2) .smaller');
+        
+        if (activityContainer && activities.length > 0) {
+            // Clear existing activities
+            activityContainer.innerHTML = '';
+            
+            // Add each activity (limit to 3 for space)
+            activities.slice(0, 3).forEach(activity => {
+                const activityHTML = `
+                    <div class="d-flex align-items-center mb-1">
+                        <i class="fas fa-circle text-${activity.category} me-2" style="font-size: 6px;"></i>
+                        <span>${activity.action} (${activity.date})</span>
+                    </div>
+                `;
+                
+                activityContainer.innerHTML += activityHTML;
+            });
+        }
+    }
+    
+    // Update Financial Tip
+    function updateFinancialTip() {
+        const tipElement = document.querySelector('.sidebar-card:nth-child(3) .smaller');
+        if (tipElement && financialData.tips.length > 0) {
+            // Randomly select a tip
+            const randomIndex = Math.floor(Math.random() * financialData.tips.length);
+            tipElement.textContent = financialData.tips[randomIndex];
+        }
+    }
+    
+    // Update Expense Tracker
+    function updateExpenseTracker() {
+        const expenses = financialData.expenses;
+        const expenseTableBody = document.querySelector('.table-hover tbody');
+        
+        if (expenseTableBody && expenses.length > 0) {
+            // Clear existing expenses
+            expenseTableBody.innerHTML = '';
+            
+            // Add each expense
+            expenses.forEach((expense, index) => {
+                const badgeClass = getBadgeClassForCategory(expense.category);
+                
+                const expenseHTML = `
+                    <tr>
+                        <td>${expense.date}</td>
+                        <td>${expense.description}</td>
+                        <td>${expense.category}</td>
+                        <td>${formatCurrency(expense.amount)}</td>
+                    </tr>
+                `;
+                
+                expenseTableBody.innerHTML += expenseHTML;
+            });
+        }
+    }
+});
+</script>
+{% endblock %}

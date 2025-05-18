@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow p-5 mx-auto" style="max-width: 600px;">
+        <h2 class="mb-4 text-center fw-bold">
+            <i class="fas fa-wallet me-2"></i>Add Budget
+            <a href="{% url 'category_add' %}" target="_blank" class="btn btn-link p-0 ms-2 float-end" style="font-size: 1rem;">
+                <i class="fas fa-plus"></i> Add new
+            </a>
+        </h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate__animated animate__fadeInDown mb-3" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>{{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="id_category" class="form-label fw-semibold">Category</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                    <div class="text-danger small mt-1">{{ form.category.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label for="id_limit" class="form-label fw-semibold">Budget Limit (UGX)</label>
+                {{ form.limit }}
+                {% if form.limit.errors %}
+                    <div class="text-danger small mt-1">{{ form.limit.errors|striptags }}</div>
+                {% endif %}
+                <div class="form-text text-muted mt-1">
+                    Enter the maximum amount you want to spend in this category
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="id_month" class="form-label fw-semibold">Month</label>
+                {{ form.month }}
+                {% if form.month.errors %}
+                    <div class="text-danger small mt-1">{{ form.month.errors|striptags }}</div>
+                {% endif %}
+                <div class="form-text text-muted mt-1">
+                    Select the month for this budget
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="id_description" class="form-label fw-semibold">Description</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <div class="text-danger small mt-1">{{ form.description.errors|striptags }}</div>
+                {% endif %}
+                <div class="form-text text-muted mt-1">
+                    (Optional) Add notes or details about this budget
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="id_color" class="form-label fw-semibold">Color/Label</label>
+                <div class="d-flex align-items-center gap-2">
+                    {{ form.color }}
+                    <span class="form-text text-muted">Pick a color for this budget (optional)</span>
+                </div>
+                {% if form.color.errors %}
+                    <div class="text-danger small mt-1">{{ form.color.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label for="id_recurrence" class="form-label fw-semibold">Recurrence</label>
+                {{ form.recurrence }}
+                {% if form.recurrence.errors %}
+                    <div class="text-danger small mt-1">{{ form.recurrence.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="form-check mb-3">
+                {{ form.notifications }}
+                <label class="form-check-label" for="id_notifications">Enable Notifications</label>
+                {% if form.notifications.errors %}
+                    <div class="text-danger small mt-1">{{ form.notifications.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="form-check mb-4">
+                {{ form.active }}
+                <label class="form-check-label" for="id_active">Active</label>
+                {% if form.active.errors %}
+                    <div class="text-danger small mt-1">{{ form.active.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="{% url 'budget_list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-plus-circle me-2"></i>Add Budget
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        color: #667eea;
+    }
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+    .form-control {
+        transition: all 0.3s ease;
+    }
+    .form-control:hover {
+        border-color: #667eea;
+    }
+    .btn-link {
+        color: #667eea;
+        transition: all 0.3s ease;
+    }
+    .btn-link:hover {
+        color: #764ba2;
+        transform: scale(1.1);
+    }
+    .form-text {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+    .alert {
+        border: none;
+        border-radius: 1rem;
+    }
+    .alert-success {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+    .alert-danger {
+        background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        color: white;
+    }
+</style>
+{% endblock %}

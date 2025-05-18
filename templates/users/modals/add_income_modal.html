@@ -1,0 +1,234 @@
+<!-- Add Income Modal -->
+<div class="modal fade" id="addIncomeModal" tabindex="-1" aria-labelledby="addIncomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addIncomeModalLabel">
+                    <i class="fas fa-money-bill-wave me-2 text-success"></i>Add Income Source
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Success message (hidden by default) -->
+                <div id="incomeSuccessMessage" class="alert alert-success text-center mb-3 d-none">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span id="successMessageText">Income source added successfully!</span>
+                </div>
+                
+                <form id="addIncomeForm">
+                    <div class="mb-3">
+                        <label for="incomeName" class="form-label">Source Name</label>
+                        <input type="text" class="form-control" id="incomeName" placeholder="e.g., Salary, Freelance, Investments" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeAmount" class="form-label">Amount (UGX)</label>
+                        <input type="number" class="form-control" id="incomeAmount" min="0" step="1000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="incomeFrequency" class="form-label">Frequency</label>
+                        <select class="form-select" id="incomeFrequency" required>
+                            <option value="">Select frequency</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="biweekly">Bi-weekly</option>
+                            <option value="quarterly">Quarterly</option>
+                            <option value="annually">Annually</option>
+                            <option value="one-time">One-time</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="incomeActive" checked>
+                        <label class="form-check-label" for="incomeActive">
+                            This income source is currently active
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="saveIncomeBtn">
+                    <i class="fas fa-plus me-1"></i>Add Income Source
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener to the save button
+    const saveIncomeBtn = document.getElementById('saveIncomeBtn');
+    
+    if (saveIncomeBtn) {
+        saveIncomeBtn.addEventListener('click', function() {
+            try {
+                // Get form values
+                const name = document.getElementById('incomeName').value;
+                const amountStr = document.getElementById('incomeAmount').value;
+                const frequency = document.getElementById('incomeFrequency').value;
+                const isActive = document.getElementById('incomeActive').checked;
+                
+                // Validate form
+                if (!name || !amountStr || !frequency) {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Please fill out all required fields', 'warning');
+                    } else {
+                        alert('Please fill out all required fields');
+                    }
+                    return;
+                }
+                
+                // Parse amount to number
+                const amount = parseInt(amountStr, 10);
+                
+                if (isNaN(amount) || amount < 0) {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Please enter a valid amount', 'warning');
+                    } else {
+                        alert('Please enter a valid amount');
+                    }
+                    return;
+                }
+                
+                // Show loading state
+                saveIncomeBtn.disabled = true;
+                saveIncomeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+                
+                // Create income source object
+                const incomeSource = {
+                    name: name,
+                    amount: amount,
+                    frequency: frequency,
+                    is_active: isActive
+                };
+                
+                // Create a new IncomeSource record in the database
+                const csrftoken = window.csrfToken || document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+                
+                fetch('/api/income-source/add/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    },
+                    body: JSON.stringify(incomeSource)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Show success message in the modal
+                    const successMsg = document.getElementById('incomeSuccessMessage');
+                    const successText = document.getElementById('successMessageText');
+                    
+                    if (successMsg && successText) {
+                        successText.textContent = `Added ${name} income: ${amount.toLocaleString()} UGX`;
+                        successMsg.classList.remove('d-none');
+                        
+                        // Hide the form
+                        document.getElementById('addIncomeForm').style.display = 'none';
+                        
+                        // Change footer buttons
+                        saveIncomeBtn.style.display = 'none';
+                        document.querySelector('.modal-footer .btn-secondary').textContent = 'Close';
+                        
+                        // Set a timer to close the modal after 2 seconds
+                        setTimeout(function() {
+                            try {
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('addIncomeModal'));
+                                if (modal) {
+                                    modal.hide();
+                                    
+                                    // Reset everything after the modal is hidden
+                                    setTimeout(function() {
+                                        document.getElementById('addIncomeForm').reset();
+                                        document.getElementById('addIncomeForm').style.display = 'block';
+                                        successMsg.classList.add('d-none');
+                                        saveIncomeBtn.disabled = false;
+                                        saveIncomeBtn.innerHTML = '<i class="fas fa-plus me-1"></i>Add Income Source';
+                                        saveIncomeBtn.style.display = 'block';
+                                        document.querySelector('.modal-footer .btn-secondary').textContent = 'Cancel';
+                                    }, 500);
+                                }
+                            } catch (e) {
+                                console.log('Could not close modal automatically', e);
+                            }
+                        }, 2000);
+                    }
+                    
+                    // Always fetch fresh financial data with timestamp to prevent caching
+                    if (typeof window.fetchFinancialData === 'function') {
+                        console.log('Fetching fresh financial data after adding income source');
+                        window.fetchFinancialData();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving income source:', error);
+                    saveIncomeBtn.disabled = false;
+                    saveIncomeBtn.innerHTML = '<i class="fas fa-plus me-1"></i>Add Income Source';
+                    
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Failed to save income source. Please try again.', 'error');
+                    } else {
+                        alert('Failed to save income source. Please try again.');
+                    }
+                });
+            } catch (error) {
+                console.error('Error adding income source:', error);
+                saveIncomeBtn.disabled = false;
+                saveIncomeBtn.innerHTML = '<i class="fas fa-plus me-1"></i>Add Income Source';
+                
+                if (typeof window.showToast === 'function') {
+                    window.showToast('An error occurred. Please try again.', 'error');
+                } else {
+                    alert('An error occurred. Please try again.');
+                }
+            }
+        });
+    }
+    
+    // Initialize the modal if needed
+    const addIncomeModal = document.getElementById('addIncomeModal');
+    if (addIncomeModal) {
+        addIncomeModal.addEventListener('shown.bs.modal', function() {
+            // Reset any previous state
+            const successMsg = document.getElementById('incomeSuccessMessage');
+            if (successMsg) {
+                successMsg.classList.add('d-none');
+            }
+            
+            const form = document.getElementById('addIncomeForm');
+            if (form) {
+                form.style.display = 'block';
+                form.reset();
+            }
+            
+            const saveBtn = document.getElementById('saveIncomeBtn');
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-plus me-1"></i>Add Income Source';
+                saveBtn.style.display = 'block';
+            }
+            
+            const cancelBtn = document.querySelector('.modal-footer .btn-secondary');
+            if (cancelBtn) {
+                cancelBtn.textContent = 'Cancel';
+            }
+            
+            // Focus on the first input field when modal is shown
+            document.getElementById('incomeName')?.focus();
+            
+            // Pre-populate form fields with default values if needed
+            document.getElementById('incomeAmount').value = "";
+            document.getElementById('incomeFrequency').value = "monthly";
+            document.getElementById('incomeActive').checked = true;
+        });
+    }
+});
+</script> 

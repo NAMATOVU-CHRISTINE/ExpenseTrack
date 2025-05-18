@@ -1,0 +1,53 @@
+<!-- Add Finance Goal Modal -->
+<div class="modal fade" id="addGoalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-bullseye me-2"></i>Add Finance Goal
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'add_finance_goal' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="id_title" class="form-label">Goal Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger small">{{ form.title.errors|striptags }}</div>
+                        {% endif %}
+                        <small class="text-muted">e.g., New Car, Vacation, Emergency Fund</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_target_amount" class="form-label">Target Amount (UGX)</label>
+                        {{ form.target_amount }}
+                        {% if form.target_amount.errors %}
+                            <div class="text-danger small">{{ form.target_amount.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_current_amount" class="form-label">Current Amount (UGX)</label>
+                        {{ form.current_amount }}
+                        {% if form.current_amount.errors %}
+                            <div class="text-danger small">{{ form.current_amount.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_deadline" class="form-label">Target Date</label>
+                        {{ form.deadline }}
+                        {% if form.deadline.errors %}
+                            <div class="text-danger small">{{ form.deadline.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus-circle me-2"></i>Add Goal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> 

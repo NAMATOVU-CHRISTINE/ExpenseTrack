@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            <i class="fas fa-chart-pie me-2"></i>Recurring Expense Dashboard
+        </h2>
+        <div>
+            <a href="{% url 'recurring_expense_list' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-list me-2"></i>View All
+            </a>
+            <a href="{% url 'recurring_expense_add' %}" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                <i class="fas fa-plus-circle me-2"></i>Add Recurring
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn">
+                <div class="card-body text-center">
+                    <div class="display-4 fw-bold mb-2">UGX {{ total_recurring|floatformat:0 }}</div>
+                    <p class="lead text-muted mb-0">Monthly Recurring Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.1s;">
+                <div class="card-body text-center">
+                    <div class="display-4 fw-bold mb-2">{{ recurring_count }}</div>
+                    <p class="lead text-muted mb-0">Active Recurring Expenses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.2s;">
+                <div class="card-body text-center">
+                    <div class="display-4 fw-bold mb-2">{{ expenses_by_frequency|length }}</div>
+                    <p class="lead text-muted mb-0">Different Frequencies</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <!-- Expenses by Category Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.3s;">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Expenses by Category</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 250px;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses by Frequency Chart -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.4s;">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Expenses by Frequency</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 250px;">
+                        <canvas id="frequencyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Breakdown -->
+    <div class="row">
+        <!-- Category Breakdown -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.5s;">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Category Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    {% if expenses_by_category %}
+                        {% for category, data in expenses_by_category.items %}
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="badge me-2" style="background-color: {{ category.color }}">
+                                            <i class="fas {{ category.icon }} me-1"></i>
+                                            {{ category.name }}
+                                        </span>
+                                        <span class="fw-bold">UGX {{ data.total|floatformat:0 }}</span>
+                                    </div>
+                                    <span class="badge bg-secondary">{{ data.expenses.count }} expense(s)</span>
+                                </div>
+                                <div class="small">
+                                    {% for expense in data.expenses %}
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>{{ expense.description }}</span>
+                                            <span>UGX {{ expense.amount|floatformat:0 }} ({{ expense.get_frequency_display }})</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center my-4 text-muted">No recurring expenses found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Frequency Breakdown -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeIn" style="animation-delay: 0.6s;">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Frequency Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    {% if expenses_by_frequency %}
+                        {% for freq, data in expenses_by_frequency.items %}
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <span class="badge me-2 bg-primary">{{ data.display }}</span>
+                                        <span class="fw-bold">UGX {{ data.total|floatformat:0 }}</span>
+                                    </div>
+                                    <span class="badge bg-secondary">{{ data.expenses.count }} expense(s)</span>
+                                </div>
+                                <div class="small">
+                                    {% for expense in data.expenses %}
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span>{{ expense.description }}</span>
+                                            <span>UGX {{ expense.amount|floatformat:0 }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center my-4 text-muted">No recurring expenses found</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips and Suggestions -->
+    <div class="card shadow-sm mb-4 animate__animated animate__fadeIn" style="animation-delay: 0.7s;">
+        <div class="card-header bg-white">
+            <h5 class="mb-0"><i class="fas fa-lightbulb me-2 text-warning"></i>Tips and Suggestions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary"><i class="fas fa-calendar-alt me-2"></i>Schedule Wisely</h6>
+                            <p class="card-text small">Set your recurring expenses to align with your income schedule, such as aligning bill payments with paydays.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary"><i class="fas fa-search-dollar me-2"></i>Review Regularly</h6>
+                            <p class="card-text small">Review your recurring expenses quarterly to identify services you no longer use or could replace with cheaper alternatives.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h6 class="card-title text-primary"><i class="fas fa-piggy-bank me-2"></i>Budget Buffer</h6>
+                            <p class="card-text small">Create a small buffer in your budget for potential price increases in your recurring expenses.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Category Chart
+        const categoryData = {
+            labels: [{% for category, data in expenses_by_category.items %}'{{ category.name }}',{% endfor %}],
+            datasets: [{
+                data: [{% for category, data in expenses_by_category.items %}{{ data.total }},{% endfor %}],
+                backgroundColor: [{% for category, data in expenses_by_category.items %}'{{ category.color }}',{% endfor %}],
+                borderWidth: 1
+            }]
+        };
+
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'pie',
+            data: categoryData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const value = context.parsed || 0;
+                                label += 'UGX ' + value.toLocaleString();
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Frequency Chart
+        const frequencyData = {
+            labels: [{% for freq, data in expenses_by_frequency.items %}'{{ data.display }}',{% endfor %}],
+            datasets: [{
+                label: 'Amount',
+                data: [{% for freq, data in expenses_by_frequency.items %}{{ data.total }},{% endfor %}],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(255, 205, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(201, 203, 207, 0.7)'
+                ],
+                borderColor: [
+                    'rgb(54, 162, 235)',
+                    'rgb(255, 99, 132)',
+                    'rgb(255, 205, 86)',
+                    'rgb(75, 192, 192)',
+                    'rgb(153, 102, 255)',
+                    'rgb(255, 159, 64)',
+                    'rgb(201, 203, 207)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const frequencyCtx = document.getElementById('frequencyChart').getContext('2d');
+        new Chart(frequencyCtx, {
+            type: 'bar',
+            data: frequencyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const value = context.parsed.y || 0;
+                                label += 'UGX ' + value.toLocaleString();
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'UGX ' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

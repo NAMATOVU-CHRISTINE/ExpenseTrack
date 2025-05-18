@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Expense Tracker</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: rotate 30s linear infinite;
+        }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .signup-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 450px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+        }
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .signup-header h1 {
+            color: #2d3748;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .signup-header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        .form-control:focus {
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+            background: #fff;
+        }
+        .btn-signup {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-signup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        .btn-signup:hover::before {
+            left: 100%;
+        }
+        .btn-signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .login-link a:hover {
+            color: #764ba2;
+            text-decoration: none;
+        }
+        .error-message {
+            color: #e53e3e;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .error-message i {
+            font-size: 1rem;
+        }
+        .form-floating {
+            margin-bottom: 1rem;
+        }
+        .form-floating label {
+            padding-left: 1rem;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #718096;
+            z-index: 10;
+        }
+        .password-toggle:hover {
+            color: #667eea;
+        }
+        .password-strength {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+        }
+        .strength-weak { background-color: #e53e3e; width: 33.33%; }
+        .strength-medium { background-color: #ecc94b; width: 66.66%; }
+        .strength-strong { background-color: #48bb78; width: 100%; }
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        .requirement i {
+            font-size: 0.75rem;
+        }
+        .requirement.met {
+            color: #48bb78;
+        }
+        .requirement.not-met {
+            color: #e53e3e;
+        }
+        .requirement.pending {
+            color: #718096;
+        }
+        .username-availability {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .username-available {
+            color: #48bb78;
+        }
+        .username-unavailable {
+            color: #e53e3e;
+        }
+        .username-checking {
+            color: #ecc94b;
+        }
+        .loading-spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="signup-container animate__animated animate__fadeIn">
+                    <div class="signup-header animate__animated animate__fadeInDown">
+                        <h1>Create Account</h1>
+                        <p>Join us to manage your finances</p>
+                    </div>
+                    <form method="post" class="animate__animated animate__fadeInUp">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger animate__animated animate__shakeX">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Please correct the errors below.
+                            </div>
+                        {% endif %}
+                        <div class="form-floating mb-3">
+                            <input type="text" name="username" id="id_username" class="form-control" placeholder="Username" required>
+                            <label for="id_username"><i class="fas fa-user me-2"></i>Username</label>
+                            <div class="username-availability" id="username-availability"></div>
+                            {% if form.username.errors %}
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ form.username.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="email" name="email" id="id_email" class="form-control" placeholder="Email" required>
+                            <label for="id_email"><i class="fas fa-envelope me-2"></i>Email</label>
+                            {% if form.email.errors %}
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ form.email.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-floating mb-3 position-relative">
+                            <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Password" required>
+                            <label for="id_password1"><i class="fas fa-lock me-2"></i>Password</label>
+                            <span class="password-toggle" onclick="togglePassword('id_password1')">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            {% if form.password1.errors %}
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ form.password1.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="password-strength">
+                                <div class="password-strength-bar" id="password-strength-bar"></div>
+                            </div>
+                            <div class="password-requirements">
+                                <div class="requirement" id="length-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>At least 8 characters</span>
+                                </div>
+                                <div class="requirement" id="case-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>Mix of uppercase and lowercase</span>
+                                </div>
+                                <div class="requirement" id="number-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>At least one number</span>
+                                </div>
+                                <div class="requirement" id="special-req">
+                                    <i class="fas fa-circle"></i>
+                                    <span>At least one special character</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating mb-3 position-relative">
+                            <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirm Password" required>
+                            <label for="id_password2"><i class="fas fa-lock me-2"></i>Confirm Password</label>
+                            <span class="password-toggle" onclick="togglePassword('id_password2')">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            {% if form.password2.errors %}
+                                <div class="error-message">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                    {{ form.password2.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-signup">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+                    <div class="login-link animate__animated animate__fadeInUp">
+                        <p>Already have an account? <a href="{% url 'login' %}">Sign in <i class="fas fa-arrow-right ms-1"></i></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePassword(inputId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = passwordInput.nextElementSibling.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        function updateRequirement(element, met) {
+            element.className = `requirement ${met ? 'met' : 'not-met'}`;
+            element.querySelector('i').className = met ? 'fas fa-check-circle' : 'fas fa-times-circle';
+        }
+
+        function checkPasswordStrength(password) {
+            const lengthReq = document.getElementById('length-req');
+            const caseReq = document.getElementById('case-req');
+            const numberReq = document.getElementById('number-req');
+            const specialReq = document.getElementById('special-req');
+            const strengthBar = document.getElementById('password-strength-bar');
+            
+            // Reset classes
+            strengthBar.className = 'password-strength-bar';
+            [lengthReq, caseReq, numberReq, specialReq].forEach(req => {
+                req.className = 'requirement pending';
+                req.querySelector('i').className = 'fas fa-circle';
+            });
+            
+            if (password.length === 0) {
+                strengthBar.style.width = '0';
+                return;
+            }
+            
+            // Check requirements
+            const hasLength = password.length >= 8;
+            const hasCase = /[a-z]/.test(password) && /[A-Z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSpecial = /[^a-zA-Z\d]/.test(password);
+            
+            updateRequirement(lengthReq, hasLength);
+            updateRequirement(caseReq, hasCase);
+            updateRequirement(numberReq, hasNumber);
+            updateRequirement(specialReq, hasSpecial);
+            
+            // Calculate strength
+            const strength = [hasLength, hasCase, hasNumber, hasSpecial].filter(Boolean).length;
+            
+            // Update strength bar
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+            } else if (strength === 3) {
+                strengthBar.classList.add('strength-medium');
+            } else {
+                strengthBar.classList.add('strength-strong');
+            }
+        }
+
+        // Password strength checker
+        document.getElementById('id_password1').addEventListener('input', function(e) {
+            checkPasswordStrength(e.target.value);
+        });
+
+        // Username availability checker
+        let usernameTimeout;
+        document.getElementById('id_username').addEventListener('input', function(e) {
+            const username = e.target.value;
+            const availabilityDiv = document.getElementById('username-availability');
+            
+            clearTimeout(usernameTimeout);
+            
+            if (username.length < 3) {
+                availabilityDiv.innerHTML = '';
+                return;
+            }
+            
+            availabilityDiv.innerHTML = `
+                <div class="loading-spinner"></div>
+                <span>Checking availability...</span>
+            `;
+            availabilityDiv.className = 'username-availability username-checking';
+            
+            usernameTimeout = setTimeout(() => {
+                // Simulate API call - replace with actual API call
+                const isAvailable = Math.random() > 0.5;
+                availabilityDiv.innerHTML = `
+                    <i class="fas fa-${isAvailable ? 'check-circle' : 'times-circle'}"></i>
+                    <span>Username is ${isAvailable ? 'available' : 'not available'}</span>
+                `;
+                availabilityDiv.className = `username-availability ${isAvailable ? 'username-available' : 'username-unavailable'}`;
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

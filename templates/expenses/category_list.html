@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    body { background: #f7f8fa; }
+    .category-list-card {
+        max-width: 480px;
+        margin: 60px auto;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(80, 80, 160, 0.10), 0 1.5px 6px rgba(80, 80, 160, 0.08);
+        background: #fff;
+        padding: 2.5rem 2rem 2rem 2rem;
+    }
+    .category-list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+    }
+    .category-list-header h2 {
+        color: #388e3c;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    .category-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        max-height: 420px;
+        overflow-y: auto;
+    }
+    .category-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
+    }
+    .category-item:last-child { border-bottom: none; }
+    .category-color {
+        width: 6px;
+        height: 32px;
+        border-radius: 4px;
+        margin-right: 14px;
+        flex-shrink: 0;
+    }
+    .category-icon {
+        font-size: 1.3rem;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+    .category-name {
+        flex-grow: 1;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+    .edit-btn {
+        color: #666;
+        background: none;
+        border: none;
+        font-size: 1.1rem;
+        margin-left: 8px;
+        transition: color 0.2s;
+    }
+    .edit-btn:hover { color: #7c6ee6; }
+    .add-category-btn {
+        background: linear-gradient(90deg, #7c6ee6 0%, #a084ee 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        padding: 0.6rem 1.5rem;
+        margin-top: 1.5rem;
+        width: 100%;
+        box-shadow: 0 2px 8px rgba(124, 110, 230, 0.08);
+    }
+</style>
+<div class="category-list-card animate__animated animate__fadeIn">
+    <div class="category-list-header">
+        <h2><i class="fas fa-folder me-2"></i>Expense Categories</h2>
+        <a href="{% url 'category_add' %}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-plus"></i> Add
+        </a>
+    </div>
+    <ul class="category-list">
+        {% for category in categories %}
+        <li class="category-item">
+            <span class="category-color" style="background: {{ category.color }};"></span>
+            <i class="fa {{ category.icon }} category-icon" style="color: {{ category.color }};"></i>
+            <span class="category-name">{{ category.name }}</span>
+            <a href="{% url 'category_edit' category.id %}" class="edit-btn" title="Edit">
+                <i class="fas fa-pen"></i>
+            </a>
+        </li>
+        {% empty %}
+        <li class="text-muted text-center py-4">No categories yet.</li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'category_add' %}" class="add-category-btn mt-4">
+        <i class="fas fa-plus-circle me-2"></i>Add new category
+    </a>
+</div>
+{% endblock %} 

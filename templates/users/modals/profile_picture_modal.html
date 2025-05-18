@@ -1,0 +1,103 @@
+{% load static %}
+<!-- Profile Picture Modal -->
+<div class="modal fade" id="profilePictureModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-gradient-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-camera me-2"></i>Update Profile Picture
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data" class="p-3">
+                {% csrf_token %}
+                <div class="text-center mb-3">
+                    {% if user.profile.profile_picture %}
+                        <img src="{{ user.profile.profile_picture.url }}" alt="Current Profile Picture"
+                             class="rounded-circle border border-3 shadow profile-preview-img"
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                        <img src="https://ui-avatars.com/api/?name={{ user.username }}&size=120" alt="Default Profile"
+                             class="rounded-circle border border-3 shadow profile-preview-img"
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_profile_picture" class="form-label fw-semibold">
+                        Choose a new profile picture
+                    </label>
+                    <input type="file" name="profile_picture" class="form-control" id="id_profile_picture" accept="image/*" required>
+                    <div class="form-text text-muted">
+                        Recommended size: 300x300px. Max size: 2MB.
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .modal-header.bg-gradient-primary {
+        background: linear-gradient(90deg, #667eea 0%, #38a169 100%);
+        color: #fff;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+    .profile-preview-img {
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+        border: 4px solid #667eea !important;
+        transition: box-shadow 0.3s, border-color 0.3s;
+        background: #fff;
+    }
+    .profile-preview-img:hover {
+        box-shadow: 0 8px 32px rgba(102, 126, 234, 0.25);
+        border-color: #38a169 !important;
+    }
+    .modal-content {
+        border-radius: 1rem;
+        border: none;
+    }
+    .form-label {
+        font-weight: 600;
+    }
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+    .btn-primary {
+        background: linear-gradient(90deg, #667eea 0%, #38a169 100%);
+        border: none;
+    }
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #38a169 0%, #667eea 100%);
+    }
+    #profilePictureModal .btn-close-white {
+        filter: brightness(0) invert(1);
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const profilePictureInput = document.getElementById('id_profile_picture');
+    const previewImg = document.querySelector('.profile-preview-img');
+    
+    if (profilePictureInput && previewImg) {
+        profilePictureInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>

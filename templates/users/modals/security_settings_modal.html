@@ -1,0 +1,119 @@
+<!-- Security Settings Modal -->
+<div class="modal fade" id="securitySettingsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-shield-alt me-2"></i>Security Settings
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Change Password Form -->
+                <form method="post" action="{% url 'password_change' %}" class="mb-4">
+                    {% csrf_token %}
+                    <h6 class="mb-3">Change Password</h6>
+                    <div class="mb-3">
+                        <label for="id_old_password" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="id_old_password" name="old_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_new_password1" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="id_new_password1" name="new_password1" required>
+                        <div class="password-strength mt-2" id="passwordStrength"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_new_password2" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="id_new_password2" name="new_password2" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-key me-2"></i>Update Password
+                    </button>
+                </form>
+
+                <hr class="my-4">
+
+                <!-- Two-Factor Authentication -->
+                <div class="mb-4">
+                    <h6 class="mb-3">Two-Factor Authentication</h6>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" id="enable2FA">
+                        <label class="form-check-label" for="enable2FA">
+                            Enable Two-Factor Authentication
+                        </label>
+                    </div>
+                    <small class="text-muted d-block">
+                        Add an extra layer of security to your account by requiring a verification code in addition to your password.
+                    </small>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Login History -->
+                <div>
+                    <h6 class="mb-3">Recent Login Activity</h6>
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">Current Session</h6>
+                                    <small class="text-muted">Started {{ request.session.last_activity|timesince }} ago</small>
+                                </div>
+                                <span class="badge bg-success">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('id_new_password1');
+    const strengthMeter = document.getElementById('passwordStrength');
+
+    passwordInput.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        let feedback = '';
+
+        // Length check
+        if (password.length >= 8) strength += 1;
+        // Uppercase check
+        if (/[A-Z]/.test(password)) strength += 1;
+        // Lowercase check
+        if (/[a-z]/.test(password)) strength += 1;
+        // Number check
+        if (/[0-9]/.test(password)) strength += 1;
+        // Special character check
+        if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+        // Update strength meter
+        switch(strength) {
+            case 0:
+            case 1:
+                feedback = '<div class="progress" style="height: 5px;"><div class="progress-bar bg-danger" style="width: 20%"></div></div><small class="text-danger">Very Weak</small>';
+                break;
+            case 2:
+                feedback = '<div class="progress" style="height: 5px;"><div class="progress-bar bg-warning" style="width: 40%"></div></div><small class="text-warning">Weak</small>';
+                break;
+            case 3:
+                feedback = '<div class="progress" style="height: 5px;"><div class="progress-bar bg-info" style="width: 60%"></div></div><small class="text-info">Medium</small>';
+                break;
+            case 4:
+                feedback = '<div class="progress" style="height: 5px;"><div class="progress-bar bg-primary" style="width: 80%"></div></div><small class="text-primary">Strong</small>';
+                break;
+            case 5:
+                feedback = '<div class="progress" style="height: 5px;"><div class="progress-bar bg-success" style="width: 100%"></div></div><small class="text-success">Very Strong</small>';
+                break;
+        }
+
+        strengthMeter.innerHTML = feedback;
+    });
+});
+</script> 

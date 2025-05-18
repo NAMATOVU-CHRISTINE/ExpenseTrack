@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-chart-line me-2"></i>Financial Reports
+        </h2>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-download me-2"></i>Export
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{% url 'export_pdf' %}">
+                    <i class="fas fa-file-pdf me-2"></i>Export as PDF
+                </a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Total Income</h6>
+                    <h3 class="card-title mb-0">UGX {{ total_income|floatformat:0 }}</h3>
+                    <div class="text-success small mt-2">
+                        <i class="fas fa-arrow-up me-1"></i>12% from last month
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Total Expenses</h6>
+                    <h3 class="card-title mb-0">UGX {{ total_expenses|floatformat:0 }}</h3>
+                    <div class="text-danger small mt-2">
+                        <i class="fas fa-arrow-down me-1"></i>8% from last month
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Savings Rate</h6>
+                    <h3 class="card-title mb-0">{{ savings_rate|floatformat:1 }}%</h3>
+                    <div class="text-success small mt-2">
+                        <i class="fas fa-arrow-up me-1"></i>5% from last month
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Budget Status</h6>
+                    <h3 class="card-title mb-0">{{ budget_status }}%</h3>
+                    <div class="text-warning small mt-2">
+                        <i class="fas fa-exclamation-circle me-1"></i>Close to limit
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Income vs Expenses</h5>
+                    <canvas id="incomeExpenseChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Expense Categories</h5>
+                    <canvas id="expenseCategoryChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Recent Transactions</h5>
+                <a href="#" class="btn btn-link">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in recent_transactions %}
+                        <tr>
+                            <td>{{ transaction.date|date:"M d, Y" }}</td>
+                            <td>{{ transaction.description }}</td>
+                            <td>
+                                <span class="badge bg-light text-dark">
+                                    {{ transaction.category }}
+                                </span>
+                            </td>
+                            <td class="{% if transaction.type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                                {{ transaction.amount|floatformat:0 }} UGX
+                            </td>
+                            <td>
+                                <span class="badge bg-{{ transaction.status_color }}">
+                                    {{ transaction.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Income vs Expenses Chart
+const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
+new Chart(incomeExpenseCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+            label: 'Income',
+            data: [1200000, 1500000, 1300000, 1600000, 1400000, 1700000],
+            borderColor: '#48bb78',
+            tension: 0.4,
+            fill: false
+        }, {
+            label: 'Expenses',
+            data: [900000, 1100000, 950000, 1200000, 1000000, 1150000],
+            borderColor: '#f56565',
+            tension: 0.4,
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return 'UGX ' + value.toLocaleString();
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Expense Categories Chart
+const categoryCtx = document.getElementById('expenseCategoryChart').getContext('2d');
+new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Housing', 'Food', 'Transport', 'Entertainment', 'Utilities'],
+        datasets: [{
+            data: [35, 25, 15, 15, 10],
+            backgroundColor: [
+                '#4299e1',
+                '#48bb78',
+                '#ed8936',
+                '#9f7aea',
+                '#f56565'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
+
+<style>
+.card {
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.table th {
+    font-weight: 600;
+    color: #4a5568;
+}
+.badge {
+    font-weight: 500;
+    padding: 0.5em 0.75em;
+}
+.btn-link {
+    color: #667eea;
+    text-decoration: none;
+}
+.btn-link:hover {
+    color: #764ba2;
+}
+</style>
+{% endblock %} 

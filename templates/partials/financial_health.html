@@ -1,0 +1,120 @@
+{% load humanize %}
+{% load custom_filters %}
+
+<div class="card shadow-sm h-100">
+    <div class="card-header bg-transparent d-flex align-items-center">
+        <i class="fas fa-heartbeat text-success me-2"></i>
+        <h5 class="mb-0">Financial Health Score</h5>
+    </div>
+    <div class="card-body">
+        <div class="text-center mb-4">
+            <div class="health-score-ring">
+                <div class="health-score-value">
+                    {{ health_score }}
+                </div>
+            </div>
+            <p class="text-muted mt-2">
+                {% if health_score >= 90 %}
+                    Excellent
+                {% elif health_score >= 70 %}
+                    Good
+                {% elif health_score >= 50 %}
+                    Fair
+                {% else %}
+                    Needs Attention
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="health-factors">
+            {% for factor in health_factors %}
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="factor-name">{{ factor.name }}</span>
+                    <span class="factor-score">{{ factor.score }}/{{ factor.max }}</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar {% if factor.score >= factor.max|multiply:0.8 %}bg-success{% elif factor.score >= factor.max|multiply:0.6 %}bg-warning{% else %}bg-danger{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ factor.score|divide:factor.max|multiply:100 }}%">
+                    </div>
+                </div>
+                <small class="text-muted d-block mt-1">{{ factor.description }}</small>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="tips mt-4">
+            <h6 class="mb-3">Improvement Tips</h6>
+            <ul class="list-unstyled">
+                {% if health_score < 90 %}
+                    {% for factor in health_factors %}
+                        {% if factor.score < factor.max %}
+                            <li class="mb-2">
+                                <i class="fas fa-lightbulb text-warning me-2"></i>
+                                {% if factor.name == 'Savings Rate' %}
+                                    Try to save at least 20% of your monthly income.
+                                {% elif factor.name == 'Budget Adherence' %}
+                                    Stay within your budget limits to improve your score.
+                                {% elif factor.name == 'Bill Payment History' %}
+                                    Pay bills on time to build a positive payment history.
+                                {% elif factor.name == 'Emergency Fund' %}
+                                    Aim to save 3-6 months of expenses for emergencies.
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <li class="text-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        Great job! Keep maintaining your excellent financial health.
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+.health-score-ring {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 10px solid #f0f0f0;
+    margin: 0 auto;
+    position: relative;
+    background: conic-gradient(
+        from 0deg,
+        {% if health_score >= 90 %}#28a745{% elif health_score >= 70 %}#ffc107{% else %}#dc3545{% endif %} {{ health_score }}%,
+        #f0f0f0 0%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.health-score-ring::before {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 50%;
+}
+
+.health-score-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    position: relative;
+    z-index: 1;
+}
+
+.factor-name {
+    font-weight: 500;
+}
+
+.factor-score {
+    font-weight: 500;
+    color: #6c757d;
+}
+</style>

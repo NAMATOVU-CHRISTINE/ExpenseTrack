@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow p-5 mx-auto" style="max-width: 600px;">
+        <h2 class="mb-4 text-center fw-bold">
+            <i class="fas fa-bullseye me-2"></i>Add Finance Goal
+        </h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} animate__animated animate__fadeInDown mb-3" role="alert">
+                    <i class="fas fa-info-circle me-2"></i>{{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="id_title" class="form-label fw-semibold">Goal Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <div class="text-danger small mt-1">{{ form.title.errors|striptags }}</div>
+                {% endif %}
+                <div class="form-text text-muted mt-1">
+                    e.g., New Car, Vacation, Emergency Fund
+                </div>
+            </div>
+            <div class="mb-4">
+                <label for="id_target_amount" class="form-label fw-semibold">Target Amount (UGX)</label>
+                {{ form.target_amount }}
+                {% if form.target_amount.errors %}
+                    <div class="text-danger small mt-1">{{ form.target_amount.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label for="id_current_amount" class="form-label fw-semibold">Current Amount (UGX)</label>
+                {{ form.current_amount }}
+                {% if form.current_amount.errors %}
+                    <div class="text-danger small mt-1">{{ form.current_amount.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="mb-4">
+                <label for="id_deadline" class="form-label fw-semibold">Target Date</label>
+                {{ form.deadline }}
+                {% if form.deadline.errors %}
+                    <div class="text-danger small mt-1">{{ form.deadline.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-4">
+                <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                </a>
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-plus-circle me-2"></i>Add Goal
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-label {
+        font-weight: 600;
+    }
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
+    .form-control {
+        transition: all 0.3s ease;
+    }
+    .form-control:hover {
+        border-color: #667eea;
+    }
+    .btn-link {
+        color: #667eea;
+        transition: all 0.3s ease;
+    }
+    .btn-link:hover {
+        color: #764ba2;
+        transform: scale(1.1);
+    }
+    .form-text {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+    .alert {
+        border: none;
+        border-radius: 1rem;
+    }
+    .alert-success {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+    .alert-danger {
+        background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        color: white;
+    }
+</style>
+{% endblock %} 

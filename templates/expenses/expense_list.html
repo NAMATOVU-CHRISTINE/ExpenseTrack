@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4 animate__animated animate__fadeIn">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            <i class="fas fa-receipt me-2"></i>Expenses
+        </h2>
+        <div class="d-flex gap-2">
+            <a href="{% url 'category_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-folder me-2"></i>Categories
+            </a>
+            <a href="{% url 'expense_add' %}" class="btn btn-primary animate__animated animate__pulse animate__infinite" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                <i class="fas fa-plus-circle me-2"></i>Add Expense
+            </a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} animate__animated animate__fadeInDown mb-4" role="alert">
+                <i class="fas fa-info-circle me-2"></i>{{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <a href="{% url 'upload_receipt' %}" class="btn btn-outline-primary w-100">
+                <i class="fas fa-camera me-2"></i>Upload Receipt
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'category_rules' %}" class="btn btn-outline-success w-100">
+                <i class="fas fa-magic me-2"></i>Add Category Rule
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="{% url 'bulk_update' %}" class="btn btn-outline-info w-100">
+                <i class="fas fa-tasks me-2"></i>Bulk Update
+            </a>
+        </div>
+        <div class="col-md-3">
+            <a href="#" class="btn btn-outline-warning w-100" data-bs-toggle="modal" data-bs-target="#shareExpenseModal">
+                <i class="fas fa-share-alt me-2"></i>Share Expense
+            </a>
+        </div>
+    </div>
+
+    <!-- Unprocessed Receipts -->
+    {% if unprocessed_receipts %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-exclamation-circle me-2"></i>Unprocessed Receipts
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for receipt in unprocessed_receipts %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <img src="{{ receipt.image.url }}" class="card-img-top" alt="Receipt">
+                        <div class="card-body">
+                            <a href="{% url 'process_receipt' receipt.id %}" class="btn btn-primary btn-sm w-100">
+                                Process Receipt
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Shared Expenses -->
+    {% if shared_expenses %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-users me-2"></i>Shared Expenses
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Shared With</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for shared in shared_expenses %}
+                        <tr>
+                            <td>{{ shared.expense.description }}</td>
+                            <td>UGX {{ shared.amount|floatformat:0 }}</td>
+                            <td>{{ shared.shared_with.username }}</td>
+                            <td>
+                                {% if shared.is_paid %}
+                                <span class="badge bg-success">Paid</span>
+                                {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Category Rules -->
+    {% if category_rules %}
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-magic me-2"></i>Category Rules
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Pattern</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rule in category_rules %}
+                        <tr>
+                            <td>{{ rule.category.name }}</td>
+                            <td><code>{{ rule.pattern }}</code></td>
+                            <td>{{ rule.priority }}</td>
+                            <td>
+                                {% if rule.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Main Expenses List -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for expense in expenses %}
+                        <tr>
+                            <td>{{ expense.date|date:"M d, Y" }}</td>
+                            <td>{{ expense.description }}</td>
+                            <td>
+                                <span class="d-flex align-items-center">
+                                    <span style="display:inline-block;width:8px;height:32px;background:{{ expense.category.color }};border-radius:4px;margin-right:8px;"></span>
+                                    <i class="fa {{ expense.category.icon }} me-2" style="color:{{ expense.category.color }};"></i>
+                                    {{ expense.category.name }}
+                                </span>
+                            </td>
+                            <td>UGX {{ expense.amount|floatformat:0 }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'expense_edit' expense.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'expense_delete' expense.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    <a href="{% url 'share_expense' expense.id %}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-share-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center">No expenses found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Expense Modal -->
+<div class="modal fade" id="shareExpenseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share Expense</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'share_expense' 0 %}" id="shareExpenseForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Select Expense</label>
+                        <select class="form-select" name="expense" required>
+                            {% for expense in expenses %}
+                            <option value="{{ expense.id }}">{{ expense.description }} - UGX {{ expense.amount|floatformat:0 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Share With</label>
+                        <select class="form-select" name="shared_with" required>
+                            {% for member in request.user.family_members.all %}
+                            <option value="{{ member.id }}">{{ member.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Amount</label>
+                        <input type="number" class="form-control" name="amount" step="0.01" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="shareExpenseForm" class="btn btn-primary">Share</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+// Auto-categorize expense based on description
+document.querySelector('input[name="description"]')?.addEventListener('input', async function(e) {
+    const description = e.target.value;
+    if (description.length < 3) return;
+    
+    try {
+        const response = await fetch(`/expenses/suggest-category/?description=${encodeURIComponent(description)}`);
+        const data = await response.json();
+        
+        if (data.category) {
+            const categorySelect = document.querySelector('select[name="category"]');
+            categorySelect.value = data.category.id;
+            
+            // Show suggestion
+            const suggestion = document.createElement('div');
+            suggestion.className = 'alert alert-info mt-2';
+            suggestion.innerHTML = `Suggested category: <strong>${data.category.name}</strong>`;
+            
+            const existingSuggestion = categorySelect.parentElement.querySelector('.alert');
+            if (existingSuggestion) {
+                existingSuggestion.remove();
+            }
+            categorySelect.parentElement.appendChild(suggestion);
+        }
+    } catch (error) {
+        console.error('Error suggesting category:', error);
+    }
+});
+</script>
+{% endblock %}
+
+{% endblock %} 
