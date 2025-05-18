@@ -67,7 +67,7 @@ Below are some screenshots to give you a quick look at how Expense Tracker works
 
 ### Dashboard
 
-![Dashboard](assets/screenshots/dashboard.jpg)
+(./assets/screenshots/dashboard.jpg)
 *The main dashboard provides an overview of your spending and income, as well as visual financial reports.*
 
 ### Add Expense Form
