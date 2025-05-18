@@ -162,7 +162,6 @@ I extend our gratitude to:
 ---
 
 ## **🚀 About Me**  
-💻 I’m a **Computer sciemstist Aspiring Full Stack developer
-** passionate about building high-quality, impactful software solutions. 🚀  
 
+**💻 I’m a Computer Scientist and aspiring Full Stack Developer, passionate about building high-quality, impactful software solutions. With a strong foundation in both front-end and back-end technologies, I am dedicated to continuous learning and driven by the desire to create software that makes a real difference. 🚀**
 
