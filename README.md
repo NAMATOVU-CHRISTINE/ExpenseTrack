@@ -166,8 +166,7 @@ users
 | `/api/reports/` | Generate analytics and financial insights |  
 | `/api/users/` | User authentication, profiles, and permissions |  
 
----
-
+```
 ## **🚀 Deployment Guide**  
 ### **Requirements**  
 - Python 3.8+  
@@ -191,8 +190,6 @@ Then, clone your forked repository to your local machine:
 ```bash
 git clone https://github.com/NAMATOVU-CHRISTINE/ExpenseTrack.git
 cd ExpenseTrack
-```
-
 #### **2️⃣ Create a Feature Branch**  
 Create a new branch for your feature:
 ```bash
