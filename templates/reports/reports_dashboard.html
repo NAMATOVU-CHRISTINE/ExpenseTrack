@@ -24,9 +24,9 @@
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">Total Income</h6>
-                    <h3 class="card-title mb-0">UGX {{ total_income|floatformat:0 }}</h3>
-                    <div class="text-success small mt-2">
-                        <i class="fas fa-arrow-up me-1"></i>12% from last month
+                    <h3 class="card-title mb-0">UGX {{ total_income|floatformat:0 }}</h3>                    <div class="{% if income_change >= 0 %}text-success{% else %}text-danger{% endif %} small mt-2">
+                        <i class="fas fa-arrow-{% if income_change >= 0 %}up{% else %}down{% endif %} me-1"></i>
+                        {{ income_change|floatformat:1 }}% from last month
                     </div>
                 </div>
             </div>
@@ -35,9 +35,9 @@
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2 text-muted">Total Expenses</h6>
-                    <h3 class="card-title mb-0">UGX {{ total_expenses|floatformat:0 }}</h3>
-                    <div class="text-danger small mt-2">
-                        <i class="fas fa-arrow-down me-1"></i>8% from last month
+                    <h3 class="card-title mb-0">UGX {{ total_expenses|floatformat:0 }}</h3>                    <div class="{% if expense_change >= 0 %}text-danger{% else %}text-success{% endif %} small mt-2">
+                        <i class="fas fa-arrow-{% if expense_change >= 0 %}up{% else %}down{% endif %} me-1"></i>
+                        {{ expense_change|floatformat:1 }}% from last month
                     </div>
                 </div>
             </div>
@@ -45,10 +45,10 @@
         <div class="col-md-3">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">Savings Rate</h6>
-                    <h3 class="card-title mb-0">{{ savings_rate|floatformat:1 }}%</h3>
-                    <div class="text-success small mt-2">
-                        <i class="fas fa-arrow-up me-1"></i>5% from last month
+                    <h6 class="card-subtitle mb-2 text-muted">Savings Rate</h6>                    <h3 class="card-title mb-0">{{ savings_rate|floatformat:1 }}%</h3>
+                    <div class="{% if savings_rate_change >= 0 %}text-success{% else %}text-danger{% endif %} small mt-2">
+                        <i class="fas fa-arrow-{% if savings_rate_change >= 0 %}up{% else %}down{% endif %} me-1"></i>
+                        {{ savings_rate_change|floatformat:1 }}% from last month
                     </div>
                 </div>
             </div>
@@ -56,10 +56,10 @@
         <div class="col-md-3">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">Budget Status</h6>
-                    <h3 class="card-title mb-0">{{ budget_status }}%</h3>
-                    <div class="text-warning small mt-2">
-                        <i class="fas fa-exclamation-circle me-1"></i>Close to limit
+                    <h6 class="card-subtitle mb-2 text-muted">Budget Status</h6>                    <h3 class="card-title mb-0">{{ budget_status|floatformat:1 }}%</h3>
+                    <div class="text-{{ budget_status_color }} small mt-2">
+                        <i class="fas fa-{% if budget_status_color == 'success' %}check-circle{% else %}exclamation-circle{% endif %} me-1"></i>
+                        {{ budget_status_text }}
                     </div>
                 </div>
             </div>
@@ -138,17 +138,16 @@
 const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
 new Chart(incomeExpenseCtx, {
     type: 'line',
-    data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+    data: {        labels: {{ months_data|safe }},
         datasets: [{
             label: 'Income',
-            data: [1200000, 1500000, 1300000, 1600000, 1400000, 1700000],
+            data: {{ monthly_income|safe }},
             borderColor: '#48bb78',
             tension: 0.4,
             fill: false
         }, {
             label: 'Expenses',
-            data: [900000, 1100000, 950000, 1200000, 1000000, 1150000],
+            data: {{ monthly_expenses|safe }},
             borderColor: '#f56565',
             tension: 0.4,
             fill: false
@@ -177,18 +176,11 @@ new Chart(incomeExpenseCtx, {
 // Expense Categories Chart
 const categoryCtx = document.getElementById('expenseCategoryChart').getContext('2d');
 new Chart(categoryCtx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Housing', 'Food', 'Transport', 'Entertainment', 'Utilities'],
+    type: 'doughnut',    data: {
+        labels: [{% for cat in category_data %}'{{ cat.name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
         datasets: [{
-            data: [35, 25, 15, 15, 10],
-            backgroundColor: [
-                '#4299e1',
-                '#48bb78',
-                '#ed8936',
-                '#9f7aea',
-                '#f56565'
-            ]
+            data: [{% for cat in category_data %}{{ cat.percentage }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: [{% for cat in category_data %}'{{ cat.color }}'{% if not forloop.last %}, {% endif %}{% endfor %}]
         }]
     },
     options: {

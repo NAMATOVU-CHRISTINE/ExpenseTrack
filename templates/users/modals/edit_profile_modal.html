@@ -14,7 +14,7 @@
                         <h6 class="mb-3 fw-bold">Personal Information</h6>
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" value="Joanitak">
+                            <input type="text" class="form-control" id="username" value="k">
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize fields with stored values when modal opens
     editProfileModal.addEventListener('shown.bs.modal', function() {
         // Get current values from localStorage or use defaults
-        document.getElementById('username').value = localStorage.getItem('username') || 'Joanitak';
+        document.getElementById('username').value = localStorage.getItem('username') || '';
         document.getElementById('email').value = localStorage.getItem('email') || '';
         document.getElementById('firstName').value = localStorage.getItem('firstName') || '';
         document.getElementById('lastName').value = localStorage.getItem('lastName') || '';

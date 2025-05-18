@@ -6,6 +6,7 @@ from django.utils import timezone
 from datetime import timedelta, datetime, date
 from expenses.models import Expense
 from users.models import IncomeSource
+from budgets.models import Budget
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -57,6 +58,32 @@ def reports_dashboard(request):
 
     # Calculate savings rate
     savings_rate = ((current_income - current_expenses) / current_income * 100) if current_income else 0
+
+    # Calculate previous month's savings rate for comparison
+    prev_savings_rate = ((prev_income - prev_expenses) / prev_income * 100) if prev_income else 0
+    savings_rate_change = (savings_rate - prev_savings_rate) if prev_savings_rate else 0
+
+    # Calculate budget status
+    monthly_budget = Budget.objects.filter(
+        user=request.user,
+        month__year=today.year,
+        month__month=today.month,
+        active=True
+    ).aggregate(total=Sum('limit'))['total'] or 0
+
+    budget_percent = (current_expenses / monthly_budget * 100) if monthly_budget > 0 else 0
+    budget_status_text = ''
+    budget_status_color = ''
+
+    if budget_percent >= 90:
+        budget_status_text = 'Over budget'
+        budget_status_color = 'danger'
+    elif budget_percent >= 75:
+        budget_status_text = 'Close to limit'
+        budget_status_color = 'warning'
+    else:
+        budget_status_text = 'Within budget'
+        budget_status_color = 'success'
 
     # Get expense categories breakdown
     categories = Expense.objects.filter(
@@ -116,14 +143,67 @@ def reports_dashboard(request):
     recent_transactions.sort(key=lambda x: x['date'], reverse=True)
     recent_transactions = recent_transactions[:5]
 
+    # Get monthly trends (last 6 months)
+    months_data = []
+    monthly_income = []
+    monthly_expenses = []
+    
+    for i in range(5, -1, -1):
+        month_date = today - timedelta(days=30 * i)
+        month_start = month_date.replace(day=1)
+        month_end = (month_start + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        
+        month_income = IncomeSource.objects.filter(
+            user=request.user,
+            is_active=True,
+            created_at__lte=month_end
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        month_expenses = Expense.objects.filter(
+            user=request.user,
+            date__gte=month_start,
+            date__lte=month_end
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        
+        months_data.append(month_date.strftime('%b'))
+        monthly_income.append(month_income)
+        monthly_expenses.append(month_expenses)
+    
+    # Calculate expense categories percentages
+    total_expenses = sum(cat['total'] for cat in categories)
+    category_data = []
+    category_colors = {
+        'Housing': '#4299e1',
+        'Food': '#48bb78',
+        'Transport': '#ed8936',
+        'Entertainment': '#9f7aea',
+        'Utilities': '#f56565',
+        'Other': '#718096'
+    }
+    
+    for category in categories:
+        percentage = (category['total'] / total_expenses * 100) if total_expenses > 0 else 0
+        category_data.append({
+            'name': category['category'],
+            'percentage': round(percentage, 1),
+            'color': category_colors.get(category['category'], '#718096')
+        })
+    
     context = {
         'total_income': current_income,
         'total_expenses': current_expenses,
         'savings_rate': savings_rate,
-        'budget_status': 75,  # This should be calculated based on your budget model
+        'savings_rate_change': savings_rate_change,
+        'budget_status': budget_percent,
+        'budget_status_text': budget_status_text,
+        'budget_status_color': budget_status_color,
         'recent_transactions': recent_transactions,
         'income_change': income_change,
         'expense_change': expense_change,
+        'months_data': months_data,
+        'monthly_income': monthly_income,
+        'monthly_expenses': monthly_expenses,
+        'category_data': category_data
     }
     
     return render(request, 'reports/reports_dashboard.html', context)
