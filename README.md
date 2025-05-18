@@ -1,101 +1,86 @@
+# 📊 Expense Tracker – Personal Finance Manager
 
-
-# **📊 Expense Tracker – Personal Finance Manager**  
 Expense Tracker is a robust and feature-rich financial management application developed with Django, tailored to meet the diverse needs of individuals, families, and businesses aiming to gain full control over their finances. It enables users to effortlessly record and categorize expenses, set and monitor personalized budgets, and visualize spending patterns through interactive analytics and reports. The platform supports multi-user collaboration, allowing for shared financial oversight within households or teams, and incorporates automated notifications for budget limits and upcoming bills to promote proactive money management. With a secure authentication system and user-friendly interface, Expense Tracker simplifies the complexities of daily financial tracking and decision-making, empowering users to build better financial habits, avoid overspending, and confidently achieve their short- and long-term financial goals.
 
-## **🚀 Key Features**  
+## 🚀 Key Features
 
-### **📌 Expense Management**  
-- **Detailed Expense Logging** – Track expenses with descriptions, amounts, and timestamps.  
-- **Multi-Currency Support** – Record transactions in different currencies for international users.  
-- **Smart Categorization** – Organize expenses using icons, tags, and color-coded categories.  
-- **Receipt Upload & Processing** – Attach receipts for automatic expense verification.  
-- **Expense Notes & Attachments** – Keep extra details for reference and documentation.  
+### 📌 Expense Management
 
-### **🔄 Recurring Expense Automation**  
-- **Flexible Scheduling** – Set up daily, weekly, monthly, or custom recurring transactions.  
-- **Automatic Expense Generation** – Pre-configured expenses appear automatically based on user settings.  
-- **Customizable End Dates** – Define expiration dates for recurring payments.  
-- **Status Tracking** – Monitor active, paused, or completed recurring expenses.  
+- **Detailed Expense Logging** – Track expenses with descriptions, amounts, and timestamps.
+- **Multi-Currency Support** – Record transactions in different currencies for international users.
+- **Smart Categorization** – Organize expenses using icons, tags, and color-coded categories.
+- **Receipt Upload & Processing** – Attach receipts for automatic expense verification.
+- **Expense Notes & Attachments** – Keep extra details for reference and documentation.
 
-### **👨‍👩‍👧‍👦 Family Expense Sharing**  
-- **Shared Financial Tracking** – Collaborate on expenses with family members or roommates.  
-- **Bill Splitting** – Easily divide costs among multiple users.  
-- **Real-Time Notifications** – Get alerts when a shared expense is logged or updated.  
-- **Transaction History** – Maintain a complete record of shared financial activities.  
+### 🔄 Recurring Expense Automation
 
-### **💰 Budget Management**  
-- **Custom Budget Planning** – Allocate budgets for various expense categories.  
-- **Rolling Budgeting Options** – Configure budgets to adjust dynamically based on spending patterns.  
-- **Real-Time Budget Utilization** – Track spending progress compared to allocated budgets.  
-- **Automated Budget Overrun Alerts** – Receive notifications when nearing budget limits.  
+- **Flexible Scheduling** – Set up daily, weekly, monthly, or custom recurring transactions.
+- **Automatic Expense Generation** – Pre-configured expenses appear automatically based on user settings.
+- **Customizable End Dates** – Define expiration dates for recurring payments.
+- **Status Tracking** – Monitor active, paused, or completed recurring expenses.
 
-### **📈 Income Management**  
-- **Multi-Source Income Tracking** – Manage regular salary, freelance earnings, and side hustles.  
-- **Income Categorization & Analysis** – Break down income sources for better understanding.  
-- **Frequency Management** – Configure recurring income cycles such as weekly, monthly, or yearly payments.  
+### 👨‍👩‍👧‍👦 Family Expense Sharing
 
-### **📊 Advanced Financial Analytics**  
-- **Spending Trend Reports** – Identify high-expenditure areas and optimize spending habits.  
-- **Category-Based Breakdown** – Visualize how much is spent per category.  
-- **Income vs. Expense Comparison** – Analyze financial health and savings patterns.  
-- **Custom Date Range Reports** – Generate analytics for any time frame.  
+- **Shared Financial Tracking** – Collaborate on expenses with family members or roommates.
+- **Bill Splitting** – Easily divide costs among multiple users.
+- **Real-Time Notifications** – Get alerts when a shared expense is logged or updated.
+- **Transaction History** – Maintain a complete record of shared financial activities.
 
-### **🔍 Financial Health Monitoring**  
-- **Anomaly Detection** – Identify unusual spending behaviors.  
-- **Savings Rate Calculations** – Assess monthly savings performance.  
-- **Personalized Budget Recommendations** – AI-driven insights for better financial planning.  
+### 💰 Budget Management
 
-### **🚀 Smart Automation & Insights**  
-- **Automatic Expense Categorization** – AI-based classification for easier management.  
-- **Smart Receipt Processing** – Extract and log details from uploaded receipts.  
-- **Financial Goal Tracking** – Set and monitor savings goals.  
-- **Spending Alerts** – Receive notifications for unusual or excessive spending.  
+- **Custom Budget Planning** – Allocate budgets for various expense categories.
+- **Rolling Budgeting Options** – Configure budgets to adjust dynamically based on spending patterns.
+- **Real-Time Budget Utilization** – Track spending progress compared to allocated budgets.
+- **Automated Budget Overrun Alerts** – Receive notifications when nearing budget limits.
 
----
-
-## **⚙️ Technical Stack**  
-- **Backend:** Django 4.x, RESTful API, SQLite/PostgreSQL  
-- **Frontend:** Bootstrap 5, Chart.js, Font Awesome, JavaScript  
-- **Security:** CSRF protection, authentication middleware, encrypted user data  
-- **Automation:** Celery background tasks for processing transactions  
-
----
 ## 🌟 Screenshots
 
 Below are some screenshots to give you a quick look at how Expense Tracker works:
 
-### Dashboard
+### Dashboard View
 
-![Dashboard Screenshot](assets/screenshots/dashboard.jpg)
+![login Screenshot](static/assets/screenshots/login.jpg)
+
+*The login page provides a secure and user-friendly authentication process, ensuring safe access to personal finance management tools.*
+![signup Screenshot](static/assets/screenshots/signup.jpg)
+
+*The signup page allows new users to create a secure account, personalize their financial settings, and start managing their expenses effortlessly.*
+![Dashboard Screenshot](static/assets/screenshots/dashboard.jpg)
+
 *The main dashboard provides an overview of your spending and income, as well as visual financial reports.*
 
-### Add Expense Form
+### Adding Expenses
 
-![Add Expense](assets/screenshots/add-expense.png)
-*Easily log a new expense with details such as amount, category, and description.*
+![Add Expense Screenshot](static/assets/screenshots/add-expense.jpg)
+
+*Easily add new expenses with categories, descriptions, and receipt attachments.*
 
 ### Expense Categories
 
-![Expense Categories](assets/screenshots/expense-categories.png)
-*Organize your expenses with customizable categories and color-coded tags.*
+![Expense Categories Screenshot](static/assets/screenshots/expense.jpg)
 
-### Analytics & Reports
+*Organize and track expenses with customizable categories and tags.*
 
-![Analytics](assets/screenshots/analytics.png)
-*View detailed breakdowns of your expenses and income by category, with interactive charts.*
+### Analytics Dashboard
+
+![Analytics Screenshot](static/assets/screenshots/reports.jpg)
+
+*Detailed financial analytics and visualizations to track your spending patterns.*
 
 ### Budget Management
 
-![Budget Management](assets/screenshots/budget-management.png)
-*Allocate budgets for different expense categories and monitor your spending progress in real time.*
+![Budget Management Screenshot](static/assets/screenshots/budget.jpg)
 
-### Family/Shared Expenses
+*Set and monitor budgets for different expense categories.*
 
-![Shared Expenses](assets/screenshots/shared-expenses.png)
-*Collaborate with family members or roommates to track and split expenses.*
+### Shared Expenses
+
+![Shared Expenses Screenshot](static/assets/screenshots/sexpense.jpg)
+
+*Collaborate and split expenses with family members or roommates.*
 
 ---
+
 ## **🛠️ Development Setup**  
 
 ### **1️⃣ Clone & Setup Environment**  

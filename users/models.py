@@ -8,7 +8,7 @@ from django.utils import timezone
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)    
     monthly_savings_target = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     preferred_currency = models.CharField(max_length=3, default='UGX')
     dark_mode = models.BooleanField(default=False)

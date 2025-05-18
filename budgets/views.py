@@ -298,7 +298,7 @@ def budget_list(request):
 @login_required
 def budget_add(request):
     if request.method == 'POST':
-        form = BudgetForm(request.POST)
+        form = BudgetForm(user=request.user, data=request.POST)
         if form.is_valid():
             budget = form.save(commit=False)
             budget.user = request.user
@@ -306,7 +306,7 @@ def budget_add(request):
             messages.success(request, 'Budget added successfully!')
             return redirect('budget_list')
     else:
-        form = BudgetForm()
+        form = BudgetForm(user=request.user)
     
     return render(request, 'budgets/budget_add.html', {'form': form})
 
@@ -315,13 +315,13 @@ def budget_edit(request, pk):
     budget = get_object_or_404(Budget, pk=pk, user=request.user)
     
     if request.method == 'POST':
-        form = BudgetForm(request.POST, instance=budget)
+        form = BudgetForm(user=request.user, data=request.POST, instance=budget)
         if form.is_valid():
             form.save()
             messages.success(request, 'Budget updated successfully!')
             return redirect('budget_list')
     else:
-        form = BudgetForm(instance=budget)
+        form = BudgetForm(user=request.user, instance=budget)
     
     return render(request, 'budgets/budget_edit.html', {'form': form, 'budget': budget})
 
