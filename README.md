@@ -152,7 +152,7 @@ git push origin feature/YourFeature
 ---
 
 ## **🙏 Acknowledgments**  
-I extend our gratitude to:  
+I extend my gratitude to:  
 - **Django community** – For building an amazing framework.  
 - **Bootstrap team** – For responsive UI components.  
 - **Chart.js contributors** – For interactive financial visualizations.  
