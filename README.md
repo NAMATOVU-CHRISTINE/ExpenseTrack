@@ -143,11 +143,19 @@ git push origin feature/YourFeature
 ```  
 
 ### **4️⃣ Submit a Pull Request**  
+Follow these steps to contribute via pull request:
+1. **Fork** the repository to your own GitHub account.
+2. **Clone** your fork locally and create a new branch for your feature or bugfix.
+3. **Make your changes** and ensure all tests pass.
+4. **Commit** your changes with a clear message.
+5. **Push** the branch to your fork and open a pull request against the `main` branch of this repository.
+6. Please provide a detailed description of your changes in the pull request template.
 
 ---
 
-## **📚 Support & Documentation**   
-📧 **Email:** expensetracker100@gmail.com  
+## **📚 Support **  
+
+If you need help or have any questions, please reach out:📧 **Email:** expensetracker100@gmail.com  
 
 ---
 
