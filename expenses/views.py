@@ -1,20 +1,37 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Expense, Category, SharedExpense, Receipt, CategoryRule, RecurringExpense, Income, Budget
-from .forms import ExpenseForm, CategoryForm, BulkCategoryUpdateForm, ShareExpenseForm, ReceiptUploadForm, CategoryRuleForm, RecurringExpenseForm
-from django.http import HttpResponse, JsonResponse
-import json
-from django.contrib.auth.models import User
-from django.utils import timezone
-from django.core.management.base import BaseCommand
-from users.models import InAppNotification, RecurringBill
 from django.views.decorators.http import require_POST
-from django.db.models import Sum, Count, Avg, Q
-from datetime import timedelta, date, datetime
+from django.utils import timezone
+from django.http import JsonResponse
+from django.db.models import Sum
+from django.contrib.auth.models import User
+from datetime import datetime, date, timedelta
 import calendar
-from decimal import Decimal
+import json
 import random
+import logging
+from .models import Expense, Category, SharedExpense, Receipt, CategoryRule, RecurringExpense
+from budgets.models import Budget
+from users.models import InAppNotification, IncomeSource
+from .forms import (
+    ExpenseForm, CategoryForm, BulkCategoryUpdateForm, 
+    ShareExpenseForm, ReceiptUploadForm, RecurringExpenseForm,
+    CategoryRuleForm
+)
+from django.conf import settings
+from django.core.management.base import BaseCommand
+import pytesseract
+import cv2
+import numpy as np
+from PIL import Image
+import re
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Configure Tesseract path
+pytesseract.pytesseract.tesseract_cmd = settings.TESSERACT_CMD
 
 # Create your views here.
 
@@ -35,7 +52,25 @@ def expense_dashboard(request):
     
     # Calculate current month's financial summary
     total_spent = expenses.filter(date__range=[first_day, last_day]).aggregate(total=Sum('amount'))['total'] or 0
-    total_income = Income.objects.filter(user=request.user, date__range=[first_day, last_day]).aggregate(total=Sum('amount'))['total'] or 0
+    
+    # Get total income from IncomeSource
+    income_sources = IncomeSource.objects.filter(
+        user=request.user,
+        is_active=True
+    )
+    total_income = sum(
+        source.amount * (
+            1 if source.frequency == 'monthly'
+            else 4.33 if source.frequency == 'weekly'
+            else 2.17 if source.frequency == 'biweekly'
+            else 0.33 if source.frequency == 'quarterly'
+            else 0.083 if source.frequency == 'yearly'
+            else 30 if source.frequency == 'daily'
+            else 1
+        )
+        for source in income_sources
+    )
+    
     savings = total_income - total_spent
     savings_rate = (savings / total_income * 100) if total_income > 0 else 0
     
@@ -44,11 +79,10 @@ def expense_dashboard(request):
     prev_month_end = first_day - timedelta(days=1)
     
     prev_month_spent = expenses.filter(date__range=[prev_month_start, prev_month_end]).aggregate(total=Sum('amount'))['total'] or 0
-    prev_month_income = Income.objects.filter(user=request.user, date__range=[prev_month_start, prev_month_end]).aggregate(total=Sum('amount'))['total'] or 0
     
     expense_change = ((total_spent - prev_month_spent) / prev_month_spent * 100) if prev_month_spent > 0 else 0
-    income_change = ((total_income - prev_month_income) / prev_month_income * 100) if prev_month_income > 0 else 0
-    
+    income_change = 0  # Since we're using active income sources, we'll skip the change calculation
+
     # Get budget status
     monthly_budget = Budget.objects.filter(
         user=request.user,
@@ -234,12 +268,161 @@ def category_edit(request, pk):
     return render(request, 'expenses/category_add.html', {'form': form, 'edit': True})
 
 @login_required
+def add_category_rule(request):
+    if request.method == 'POST':
+        form = CategoryRuleForm(request.POST)
+        if form.is_valid():
+            rule = form.save(commit=False)
+            rule.user = request.user
+            rule.save()
+            messages.success(request, 'Category rule added successfully!')
+            return redirect('expense_dashboard')
+    else:
+        form = CategoryRuleForm()
+    return render(request, 'expenses/category_rule_form.html', {'form': form})
+
+@login_required
+def suggest_category(request):
+    if 'description' in request.GET:
+        description = request.GET['description']
+        # Find matching rule with highest priority
+        rule = CategoryRule.objects.filter(
+            user=request.user,
+            is_active=True,
+            pattern__iregex=description
+        ).order_by('-priority').first()
+        
+        if rule:
+            return JsonResponse({'category': rule.category.id})
+    return JsonResponse({'category': None})
+
+@login_required
 def upload_receipt(request):
-    return HttpResponse('Upload receipt placeholder')
+    if request.method == 'POST':
+        form = ReceiptUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            receipt = form.save(commit=False)
+            receipt.user = request.user
+            
+            # Save the receipt first
+            receipt.save()
+            
+            try:
+                # Process the image
+                image = Image.open(receipt.image)
+                # Convert to numpy array for OpenCV
+                image_np = np.array(image)
+                
+                # Convert to grayscale
+                gray = cv2.cvtColor(image_np, cv2.COLOR_BGR2GRAY)
+                # Thresholding
+                thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
+                
+                # Extract text using pytesseract
+                extracted_text = pytesseract.image_to_string(thresh)
+                receipt.extracted_text = extracted_text
+                
+                # Try to extract amount
+                amount_pattern = r'\$?\d+\,?\d*\.\d{2}'
+                amounts = re.findall(amount_pattern, extracted_text)
+                if amounts:
+                    receipt.extracted_amount = max([float(a.replace('$', '').replace(',', '')) for a in amounts])
+                
+                # Try to extract date
+                date_patterns = [
+                    r'\d{2}/\d{2}/\d{4}',
+                    r'\d{2}-\d{2}-\d{4}',
+                    r'\d{4}-\d{2}-\d{2}'
+                ]
+                for pattern in date_patterns:
+                    dates = re.findall(pattern, extracted_text)
+                    if dates:
+                        try:
+                            receipt.extracted_date = datetime.strptime(dates[0], pattern.replace('\\d', '%d').replace('\\', '%'))
+                            break
+                        except ValueError:
+                            continue
+                
+                # Try to extract merchant name (first line that's not a date or amount)
+                lines = extracted_text.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if line and not re.search(amount_pattern, line) and not any(re.search(p, line) for p in date_patterns):
+                        receipt.extracted_merchant = line[:200]  # Limit to model field size
+                        break
+                
+                receipt.is_processed = True
+                receipt.save()
+                
+                # Create expense if we have an amount
+                if receipt.extracted_amount:
+                    expense = Expense(
+                        user=request.user,
+                        amount=receipt.extracted_amount,
+                        date=receipt.extracted_date or datetime.now().date(),
+                        description=receipt.extracted_merchant or 'Receipt expense',
+                        receipt=receipt
+                    )
+                    expense.save()
+                    messages.success(request, 'Receipt processed and expense created successfully!')
+                    return redirect('expense_edit', pk=expense.pk)
+                
+                messages.success(request, 'Receipt processed successfully!')
+                return redirect('expense_list')
+                
+            except IOError as e:
+                messages.error(request, f'Error reading receipt image: {str(e)}')
+            except pytesseract.TesseractError as e:
+                messages.error(request, f'Error processing receipt text: {str(e)}')
+            except Exception as e:
+                messages.error(request, f'Unexpected error processing receipt: {str(e)}')
+                logger.exception('Error processing receipt')
+            return redirect('expense_list')
+    else:
+        form = ReceiptUploadForm()
+    
+    return render(request, 'expenses/upload_receipt.html', {'form': form})
 
 @login_required
 def process_receipt(request, receipt_id):
-    return HttpResponse('Process receipt placeholder')
+    receipt = get_object_or_404(Receipt, id=receipt_id, user=request.user)
+    
+    if request.method == 'POST':
+        amount = request.POST.get('amount')
+        receipt_date = request.POST.get('date')
+        merchant = request.POST.get('merchant')
+        
+        if amount:
+            receipt.extracted_amount = float(amount)
+        if receipt_date:
+            receipt.extracted_date = datetime.strptime(receipt_date, '%Y-%m-%d')
+        if merchant:
+            receipt.extracted_merchant = merchant
+        
+        receipt.is_processed = True
+        receipt.save()
+        
+        # Create or update expense
+        expense = Expense.objects.filter(receipt=receipt).first()
+        if not expense:
+            expense = Expense(
+                user=request.user,
+                receipt=receipt
+            )
+        
+        expense.amount = receipt.extracted_amount
+        expense.date = receipt.extracted_date or datetime.now().date()
+        expense.description = receipt.extracted_merchant or 'Receipt expense'
+        expense.save()
+        
+        messages.success(request, 'Receipt processed and expense updated successfully!')
+        return redirect('expense_edit', pk=expense.id)
+    
+    context = {
+        'receipt': receipt,
+        'extracted_text': receipt.extracted_text
+    }
+    return render(request, 'expenses/process_receipt.html', context)
 
 @login_required
 def share_expense(request, expense_id):
@@ -270,10 +453,6 @@ def share_expense(request, expense_id):
         'form': form,
         'shared_expenses': shared_expenses
     })
-
-@login_required
-def add_category_rule(request):
-    return HttpResponse('Add category rule placeholder')
 
 @login_required
 def bulk_update_categories(request):
@@ -330,11 +509,6 @@ def expense_stop_recurring(request, pk):
         messages.success(request, 'Expense is no longer recurring.')
     return redirect('expense_dashboard')
 
-@login_required
-def suggest_category(request):
-    return HttpResponse('Suggest category placeholder')
-
-# Recurring Expenses Views
 @login_required
 def recurring_expense_list(request):
     recurring_expenses = RecurringExpense.objects.filter(user=request.user).order_by('-created_at')

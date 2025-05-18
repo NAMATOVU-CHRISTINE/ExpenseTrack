@@ -62,11 +62,13 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            animation: fadeIn 0.3s ease-out;
         }
 
         .nav-link:hover {
             color: white;
             background: rgba(255, 255, 255, 0.1);
+            animation: pulse 0.3s;
         }
 
         .nav-link.active {
@@ -83,6 +85,7 @@
             margin-left: var(--sidebar-width);
             padding: 2rem;
             min-height: 100vh;
+            animation: fadeIn 0.8s ease-out;
         }
 
         .user-profile {
@@ -152,6 +155,94 @@
             padding: 0.5rem;
             border-radius: 4px;
         }
+        
+        /* Animation classes */
+        .fade-up-animation {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .slide-in-animation {
+            animation: slideInRight 0.5s ease-out;
+        }
+        
+        .sidebar {
+            animation: slideInLeft 0.5s ease-out;
+        }
+        
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        
+        /* Button animations */
+        .btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        .dark-mode .sidebar {
+            background: linear-gradient(135deg, #333 0%, #444 100%);
+        }
+
+        .dark-mode .nav-link {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .dark-mode .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .dark-mode .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .dark-mode .user-profile {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .dark-mode .card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+        }
+
+        .dark-mode .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .dark-mode .btn:hover {
+            background: linear-gradient(135deg, #576574 0%, #2c3e50 100%);
+        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
@@ -206,6 +297,15 @@
                     <span>Profile</span>
                 </a>
             </li>
+            <li class="nav-item mt-auto">
+                <form method="post" action="{% url 'logout' %}" style="margin: 0">
+                    {% csrf_token %}
+                    <button type="submit" class="nav-link text-danger border-0 bg-transparent w-100 text-start">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </button>
+                </form>
+            </li>
         </ul>
 
         <div class="user-profile">
@@ -248,5 +348,32 @@
         });
     </script>
     {% block extra_js %}{% endblock %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dark mode from localStorage
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+            }
+            
+            // Handle sidebar toggle
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                        sidebar.classList.remove('show');
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>

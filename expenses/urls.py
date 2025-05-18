@@ -27,4 +27,8 @@ urlpatterns = [
     path('recurring/toggle/<int:pk>/', views.recurring_expense_toggle, name='recurring_expense_toggle'),
     path('recurring/generate/<int:pk>/', views.generate_now, name='generate_now'),
     path('recurring/dashboard/', views.recurring_expense_dashboard, name='recurring_expense_dashboard'),
+
+    # Receipt handling
+    path('receipts/upload/', views.upload_receipt, name='upload_receipt'),
+    path('receipts/process/<int:receipt_id>/', views.process_receipt, name='process_receipt'),
 ]

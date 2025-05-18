@@ -352,7 +352,7 @@ def add_income_source(request):
                 details=f'Added new income source: {income_source.name}'
             )
             messages.success(request, 'Income source added successfully!')
-            return redirect('profile')
+            return redirect('reports_dashboard')  # Changed from 'profile' to 'reports_dashboard'
     else:
         form = IncomeSourceForm()
     return render(request, 'users/add_income_source.html', {'form': form})

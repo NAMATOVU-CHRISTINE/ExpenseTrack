@@ -8,10 +8,7 @@ urlpatterns = [
         template_name='users/login.html',
         redirect_authenticated_user=True
     ), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(
-        template_name='users/logout.html',
-        next_page='login'
-    ), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/users/login/'), name='logout'),
     path('profile/', views.profile, name='profile'),
     path('profile/add-income/', views.add_income_source, name='add_income_source'),
     path('profile/add-goal/', views.add_finance_goal, name='add_finance_goal'),

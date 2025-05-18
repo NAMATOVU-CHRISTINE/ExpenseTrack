@@ -919,6 +919,36 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+    
+    // Initialize dark mode from localStorage
+    const darkModeSwitch = document.getElementById('darkModeSwitch');
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        darkModeSwitch.checked = true;
+    }
+
+    // Handle dark mode toggle
+    darkModeSwitch.addEventListener('change', function() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', this.checked);
+        
+        // Update charts if they exist
+        if (typeof updateChartsColorScheme === 'function') {
+            updateChartsColorScheme(this.checked);
+        }
+    });
+
+    // Sync dark mode state between switches
+    const editProfileDarkMode = document.getElementById('darkMode');
+    if (editProfileDarkMode) {
+        editProfileDarkMode.checked = isDarkMode;
+        editProfileDarkMode.addEventListener('change', function() {
+            darkModeSwitch.checked = this.checked;
+            darkModeSwitch.dispatchEvent(new Event('change'));
+        });
+    }
 });
 </script>
 {% endblock %}

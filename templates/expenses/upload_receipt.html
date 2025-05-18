@@ -1,26 +1,31 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">
-                        <i class="fas fa-camera me-2"></i>Upload Receipt
-                    </h5>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Upload Receipt</h4>
                 </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="mb-4">
-                            <label class="form-label">Receipt Image</label>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">Receipt Image</label>
                             {{ form.image }}
-                            <div class="form-text">Upload a clear image of your receipt. We'll extract the details automatically.</div>
+                            {% if form.image.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {{ form.image.errors }}
+                            </div>
+                            {% endif %}
+                            <div class="form-text">Upload a clear image of your receipt for automatic processing.</div>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-upload me-2"></i>Upload Receipt
-                            </button>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">Upload & Process</button>
+                            <a href="{% url 'expense_list' %}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>
@@ -28,4 +33,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

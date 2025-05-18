@@ -5,6 +5,8 @@
     --background: #ECF0F1;
     --text: #222;
     --white: #fff;
+    --card-bg: #fff;
+    --border-color: rgba(0,0,0,0.1);
 }
 
 body {
@@ -57,6 +59,10 @@ body {
 
 /* Dark Mode */
 body.dark-mode {
+    --background: #1a1c1e;
+    --text: #e0e0e0;
+    --card-bg: #2d3035;
+    --border-color: rgba(255,255,255,0.1);
     background: var(--primary);
     color: var(--white);
 }
@@ -64,10 +70,37 @@ body.dark-mode .navbar {
     background: #1a232c;
 }
 body.dark-mode .card {
-    background: #22303a;
+    background: var(--card-bg);
+    border-color: var(--border-color);
     color: var(--white);
 }
 body.dark-mode .btn-accent {
     background: var(--accent);
     color: var(--white);
-} 
+}
+body.dark-mode .table {
+    color: var(--text);
+}
+body.dark-mode .modal-content {
+    background: var(--card-bg);
+    color: var(--text);
+}
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: var(--border-color);
+}
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #363940;
+    border-color: var(--border-color);
+    color: var(--text);
+}
+body.dark-mode .text-muted {
+    color: #a0a0a0 !important;
+}
+body.dark-mode .border {
+    border-color: var(--border-color) !important;
+}
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}

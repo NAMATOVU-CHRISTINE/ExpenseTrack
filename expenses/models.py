@@ -84,6 +84,10 @@ class RecurringExpense(models.Model):
     def __str__(self):
         return f"{self.description} - {self.get_frequency_display()} (UGX {self.amount})"
     
+    def get_next_date(self):
+        """Returns the next date this expense will be generated"""
+        return self.next_date if self.status == 'active' else None
+        
     def calculate_next_date(self):
         if not self.last_generated:
             return self.start_date

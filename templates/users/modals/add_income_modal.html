@@ -1,3 +1,4 @@
+
 <!-- Add Income Modal -->
 <div class="modal fade" id="addIncomeModal" tabindex="-1" aria-labelledby="addIncomeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -145,16 +146,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (modal) {
                                     modal.hide();
                                     
-                                    // Reset everything after the modal is hidden
-                                    setTimeout(function() {
-                                        document.getElementById('addIncomeForm').reset();
-                                        document.getElementById('addIncomeForm').style.display = 'block';
-                                        successMsg.classList.add('d-none');
-                                        saveIncomeBtn.disabled = false;
-                                        saveIncomeBtn.innerHTML = '<i class="fas fa-plus me-1"></i>Add Income Source';
-                                        saveIncomeBtn.style.display = 'block';
-                                        document.querySelector('.modal-footer .btn-secondary').textContent = 'Cancel';
-                                    }, 500);
+                                    // Redirect to reports dashboard after modal is hidden
+                                    window.location.href = '/reports/';
                                 }
                             } catch (e) {
                                 console.log('Could not close modal automatically', e);
@@ -231,4 +224,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-</script> 
+</script>
