@@ -123,35 +123,34 @@ python manage.py runserver
 
 ---
 
-## **🤝 Contributing**  
-We welcome contributions! Follow these steps to get involved:  
+### 🚀 How to Contribute
 
-### **1️⃣ Fork & Clone Repository**  
+#### **1️⃣ Fork & Clone the Repository**  
+First, fork the repository to your own GitHub account using the "Fork" button on GitHub.
+
+Then, clone your forked repository to your local machine:
 ```bash
-git clone https://github.com/yourusername/expense-tracker.git
-```  
+git clone https://github.com/NAMATOVU-CHRISTINE/ExpenseTrack.git
+cd ExpenseTrack
+```
 
-### **2️⃣ Create a Feature Branch**  
+#### **2️⃣ Create a Feature Branch**  
+Create a new branch for your feature:
 ```bash
-git checkout -b feature/YourFeature
-```  
+git checkout -b feature/<your-feature-name>
+```
 
-### **3️⃣ Commit & Push Changes**  
+#### **3️⃣ Commit & Push Changes**  
+After making your changes, stage, commit, and push them:
 ```bash
-git commit -m "Add YourFeature"
-git push origin feature/YourFeature
-```  
+git add .
+git commit -m "Add <your-feature-name>: <short description of your changes>"
+git push origin feature/<your-feature-name>
+```
 
-### **4️⃣ Submit a Pull Request**  
-Follow these steps to contribute via pull request:
-1. **Fork** the repository to your own GitHub account.
-2. **Clone** your fork locally and create a new branch for your feature or bugfix.
-3. **Make your changes** and ensure all tests pass.
-4. **Commit** your changes with a clear message.
-5. **Push** the branch to your fork and open a pull request against the `main` branch of this repository.
-6. Please provide a detailed description of your changes in the pull request template.
-
----
+> - Replace `<your-feature-name>` with a concise, descriptive branch name.
+> - Update the commit message with a brief summary of your changes.
+> - After pushing, open a Pull Request from your branch to `NAMATOVU-CHRISTINE/ExpenseTrack` on GitHub!
 
 ## 📚 Support 
 
