@@ -92,16 +92,15 @@ def calculate_financial_health(user):
         'score': bill_points,
         'max': 25,
         'description': 'Consistent bill payment streak'
-    })    total_score += bill_points
+    })
+    total_score += bill_points
 
     # Update profile with new score and factors
     profile.financial_health_score = total_score
     profile.financial_health_factors = {
         'score': total_score,
         'factors': factors,
-        'last_updated': timezone.now().isoformat()
-    }
-    profile.emergency_fund_ratio = emergency_ratio if monthly_expenses > 0 else 0
+        'last_updated': timezone.now().isoformat()    }
     profile.save()
 
     return total_score, factors
