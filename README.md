@@ -158,6 +158,10 @@ users
     └── __pycache__
 ---
 
+
+
+```
+
 ## **📝 API Endpoints**  
 | **Endpoint** | **Functionality** |  
 |-------------|------------------|  
@@ -166,7 +170,6 @@ users
 | `/api/reports/` | Generate analytics and financial insights |  
 | `/api/users/` | User authentication, profiles, and permissions |  
 
-```
 ## **🚀 Deployment Guide**  
 ### **Requirements**  
 - Python 3.8+  
