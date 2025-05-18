@@ -92,25 +92,7 @@ def calculate_financial_health(user):
         'score': bill_points,
         'max': 25,
         'description': 'Consistent bill payment streak'
-    })
-    total_score += bill_points
-
-    # 4. Emergency Fund (20 points)
-    # Ideal emergency fund is 3-6 months of expenses
-    monthly_expenses = total_budget or total_spent
-    if monthly_expenses > 0:
-        emergency_ratio = profile.savings_amount / monthly_expenses
-        emergency_points = min(20, int(emergency_ratio * 4))  # 5 months = full points
-    else:
-        emergency_points = 0
-    
-    factors.append({
-        'name': 'Emergency Fund',
-        'score': emergency_points,
-        'max': 20,
-        'description': 'Months of expenses saved'
-    })
-    total_score += emergency_points
+    })    total_score += bill_points
 
     # Update profile with new score and factors
     profile.financial_health_score = total_score
