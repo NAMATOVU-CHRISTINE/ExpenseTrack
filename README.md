@@ -1,7 +1,7 @@
 
 
 # **📊 Expense Tracker – Personal Finance Manager**  
-A **comprehensive financial management tool** built with **Django**, designed to help individuals, families, and businesses **track expenses, manage budgets, and optimize their financial habits effortlessly**. Whether you're looking for precise expense tracking, automated budgeting, or insightful financial analytics, Expense Tracker empowers users to make **informed financial decisions** with confidence.
+Expense Tracker is a robust and feature-rich financial management application developed with Django, tailored to meet the diverse needs of individuals, families, and businesses aiming to gain full control over their finances. It enables users to effortlessly record and categorize expenses, set and monitor personalized budgets, and visualize spending patterns through interactive analytics and reports. The platform supports multi-user collaboration, allowing for shared financial oversight within households or teams, and incorporates automated notifications for budget limits and upcoming bills to promote proactive money management. With a secure authentication system and user-friendly interface, Expense Tracker simplifies the complexities of daily financial tracking and decision-making, empowering users to build better financial habits, avoid overspending, and confidently achieve their short- and long-term financial goals.
 
 ## **🚀 Key Features**  
 
@@ -146,10 +146,8 @@ git push origin feature/YourFeature
 
 ---
 
-## **📚 Support & Documentation**  
-📖 **Wiki:** [Expense Tracker Wiki](https://github.com/yourusername/expense-tracker/wiki)  
-🐞 **Issues:** [GitHub Issues](https://github.com/yourusername/expense-tracker/issues)  
-📧 **Email:** support@expensetracker.com  
+## **📚 Support & Documentation**   
+📧 **Email:** expensetracker100@gmail.com  
 
 ---
 
@@ -169,6 +167,7 @@ We extend our gratitude to:
 ---
 
 ## **🚀 About Me**  
-💻 I’m a **Full Stack Developer** passionate about building high-quality, impactful software solutions. 🚀  
+💻 I’m a **Computer sciemstist Aspiring Full Stack developer
+** passionate about building high-quality, impactful software solutions. 🚀  
 
 
