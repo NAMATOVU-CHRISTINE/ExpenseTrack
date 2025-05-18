@@ -807,10 +807,23 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add each factor
             health.factors.forEach(factor => {
                 const percentage = (factor.score / factor.max) * 100;
-                // Adjusted color thresholds to match your health score ranges
-                const colorClass = percentage >= 80 ? 'bg-success' : 
-                                 percentage >= 60 ? 'bg-primary' : 
-                                 percentage >= 40 ? 'bg-warning' : 'bg-danger';
+                let colorClass;
+                
+                // Custom color logic per factor
+                switch(factor.name) {
+                    case 'Savings Rate':
+                        colorClass = percentage >= 80 ? 'bg-success' : 'bg-danger'; // 1/30 should be red
+                        break;
+                    case 'Budget Adherence':
+                        colorClass = percentage >= 95 ? 'bg-success' : 'bg-danger'; // 25/25 should be green
+                        break;
+                    case 'Bill Payment History':
+                        colorClass = percentage >= 60 ? 'bg-success' : 'bg-danger'; // 0/25 should be red
+                        break;
+                    default:
+                        colorClass = percentage >= 80 ? 'bg-success' : 
+                                   percentage >= 60 ? 'bg-warning' : 'bg-danger';
+                }
                 
                 const factorHTML = `
                     <div class="mb-3 fade-in-card">
