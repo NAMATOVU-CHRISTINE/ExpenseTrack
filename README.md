@@ -1,7 +1,7 @@
 
 
 # **📊 Expense Tracker – Personal Finance Manager**  
-A **comprehensive, web-based financial management tool** built with **Django**, designed to help individuals, families, and businesses **track expenses, manage budgets, and optimize their financial habits effortlessly**. Whether you're looking for precise expense tracking, automated budgeting, or insightful financial analytics, Expense Tracker empowers users to make **informed financial decisions** with confidence.
+A **comprehensive financial management tool** built with **Django**, designed to help individuals, families, and businesses **track expenses, manage budgets, and optimize their financial habits effortlessly**. Whether you're looking for precise expense tracking, automated budgeting, or insightful financial analytics, Expense Tracker empowers users to make **informed financial decisions** with confidence.
 
 ## **🚀 Key Features**  
 
