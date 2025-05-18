@@ -170,9 +170,9 @@ users
 | `/api/reports/` | Generate analytics and financial insights |  
 | `/api/users/` | User authentication, profiles, and permissions |  
 
-## **🚀 Deployment Guide**  
-### **Requirements**  
-- Python 3.8+  
+## **🚀 Deployment Guide**
+### **Requirements**
+- Python 3.8+ 
 - Django 4.x  
 - Dependencies listed in `requirements.txt`  
 

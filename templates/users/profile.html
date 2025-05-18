@@ -658,7 +658,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Get profile data from localStorage
         const firstName = localStorage.getItem('firstName') || '';
         const lastName = localStorage.getItem('lastName') || '';
-        const username = localStorage.getItem('username') || 'Joanita';
+        const username = localStorage.getItem('username') || '';
         const darkMode = localStorage.getItem('darkMode') === 'true';
         
         // Update profile display name
@@ -807,15 +807,21 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add each factor
             health.factors.forEach(factor => {
                 const percentage = (factor.score / factor.max) * 100;
-                const colorClass = percentage >= 80 ? 'bg-success' : percentage >= 60 ? 'bg-warning' : 'bg-danger';
+                // Adjusted color thresholds to match your health score ranges
+                const colorClass = percentage >= 80 ? 'bg-success' : 
+                                 percentage >= 60 ? 'bg-primary' : 
+                                 percentage >= 40 ? 'bg-warning' : 'bg-danger';
                 
                 const factorHTML = `
-                    <div class="mb-2 fade-in-card">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small>${factor.name}</small>
-                            <small class="text-muted">${factor.score}/${factor.max}</small>
+                    <div class="mb-3 fade-in-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="d-block">${factor.name}</span>
+                                <small class="text-muted">${factor.description}</small>
+                            </div>
+                            <span class="badge ${colorClass.replace('bg-', 'bg-opacity-25 text-')} rounded-pill">${factor.score}/${factor.max}</span>
                         </div>
-                        <div class="progress" style="height: 6px;">
+                        <div class="progress" style="height: 8px;">
                             <div class="progress-bar ${colorClass} progress-animate" role="progressbar" style="width: ${percentage}%"></div>
                         </div>
                     </div>
