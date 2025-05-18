@@ -76,7 +76,7 @@ Below are some screenshots to give you a quick look at how Expense Tracker works
 ### Shared Expenses
 
 !*Collaborate and split expenses with family members or roommates.*
-[Shared Expenses Screenshot](static/assets/screenshots/sexpense.jpg)
+![Shared Expenses Screenshot](static/assets/screenshots/sexpense.jpg)
 
 
 
