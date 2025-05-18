@@ -116,7 +116,49 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```  
+## Project Folder Structure
 
+```plaintext
+.vscode
+budgets
+    ├── migrations
+    │   └── __pycache__
+    └── __pycache__
+expenses
+    ├── migrations
+    │   └── __pycache__
+    ├── templatetags
+    │   └── __pycache__
+    └── __pycache__
+finance_manager
+    └── __pycache__
+media
+    ├── profile_pics
+    └── receipts
+reports
+    ├── migrations
+    │   └── __pycache__
+    └── __pycache__
+static
+    ├── assets
+    │   └── screenshots
+    ├── css
+    └── js
+templates
+    ├── budgets
+    ├── expenses
+    ├── partials
+    ├── reports
+    └── users
+        └── modals
+users
+    ├── management
+    │   └── commands
+    ├── migrations
+    │   └── __pycache__
+    ├── templatetags
+    │   └── __pycache__
+    └── __pycache__
 ---
 
 ## **📝 API Endpoints**  
