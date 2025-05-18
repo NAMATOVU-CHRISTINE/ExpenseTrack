@@ -61,7 +61,41 @@ Expense Tracker is a robust and feature-rich financial management application de
 - **Automation:** Celery background tasks for processing transactions  
 
 ---
+## 🌟 Screenshots
 
+Below are some screenshots to give you a quick look at how Expense Tracker works:
+
+### Dashboard
+
+![Dashboard](assets/screenshots/dashboard.png)
+*The main dashboard provides an overview of your spending and income, as well as visual financial reports.*
+
+### Add Expense Form
+
+![Add Expense](assets/screenshots/add-expense.png)
+*Easily log a new expense with details such as amount, category, and description.*
+
+### Expense Categories
+
+![Expense Categories](assets/screenshots/expense-categories.png)
+*Organize your expenses with customizable categories and color-coded tags.*
+
+### Analytics & Reports
+
+![Analytics](assets/screenshots/analytics.png)
+*View detailed breakdowns of your expenses and income by category, with interactive charts.*
+
+### Budget Management
+
+![Budget Management](assets/screenshots/budget-management.png)
+*Allocate budgets for different expense categories and monitor your spending progress in real time.*
+
+### Family/Shared Expenses
+
+![Shared Expenses](assets/screenshots/shared-expenses.png)
+*Collaborate with family members or roommates to track and split expenses.*
+
+---
 ## **🛠️ Development Setup**  
 
 ### **1️⃣ Clone & Setup Environment**  
