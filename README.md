@@ -153,7 +153,7 @@ Follow these steps to contribute via pull request:
 
 ---
 
-## **📚 Support **  
+## 📚 Support 
 
 If you need help or have any questions, please reach out:📧 **Email:** expensetracker100@gmail.com  
 
