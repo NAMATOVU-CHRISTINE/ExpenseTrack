@@ -151,13 +151,8 @@ git push origin feature/YourFeature
 
 ---
 
-## **📜 License**  
-This project is licensed under the **MIT License** – See the [LICENSE](LICENSE) file for details.  
-
----
-
 ## **🙏 Acknowledgments**  
-We extend our gratitude to:  
+I extend our gratitude to:  
 - **Django community** – For building an amazing framework.  
 - **Bootstrap team** – For responsive UI components.  
 - **Chart.js contributors** – For interactive financial visualizations.  
