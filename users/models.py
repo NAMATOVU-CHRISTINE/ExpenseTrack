@@ -16,18 +16,65 @@ class Profile(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
     low_balance_threshold = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # Financial dashboard fields
-    savings_amount = models.DecimalField(max_digits=12, decimal_places=2, default=520000)
-    savings_target = models.DecimalField(max_digits=12, decimal_places=2, default=1000000)
-    monthly_income = models.DecimalField(max_digits=12, decimal_places=2, default=700000)
-    # Add fields for financial health score
+    
+    # Financial Status Fields
+    savings_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    savings_target = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    monthly_income = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    disposable_income = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
+    # Financial Health Metrics
     financial_health_score = models.IntegerField(default=0)
     financial_health_factors = models.JSONField(default=dict)
     savings_streak = models.IntegerField(default=0)
     last_bill_payment = models.DateField(null=True, blank=True)
     bill_payment_streak = models.IntegerField(default=0)
     emergency_fund_ratio = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-
+    
+    # Settings and Preferences
+    budget_notification_threshold = models.IntegerField(default=80)  # Notify when budget usage reaches this percentage
+    savings_notification_enabled = models.BooleanField(default=True)
+    bills_notification_enabled = models.BooleanField(default=True)
+    expense_anomaly_alerts = models.BooleanField(default=True)
+    weekly_report_enabled = models.BooleanField(default=True)
+    
+    def calculate_savings_progress(self):
+        if self.savings_target > 0:
+            return (self.savings_amount / self.savings_target) * 100
+        return 0
+    
+    def update_emergency_fund_ratio(self):
+        monthly_expenses = self.user.expense_set.filter(
+            date__gte=timezone.now() - timezone.timedelta(days=30)
+        ).aggregate(models.Sum('amount'))['amount__sum'] or 0
+        
+        if monthly_expenses > 0:
+            self.emergency_fund_ratio = self.savings_amount / monthly_expenses
+            self.save(update_fields=['emergency_fund_ratio'])
+    
+    def update_health_score(self):
+        """Updates the financial health score based on various factors"""
+        score = 50  # Base score
+        
+        # Factor 1: Emergency Fund (up to +20 points)
+        if self.emergency_fund_ratio >= 6:  # 6 months of expenses
+            score += 20
+        elif self.emergency_fund_ratio >= 3:  # 3 months of expenses
+            score += 10
+        
+        # Factor 2: Savings Target Progress (up to +15 points)
+        savings_progress = self.calculate_savings_progress()
+        score += min(15, int(savings_progress * 0.15))
+        
+        # Factor 3: Bill Payment Streak (up to +10 points)
+        score += min(10, self.bill_payment_streak)
+        
+        # Factor 4: Savings Streak (up to +5 points)
+        score += min(5, self.savings_streak)
+        
+        self.financial_health_score = min(100, score)
+        self.save(update_fields=['financial_health_score'])
+    
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
