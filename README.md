@@ -37,47 +37,48 @@ Expense Tracker is a robust and feature-rich financial management application de
 
 Below are some screenshots to give you a quick look at how Expense Tracker works:
 
-### Dashboard View
-
+### Visual View
+*The login page provides a secure and user-friendly authentication process, ensuring safe access to personal finance management tools.*
 ![login Screenshot](static/assets/screenshots/login.jpg)
 
-*The login page provides a secure and user-friendly authentication process, ensuring safe access to personal finance management tools.*
+*The signup page allows new users to create a secure account, personalize their financial settings, and start managing their expenses effortlessly.*
 ![signup Screenshot](static/assets/screenshots/signup.jpg)
 
-*The signup page allows new users to create a secure account, personalize their financial settings, and start managing their expenses effortlessly.*
+ 
+*The main dashboard provides an overview of your spending and income, as well as visual financial reports.*
 ![Dashboard Screenshot](static/assets/screenshots/dashboard.jpg)
 
-*The main dashboard provides an overview of your spending and income, as well as visual financial reports.*
 
 ### Adding Expenses
-
+*Easily add new expenses with categories, descriptions, and receipt attachments.*
 ![Add Expense Screenshot](static/assets/screenshots/add-expense.jpg)
 
-*Easily add new expenses with categories, descriptions, and receipt attachments.*
+
 
 ### Expense Categories
+*Organize and track expenses with customizable categories and tags.*
 
 ![Expense Categories Screenshot](static/assets/screenshots/expense.jpg)
 
-*Organize and track expenses with customizable categories and tags.*
 
 ### Analytics Dashboard
-
+*Detailed financial analytics and visualizations to track your spending patterns.*
 ![Analytics Screenshot](static/assets/screenshots/reports.jpg)
 
-*Detailed financial analytics and visualizations to track your spending patterns.*
+
 
 ### Budget Management
 
+*Set and monitor budgets for different expense categories.*
 ![Budget Management Screenshot](static/assets/screenshots/budget.jpg)
 
-*Set and monitor budgets for different expense categories.*
 
 ### Shared Expenses
 
-![Shared Expenses Screenshot](static/assets/screenshots/sexpense.jpg)
+!*Collaborate and split expenses with family members or roommates.*
+[Shared Expenses Screenshot](static/assets/screenshots/sexpense.jpg)
 
-*Collaborate and split expenses with family members or roommates.*
+
 
 ---
 
