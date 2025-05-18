@@ -849,15 +849,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateFinancialGoals() {
         const goals = financialData.goals.filter(goal => goal.active);
         const goalsContainer = document.querySelector('.goals-scroll');
-        
+
         if (goalsContainer && goals.length > 0) {
             // Clear existing goals
             goalsContainer.innerHTML = '';
-            
+
             // Add each active goal
             goals.forEach(goal => {
                 const progress = Math.min(100, (goal.current / goal.target) * 100).toFixed(0);
-                
+
                 const goalHTML = `
                     <div class="mb-3 fade-in-card">
                         <h6 class="card-subtitle mb-2">${goal.name}</h6>
@@ -954,16 +954,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td>${formatCurrency(expense.amount)}</td>
                     </tr>
                 `;
-                
+
                 expenseTableBody.innerHTML += expenseHTML;
             });
         }
     }
-    
+
     // Initialize dark mode from localStorage
     const darkModeSwitch = document.getElementById('darkModeSwitch');
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
-    
+
     if (isDarkMode) {
         document.body.classList.add('dark-mode');
         darkModeSwitch.checked = true;
