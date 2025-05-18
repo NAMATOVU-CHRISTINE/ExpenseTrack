@@ -47,16 +47,16 @@
                         </h6>
                         <div class="d-flex justify-content-between mb-1 small">
                             <span class="text-muted">Savings</span>
-                            <span class="fw-bold">UGX 520K</span>
+                            <span class="fw-bold">UGX {{ total_savings|floatformat:0|intcomma }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-1 small">
                             <span class="text-muted">Budget</span>
-                            <span class="fw-bold">UGX 550K</span>
+                            <span class="fw-bold">UGX {{ total_budget|floatformat:0|intcomma }}</span>
                         </div>
                         <div class="d-flex justify-content-between small">
                             <span class="text-muted">Goals</span>
-                            <span class="fw-bold">2 Active</span>
-        </div>
+                            <span class="fw-bold">{{ savings_goals|length }} Active</span>
+                        </div>
                                 </div>
                                 </div>
                 
@@ -559,67 +559,88 @@
 <!-- Animation Script -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Comprehensive financial data object - this would normally come from your backend
+    // Initialize financial data from Django context variables
     const financialData = {
         savings: {
-            current: 520000,
-            target: 1000000
+            current: {{ total_savings|default:0|escapejs }},
+            target: {{ monthly_target|default:0|escapejs }},
+            current: {{ total_savings|default:0|floatformat:0 }},
+            target: {{ monthly_target|default:0|floatformat:0 }}
         },
         income: {
-            total: 700000,
+            total: {{ total_income|default:0|floatformat:0 }},
             sources: [
-                {name: 'Salary', amount: 600000, frequency: 'monthly', isActive: true},
-                {name: 'Freelance', amount: 80000, frequency: 'monthly', isActive: true},
-                {name: 'Investments', amount: 20000, frequency: 'quarterly', isActive: true}
+                {% for source in income_sources %}
+                {
+                    name: '{{ source.name }}',
+                    amount: {{ source.amount|floatformat:0 }},
+                    frequency: '{{ source.frequency }}',
+                    isActive: {{ source.is_active|yesno:"true,false" }}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
             ]
         },
         budget: {
-            total: 550000,
-            spent: 11000,
+            total: {{ total_budget|default:0|escapejs }},
+            spent: {{ total_spent|default:0|escapejs }},
             categories: [
-                {name: 'Food', amount: 150000, spent: 5000},
-                {name: 'Transportation', amount: 100000, spent: 3000},
-                {name: 'Utilities', amount: 80000, spent: 3000},
-                {name: 'Entertainment', amount: 50000, spent: 0},
-                {name: 'Shopping', amount: 70000, spent: 0},
-                {name: 'Healthcare', amount: 100000, spent: 0}
+                {% for budget in current_month_budgets %}
+                {
+                    name: '{{ budget.category.name }}',
+                    amount: {{ budget.limit|floatformat:0 }},
+                    spent: {{ budget.spent|default:0|floatformat:0 }}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
             ]
         },
         expenses: [
-            {date: 'May 15, 2023', description: 'Grocery Shopping', category: 'Food', amount: 5000},
-            {date: 'May 12, 2023', description: 'Internet Bill', category: 'Utilities', amount: 3000},
-            {date: 'May 10, 2023', description: 'Transport', category: 'Transportation', amount: 3000}
+            {% for expense in current_month_expenses|slice:":5" %}
+            {
+                date: '{{ expense.date|date:"M d, Y" }}',
+                description: '{{ expense.description|escapejs }}',
+                category: '{{ expense.category.name|escapejs }}',
+                amount: {{ expense.amount|floatformat:0 }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
         ],
         goals: [
-            {name: 'New Car', target: 5000000, current: 1750000, active: true},
-            {name: 'Emergency Fund', target: 3000000, current: 1860000, active: true},
-            {name: 'Vacation', target: 1500000, current: 0, active: false}
+            {% for goal in savings_goals %}
+            {
+                name: '{{ goal.name|escapejs }}',
+                target: {{ goal.target_amount|escapejs }},
+                current: {{ goal.current_savings|escapejs }},
+                active: true
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
         ],
         activity: [
-            {action: 'Added expense', date: 'Today', category: 'success'},
-            {action: 'Updated budget', date: 'Yesterday', category: 'primary'},
-            {action: 'Created goal', date: 'May 12', category: 'info'}
+            {% for log in activity_logs|slice:":3" %}
+            {
+                action: '{{ log.action|escapejs }}',
+                date: '{{ log.created_at|timesince }}',
+                category: '{% if "added" in log.action|lower %}success{% elif "updated" in log.action|lower %}primary{% else %}info{% endif %}'
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
         ],
         health: {
-            score: 90,
-            rating: 'Excellent',
+            score: {{ health_score|default:0 }},
+            rating: '{% if health_score >= 80 %}Excellent{% elif health_score >= 60 %}Good{% elif health_score >= 40 %}Fair{% else %}Needs Attention{% endif %}',
             factors: [
-                {name: 'Savings Rate', score: 8, max: 10},
-                {name: 'Budget Adherence', score: 9, max: 10}
+                {% for factor in health_factors %}
+                {
+                    name: '{{ factor.name|escapejs }}',
+                    score: {{ factor.score }},
+                    max: {{ factor.max }}
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
             ]
         },
         insights: {
-            topCategory: 'Food',
-            monthlySpend: 11000,
-            monthlyChange: 0.0
+            topCategory: '{{ top_category|escapejs }}',
+            monthlySpend: {{ monthly_spending|default:0|floatformat:0 }},
+            monthlyChange: {{ monthly_change|default:0|floatformat:1 }}
         },
         tips: [
-            'Track all expenses for one month to identify spending patterns.',
-            'Set up automatic transfers to your savings account on payday.',
-            'Review and cancel unused subscriptions to save money.',
-            'Create an emergency fund with 3-6 months of expenses.'
-        ],
-        resources: [
             {title: 'Budgeting Basics', type: 'Article', icon: 'book', color: 'primary', description: 'Learn the fundamentals of creating and maintaining a personal budget.'},
             {title: 'Investment Strategies', type: 'Video', icon: 'video', color: 'success', description: 'Discover different investment options to grow your wealth over time.'},
             {title: 'Debt Management', type: 'Calculator', icon: 'calculator', color: 'warning', description: 'Effective strategies for managing and reducing personal debt.'}
