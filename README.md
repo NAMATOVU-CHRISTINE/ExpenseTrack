@@ -111,7 +111,7 @@ Below are some screenshots to give you a quick look at how Expense Tracker works
 
 ---
 
-```
+
 
 ### Dependencies
 - Django 4.2+
