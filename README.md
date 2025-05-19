@@ -18,10 +18,9 @@ Expense Tracker is a robust and feature-rich financial management application de
 - [How to Contribute](#-how-to-contribute)
 - [Support](#-support)
 - [Acknowledgments](#-acknowledgments)
-- [About Me](#-about-me)
 - [Code Organization](#-code-organization)
 - [Roadmap](#roadmap)
-
+-[About Me](#-about-me)
 ---
 ## 🚀 Key Features
 
@@ -205,6 +204,20 @@ users
 
 ---
 
+```
+
+### Dependencies
+- Django 4.2+
+- Bootstrap 5
+- Chart.js
+- Font Awesome
+- Animate.css
+
+### Browser Support
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
 ### 🚀 How to Contribute
 
 #### **1️⃣ Fork & Clone the Repository**  
@@ -232,75 +245,6 @@ git push origin feature/<your-feature-name>
 > - Update the commit message with a brief summary of your changes.
 > - After pushing, open a Pull Request from your branch to `NAMATOVU-CHRISTINE/ExpenseTrack` on GitHub!
 
-## 📚 Support 
-
-If you need help or have any questions, please reach out:📧 **Email:** expensetracker100@gmail.com  
-
----
-
-## **🙏 Acknowledgments**  
-I extend my gratitude to:  
-- **Django community** – For building an amazing framework.  
-- **Bootstrap team** – For responsive UI components.  
-- **Chart.js contributors** – For interactive financial visualizations.  
-- **Font Awesome developers** – For beautiful icons.  
-- **Every contributor and user** improving this project!  
-
----
-
-## **🚀 About Me**  
-
-**💻 I’m a Computer Scientist and aspiring Full Stack Developer, passionate about building high-quality, impactful software solutions. With a strong foundation in both front-end and back-end technologies, I am dedicated to continuous learning and driven by the desire to create software that makes a real difference. 🚀**
-
-## 🚀 Code Organization
-
-### CSS Structure
-- **core.css**: Contains base styles, variables, and common component styles
-- **layout.css**: Styles for layout and navigation elements
-- **dashboard.css**: Dashboard-specific styles and components
-- **animations.css**: Animation keyframes and utility classes
-- **forms.css**: Form styling and input customization
-
-### JavaScript Modules
-- **charts.js**: Chart initialization and configuration
-- **utils.js**: Utility functions for numbers, dates, and animations
-- **finance-features.js**: Finance-related feature implementations
-- **layout.js**: Layout management and theme switching
-- **dashboard.js**: Main dashboard initialization
-
-### Project Structure
-
-```
-expense_tracker/
-├── static/
-│   ├── css/               # Organized CSS files
-│   ├── js/
-│   │   ├── modules/      # Modular JavaScript components
-│   │   └── dashboard.js  # Main dashboard initialization
-│   └── assets/          # Images and other static assets
-├── templates/
-│   ├── base.html        # Base template
-│   ├── partials/        # Reusable template components
-│   └── app-specific/    # App-specific templates
-└── apps/
-    ├── expenses/        # Expense management
-    ├── budgets/         # Budget management
-    ├── reports/         # Reports and analytics
-    └── users/           # User management
-```
-
-### Dependencies
-- Django 4.2+
-- Bootstrap 5
-- Chart.js
-- Font Awesome
-- Animate.css
-
-### Browser Support
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
 
 ## 🛠️ Setup Instructions
 
@@ -330,4 +274,25 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+
+## 📚 Support 
+
+If you need help or have any questions, please reach out:📧 **Email:** expensetracker100@gmail.com  
+
+---
+
+## **🙏 Acknowledgments**  
+I extend my gratitude to:  
+- **Django community** – For building an amazing framework.  
+- **Bootstrap team** – For responsive UI components.  
+- **Chart.js contributors** – For interactive financial visualizations.  
+- **Font Awesome developers** – For beautiful icons.  
+- **Every contributor and user** improving this project!  
+
+---
+
+## **🚀 About Me**  
+
+**💻 I’m a Computer Scientist and aspiring Full Stack Developer, passionate about building high-quality, impactful software solutions. With a strong foundation in both front-end and back-end technologies, I am dedicated to continuous learning and driven by the desire to create software that makes a real difference. 🚀**
+
 
