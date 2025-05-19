@@ -1,0 +1,177 @@
+{% load static %}
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="editProfileModalLabel">
+                    <i class="fas fa-user-edit me-2 text-primary"></i>Edit Profile
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'profile_update' %}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Personal Information -->
+                    <div class="mb-4">
+                        <h6 class="mb-3 text-secondary">
+                            <i class="fas fa-user me-2"></i>Personal Information
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" 
+                                           value="{{ user.first_name }}" required>
+                                    <div class="invalid-feedback">Please enter your first name.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" 
+                                           value="{{ user.last_name }}" required>
+                                    <div class="invalid-feedback">Please enter your last name.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="mb-4">
+                        <h6 class="mb-3 text-secondary">
+                            <i class="fas fa-address-card me-2"></i>Contact Information
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ user.email }}" required>
+                                    <div class="invalid-feedback">Please enter a valid email address.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input type="tel" class="form-control" id="phone" name="phone" 
+                                           value="{{ user.profile.phone }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preferences -->
+                    <div class="mb-4">
+                        <h6 class="mb-3 text-secondary">
+                            <i class="fas fa-cog me-2"></i>Preferences
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="currency" class="form-label">Preferred Currency</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-money-bill"></i></span>
+                                    <select class="form-select" id="currency" name="currency" required>
+                                        <option value="UGX" {% if user.profile.currency == 'UGX' %}selected{% endif %}>UGX - Ugandan Shilling</option>
+                                        <option value="USD" {% if user.profile.currency == 'USD' %}selected{% endif %}>USD - US Dollar</option>
+                                        <option value="EUR" {% if user.profile.currency == 'EUR' %}selected{% endif %}>EUR - Euro</option>
+                                        <option value="GBP" {% if user.profile.currency == 'GBP' %}selected{% endif %}>GBP - British Pound</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="savings_target" class="form-label">Monthly Savings Target</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-piggy-bank"></i></span>
+                                    <input type="number" class="form-control" id="savings_target" name="savings_target"
+                                           value="{{ user.profile.monthly_savings_target|default:'0' }}" min="0" step="1000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Settings -->
+                    <div class="mb-4">
+                        <h6 class="mb-3 text-secondary">
+                            <i class="fas fa-sliders-h me-2"></i>Additional Settings
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="darkMode" name="dark_mode"
+                                           {% if user.profile.dark_mode %}checked{% endif %}>
+                                    <label class="form-check-label" for="darkMode">
+                                        <i class="fas fa-moon me-2"></i>Dark Mode
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifications" name="email_notifications"
+                                           {% if user.profile.email_notifications %}checked{% endif %}>
+                                    <label class="form-check-label" for="emailNotifications">
+                                        <i class="fas fa-bell me-2"></i>Email Notifications
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="mb-4">
+                        <h6 class="mb-3 text-secondary">
+                            <i class="fas fa-info-circle me-2"></i>About
+                        </h6>
+                        <div class="form-floating">
+                            <textarea class="form-control" id="bio" name="bio" style="height: 100px">{{ user.profile.bio }}</textarea>
+                            <label for="bio">Tell us about yourself</label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save Changes
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form validation script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch form element
+    const form = document.querySelector('.needs-validation');
+    
+    // Add validation on form submit
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+    
+    // Handle dark mode toggle
+    const darkModeToggle = document.getElementById('darkMode');
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('change', function() {
+            document.body.classList.toggle('dark-mode', this.checked);
+            if (typeof updateChartsColorScheme === 'function') {
+                updateChartsColorScheme(this.checked);
+            }
+        });
+    }
+});
+</script>
