@@ -591,8 +591,51 @@ def recurring_expense_add(request):
             recurring_expense = form.save(commit=False)
             recurring_expense.user = request.user
             recurring_expense.status = 'active'
-            recurring_expense.save()
             
+            # Get form data
+            start_date = form.cleaned_data['start_date']
+            frequency = form.cleaned_data['frequency']
+            day_of_month = form.cleaned_data.get('day_of_month')
+            
+            # Set the initial next_date
+            recurring_expense.next_date = start_date
+            
+            # For monthly and longer frequencies, use day_of_month if specified
+            if frequency in ['monthly', 'quarterly', 'biannual', 'annual'] and day_of_month:
+                # Try to use the specified day of month, but don't exceed month length
+                from calendar import monthrange
+                year = start_date.year
+                month = start_date.month
+                max_days = monthrange(year, month)[1]
+                actual_day = min(day_of_month, max_days)
+                
+                # Create a new date with the adjusted day
+                recurring_expense.next_date = start_date.replace(day=actual_day)
+                
+                # If the new date would be before start_date, move to next occurrence
+                if recurring_expense.next_date < start_date:
+                    if frequency == 'monthly':
+                        if month == 12:
+                            month = 1
+                            year += 1
+                        else:
+                            month += 1
+                    elif frequency == 'quarterly':
+                        month = month + 3
+                        if month > 12:
+                            month = month - 12
+                            year += 1
+                    elif frequency == 'biannual':
+                        month = month + 6
+                        if month > 12:
+                            month = month - 12
+                            year += 1
+                    elif frequency == 'annual':
+                        year += 1
+                        
+                    recurring_expense.next_date = date(year, month, actual_day)
+            
+            recurring_expense.save()
             messages.success(request, 'Recurring expense added successfully!')
             return redirect('recurring_expense_list')
     else:

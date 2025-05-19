@@ -25,6 +25,34 @@ def validate_image(value):
     if value.size > 5*1024*1024:  # 5MB
         raise ValidationError('File size too large (max 5MB)')
 
+class UserUpdateForm(forms.ModelForm):
+    first_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'First Name'
+        })
+    )
+    
+    last_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Last Name'
+        })
+    )
+    
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Email'
+        })
+    )
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
@@ -321,3 +349,30 @@ class SavingsGoalForm(forms.ModelForm):
         if target_date and target_date < timezone.now().date():
             raise ValidationError('Target date must be in the future')
         return target_date
+
+class SavingsForm(FormWarningMixin, forms.Form):
+    amount = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[validate_positive_decimal],
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter amount',
+            'step': '0.01'
+        })
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Description (optional)'
+        })
+    )
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        }),
+        initial=timezone.now
+    )

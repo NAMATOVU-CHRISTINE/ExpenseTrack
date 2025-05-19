@@ -10,6 +10,8 @@ urlpatterns = [
     ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/users/login/'), name='logout'),
     path('profile/', views.profile, name='profile'),
+    path('profile/update/', views.profile_update, name='profile_update'),  # New URL pattern for profile updates
+    path('profile/update-picture/', views.update_profile_picture, name='update_profile_picture'),  # New URL pattern
     path('profile/add-income/', views.add_income_source, name='add_income_source'),
     path('profile/add-goal/', views.add_finance_goal, name='add_finance_goal'),
     path('profile/add-family/', views.add_family_member, name='add_family_member'),
@@ -27,4 +29,5 @@ urlpatterns = [
     path('savings/goal/<int:goal_id>/', views.get_savings_goal, name='get_savings_goal'),
     path('savings/goal/<int:goal_id>/update/', views.update_savings, name='update_savings'),
     path('add_savings_goal/', views.add_savings_goal, name='add_savings_goal_alt'),  # Alternate URL for backward compatibility
+    path('profile/add-savings/', views.add_savings, name='add_savings'),  # New URL pattern for adding savings
 ]

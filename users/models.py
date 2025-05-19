@@ -8,8 +8,9 @@ from django.utils import timezone
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)    
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True, default='assets/default/default-avatar.png')    
     monthly_savings_target = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    last_savings_date = models.DateField(null=True, blank=True)
     preferred_currency = models.CharField(max_length=3, default='UGX')
     dark_mode = models.BooleanField(default=False)
     email_notifications = models.BooleanField(default=True)
@@ -118,13 +119,26 @@ class FinanceGoal(models.Model):
         return f"{self.user.username}'s {self.title}"
 
 class ActivityLog(models.Model):
+    ACTIVITY_TYPES = [
+        ('savings_added', 'Savings Added'),
+        ('expense_added', 'Expense Added'),
+        ('bill_paid', 'Bill Paid'),
+        ('goal_reached', 'Goal Reached'),
+        ('budget_exceeded', 'Budget Exceeded'),
+    ]
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    action = models.CharField(max_length=100)
-    details = models.TextField()
+    activity_type = models.CharField(max_length=50, choices=ACTIVITY_TYPES, default='savings_added')
+    description = models.TextField(default='', blank=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    date = models.DateField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
-        return f"{self.user.username} - {self.action}"
+        return f"{self.user.username} - {self.activity_type} - {self.date}"
 
 class FamilyMember(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='family_members')

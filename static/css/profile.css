@@ -202,3 +202,30 @@ body.dark-mode .activity-item {
 .sidebar-card:hover {
     transform: translateY(-5px);
 }
+
+/* Health Score Styles */
+.health-score-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 1rem;
+}
+
+.health-score {
+    border-radius: 50%;
+}
+
+.health-score-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    position: relative;
+    z-index: 1;
+}
+
+.factor-name {
+    font-weight: 500;
+}
+
+.factor-score {
+    font-weight: 500;
+    color: #6c757d;
+}

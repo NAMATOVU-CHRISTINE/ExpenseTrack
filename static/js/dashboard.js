@@ -9,6 +9,7 @@ import {
     initializeTimeUpdates,
     updateGreeting
 } from './modules/utils.js';
+import { initializeFinanceFeatures } from './modules/finance-features.js';
 import { initDynamicProgress } from './modules/progress.js';
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -18,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     initializeAnimations();
+    initializeFinanceFeatures();
     initializeLottie();
     initializeCardEffects();
     initializeProgressBars();

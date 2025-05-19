@@ -1,5 +1,6 @@
 // Chart initialization and configuration
 export function initializeCharts(chartData) {
+    if (!chartData) return;
     initializeCategoryChart(chartData);
     initializeTrendChart(chartData);
     initializeBudgetChart(chartData);

@@ -35,7 +35,9 @@ urlpatterns = [
     path('api/create-sample-data/', api.create_sample_data, name='api_create_sample_data'),
 ]
 
+# Serve static and media files during development
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 MEDIA_URL = '/media/'

@@ -11,7 +11,8 @@ import datetime
 from decimal import Decimal
 from .forms import (
     UserUpdateForm, ProfileUpdateForm, IncomeSourceForm,
-    FinanceGoalForm, FamilyMemberForm, ProfileImageForm, SavingsGoalForm
+    FinanceGoalForm, FamilyMemberForm, ProfileImageForm, SavingsGoalForm,
+    SavingsForm
 )
 from .models import (
     Profile, IncomeSource, FinanceGoal, FamilyMember, ActivityLog,
@@ -320,6 +321,38 @@ def profile(request):
     return render(request, 'users/profile.html', context)
 
 @login_required
+def profile_update(request):
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        
+        if user_form.is_valid() and profile_form.is_valid():
+            user = user_form.save()
+            profile_form.save()
+            
+            # Force refresh the database values
+            user.refresh_from_db()
+            
+            # Update the session
+            request.session['_auth_user_id'] = str(user.id)
+            request.session['_auth_user_backend'] = 'django.contrib.auth.backends.ModelBackend'
+            request.session['_auth_user_hash'] = user.get_session_auth_hash()
+            
+            messages.success(request, 'Your profile has been updated successfully!')
+            return redirect('profile')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        user_form = UserUpdateForm(instance=request.user)
+        profile_form = ProfileUpdateForm(instance=request.user.profile)
+    
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form
+    }
+    return render(request, 'users/profile.html', context)
+
+@login_required
 def add_income_source(request):
     if request.method == 'POST':
         form = IncomeSourceForm(request.POST)
@@ -511,3 +544,56 @@ def get_savings_goal(request, goal_id):
             'interest_rate': str(goal.interest_rate)
         })
     return HttpResponseBadRequest('Invalid request method')
+
+@login_required
+def update_profile_picture(request):
+    if request.method == 'POST':
+        form = ProfileImageForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile picture has been updated.')
+            return redirect('profile')
+    return redirect('profile')
+
+@login_required
+def add_savings(request):
+    if request.method == 'POST':
+        form = SavingsForm(request.POST)
+        if form.is_valid():
+            amount = form.cleaned_data['amount']
+            description = form.cleaned_data['description']
+            date = form.cleaned_data['date']
+            
+            profile = request.user.profile
+            profile.savings_amount += amount
+            profile.save()
+            
+            # Create activity log entry
+            ActivityLog.objects.create(
+                user=request.user,
+                activity_type='savings_added',
+                description=f'Added {amount} to savings' + (f': {description}' if description else ''),
+                amount=amount,
+                date=date
+            )
+            
+            messages.success(request, f'Successfully added {amount} to your savings!')
+            
+            # Update savings streak if applicable
+            if profile.last_savings_date:
+                streak_broken = (date - profile.last_savings_date).days > 30
+                if streak_broken:
+                    profile.savings_streak = 1
+                else:
+                    profile.savings_streak += 1
+            else:
+                profile.savings_streak = 1
+            
+            profile.last_savings_date = date
+            profile.save()
+            
+            return redirect('profile')
+    else:
+        form = SavingsForm()
+    
+    return render(request, 'users/add_savings.html', {'form': form})

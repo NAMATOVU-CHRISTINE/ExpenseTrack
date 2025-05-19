@@ -1,9 +1,6 @@
 // Finance features module - Handles bills and savings goals
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle mark as paid functionality
+export function initializeFinanceFeatures() {
     initializeMarkPaidButtons();
-    
-    // Handle adding new bill
     initializeBillForm();
     
     // Handle savings goals

@@ -445,61 +445,88 @@
         // Category Budget Distribution Chart
         const categoryData = {{ category_data|safe }};
         const ctx2 = document.getElementById('categoryDistributionChart').getContext('2d');
-        new Chart(ctx2, {
-            type: 'bar',
-            data: {
-                labels: categoryData.labels,
-                datasets: [
-                    {
-                        label: 'Budget',
-                        data: categoryData.budget_values,
-                        backgroundColor: categoryData.colors.map(color => color + '90'), // Add transparency
-                        borderColor: categoryData.colors,
+        
+        if (!categoryData.labels || categoryData.labels.length === 0) {
+            // Display a message when no data is available
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['No Data'],
+                    datasets: [{
+                        label: 'No budget data available',
+                        data: [0],
+                        backgroundColor: 'rgba(200, 200, 200, 0.2)',
+                        borderColor: 'rgba(200, 200, 200, 1)',
                         borderWidth: 1
-                    },
-                    {
-                        label: 'Spent',
-                        data: categoryData.spent_values,
-                        backgroundColor: categoryData.colors.map(color => color + '50'), // More transparency
-                        borderColor: categoryData.colors,
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                let label = context.dataset.label || '';
-                                if (label) {
-                                    label += ': ';
-                                }
-                                if (context.parsed.y !== null) {
-                                    label += 'UGX ' + context.parsed.y.toLocaleString();
-                                }
-                                return label;
-                            }
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     }
+                }
+            });
+        } else {
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: categoryData.labels,
+                    datasets: [
+                        {
+                            label: 'Budget',
+                            data: categoryData.budget_values,
+                            backgroundColor: categoryData.colors.map(color => color + '90'), // Add transparency
+                            borderColor: categoryData.colors,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Spent',
+                            data: categoryData.spent_values,
+                            backgroundColor: categoryData.colors.map(color => color + '50'), // More transparency
+                            borderColor: categoryData.colors,
+                            borderWidth: 1
+                        }
+                    ]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'UGX ' + value.toLocaleString();
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += 'UGX ' + context.parsed.y.toLocaleString();
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'UGX ' + value.toLocaleString();
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     });
 </script>
 
@@ -525,4 +552,4 @@
 </div>
 
 <link rel="stylesheet" href="{% static 'css/dashboard_modern.css' %}">
-{% endblock %}  
+{% endblock %}

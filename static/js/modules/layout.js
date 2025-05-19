@@ -1,4 +1,6 @@
 // Handle dark mode and sidebar functionality
+import { updateChartsColorScheme } from './charts.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     initializeDarkMode();
     initializeSidebar();

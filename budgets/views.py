@@ -111,29 +111,36 @@ def budget_list(request):
         'labels': [],
         'budget_values': [],
         'spent_values': [],
-        'colors': []
+        'colors': []  # Initialize as empty array
     }
     
-    for category in categories:
-        cat_budget = Budget.objects.filter(
-            user=request.user,
-            category=category,
-            month__year=selected_month.year,
-            month__month=selected_month.month
-        ).aggregate(total=Sum('limit'))['total'] or 0
-        
-        if cat_budget > 0:
-            cat_spent = Expense.objects.filter(
+    if not categories.exists():
+        # If no categories exist, provide default empty data
+        category_data['labels'] = []
+        category_data['budget_values'] = []
+        category_data['spent_values'] = []
+        category_data['colors'] = []
+    else:
+        for category in categories:
+            cat_budget = Budget.objects.filter(
                 user=request.user,
                 category=category,
-                date__year=selected_month.year,
-                date__month=selected_month.month
-            ).aggregate(total=Sum('amount'))['total'] or 0
+                month__year=selected_month.year,
+                month__month=selected_month.month
+            ).aggregate(total=Sum('limit'))['total'] or 0
             
-            category_data['labels'].append(category.name)
-            category_data['budget_values'].append(float(cat_budget))
-            category_data['spent_values'].append(float(cat_spent))
-            category_data['colors'].append(category.color or '#' + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)]))
+            if cat_budget > 0:
+                cat_spent = Expense.objects.filter(
+                    user=request.user,
+                    category=category,
+                    date__year=selected_month.year,
+                    date__month=selected_month.month
+                ).aggregate(total=Sum('amount'))['total'] or 0
+                
+                category_data['labels'].append(category.name)
+                category_data['budget_values'].append(float(cat_budget))
+                category_data['spent_values'].append(float(cat_spent))
+                category_data['colors'].append(category.color or '#' + ''.join([random.choice('0123456789ABCDEF') for _ in range(6)]))
     
     # FEATURE 4: Spending Alerts
     spending_alerts = []
