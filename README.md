@@ -18,7 +18,6 @@ Expense Tracker is a robust and feature-rich financial management application de
 - [How to Contribute](#-how-to-contribute)
 - [Support](#-support)
 - [Acknowledgments](#-acknowledgments)
-- [Code Organization](#-code-organization)
 - [Roadmap](#roadmap)
 -[About Me](#-about-me)
 ---
@@ -98,98 +97,7 @@ Below are some screenshots to give you a quick look at how Expense Tracker works
 ![Shared Expenses Screenshot](static/assets/screenshots/sexpense.jpg)
 
 ---
-
-## **🛠️ Development Setup**  
-
-### **1️⃣ Clone & Setup Environment**  
-```bash
-git clone https://github.com/yourusername/expense-tracker.git
-cd expense-tracker
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```  
-
-### **2️⃣ Install Dependencies**  
-```bash
-pip install -r requirements.txt
-```  
-
-### **3️⃣ Configure Environment Variables**  
-Create a `.env` file with:  
-```
-DEBUG=True
-SECRET_KEY=your_secret_key
-DATABASE_URL=sqlite:///db.sqlite3
-```  
-
-### **4️⃣ Database Setup**  
-```bash
-python manage.py makemigrations
-python manage.py migrate
-python manage.py createsuperuser
-```  
-
-### **5️⃣ Run Development Server**  
-```bash
-python manage.py runserver
-```  
-## Project Folder Structure
-
-```plaintext
-.vscode
-budgets
-    ├── migrations
-    │   └── __pycache__
-    └── __pycache__
-expenses
-    ├── migrations
-    │   └── __pycache__
-    ├── templatetags
-    │   └── __pycache__
-    └── __pycache__
-finance_manager
-    └── __pycache__
-media
-    ├── profile_pics
-    └── receipts
-reports
-    ├── migrations
-    │   └── __pycache__
-    └── __pycache__
-static
-    ├── assets
-    │   └── screenshots
-    ├── css
-    └── js
-templates
-    ├── budgets
-    ├── expenses
-    ├── partials
-    ├── reports
-    └── users
-        └── modals
-users
-    ├── management
-    │   └── commands
-    ├── migrations
-    │   └── __pycache__
-    ├── templatetags
-    │   └── __pycache__
-    └── __pycache__
-
-
-
-
-```
-
-## **📝 API Endpoints**  
-| **Endpoint** | **Functionality** |  
-|-------------|------------------|  
-| `/api/expenses/` | Manage and retrieve user expenses |  
-| `/api/budgets/` | Budget creation, tracking, and allocation |  
-| `/api/reports/` | Generate analytics and financial insights |  
-| `/api/users/` | User authentication, profiles, and permissions |  
-
+ 
 ## **🚀 Deployment Guide**
 ### **Requirements**
 - Python 3.8+ 
@@ -274,6 +182,66 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+
+```  
+## Project Folder Structure
+
+```plaintext
+.vscode
+budgets
+    ├── migrations
+    │   └── __pycache__
+    └── __pycache__
+expenses
+    ├── migrations
+    │   └── __pycache__
+    ├── templatetags
+    │   └── __pycache__
+    └── __pycache__
+finance_manager
+    └── __pycache__
+media
+    ├── profile_pics
+    └── receipts
+reports
+    ├── migrations
+    │   └── __pycache__
+    └── __pycache__
+static
+    ├── assets
+    │   └── screenshots
+    ├── css
+    └── js
+templates
+    ├── budgets
+    ├── expenses
+    ├── partials
+    ├── reports
+    └── users
+        └── modals
+users
+    ├── management
+    │   └── commands
+    ├── migrations
+    │   └── __pycache__
+    ├── templatetags
+    │   └── __pycache__
+    └── __pycache__
+
+
+
+
+```
+
+## **📝 API Endpoints**  
+| **Endpoint** | **Functionality** |  
+|-------------|------------------|  
+| `/api/expenses/` | Manage and retrieve user expenses |  
+| `/api/budgets/` | Budget creation, tracking, and allocation |  
+| `/api/reports/` | Generate analytics and financial insights |  
+| `/api/users/` | User authentication, profiles, and permissions |  
+
+
 
 ## 📚 Support 
 
