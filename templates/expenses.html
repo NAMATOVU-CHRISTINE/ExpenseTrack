@@ -55,11 +55,10 @@
                 <div class="card-body text-center">
                     <i class="fas fa-chart-line fa-2x mb-2 text-warning"></i>
                     <h6 class="text-muted mb-2">Budget Status</h6>
-                    <h3 class="mb-0">{{ budget_status|floatformat:0 }}%</h3>
-                    <div class="progress mt-2" style="height: 5px;">
-                        <div class="progress-bar {% if budget_status > 90 %}bg-danger{% elif budget_status > 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                    <h3 class="mb-0">{{ budget_status|floatformat:0 }}%</h3>            <div class="progress progress-thin mt-2">
+                        <div class="progress-bar progress-dynamic {% if budget_status > 90 %}bg-danger{% elif budget_status > 75 %}bg-warning{% else %}bg-success{% endif %}" 
                              role="progressbar" 
-                             style="width: {{ budget_status }}%"></div>
+                             data-width="{{ budget_status }}"></div>
                     </div>
                 </div>
             </div>
@@ -69,11 +68,11 @@
     <!-- Header Section -->
     <div class="row mb-4 align-items-center">
         <div class="col-md-8">
-            <h1 class="mb-0" style="color:#7c5fe6;"><i class="fas fa-receipt me-2"></i>Expenses</h1>
+            <h1 class="mb-0 gradient-text"><i class="fas fa-receipt me-2"></i>Expenses</h1>
         </div>
         <div class="col-md-4">
             <div class="motivational-card card shadow-sm text-center p-3 animated-slidein">
-                <div id="lottie-quote" style="height:60px;"></div>
+                <div id="lottie-quote" class="lottie-container"></div>
                 <div class="quote-text mt-2" id="motivational-quote">Track every shilling, grow your savings!</div>
             </div>
         </div>
@@ -91,7 +90,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card stat-card shadow-sm p-3 d-flex flex-row align-items-center animated-popin" style="animation-delay:0.1s;">
+            <div class="card stat-card shadow-sm p-3 d-flex flex-row align-items-center animated-popin animation-delay-100">
                 <div class="stat-icon bg-success text-white me-3"><i class="fas fa-star fa-2x"></i></div>
                 <div>
                     <div class="stat-label">Top Category</div>

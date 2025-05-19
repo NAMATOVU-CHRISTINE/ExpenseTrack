@@ -42,93 +42,12 @@
             </div>
         </div>
     </div>
-    
-    <style>
-        .profile-picture-frame {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            padding: 3px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .profile-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border: 3px solid white;
-        }
-        .greeting-text {
-            font-size: 1.1rem;
-            color: #6b7280;
-        }
-        .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        /* Additional Animations */
-        @keyframes floatAnimation {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-        
-        .float-animation {
-            animation: floatAnimation 3s ease-in-out infinite;
-        }
-        
-        .profile-picture-frame {
-            animation: pulse 2s infinite;
-        }
-        
-        .card {
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.15);
-        }
-        
-        .badge {
-            transition: all 0.3s ease;
-        }
-        
-        .badge:hover {
-            transform: scale(1.1);
-        }
-        
-        .quote-icon {
-            font-size: 1.8rem;
-            color: #ffd700;
-            margin-bottom: 1rem;
-            animation: glow 2s ease-in-out infinite;
-        }
-        
-        @keyframes glow {
-            0% { text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
-            50% { text-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
-            100% { text-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
-        }
-        
-        .motivational-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.95) 100%);
-            border: 1px solid rgba(102, 126, 234, 0.1);
-        }
-        
-        .quote-text {
-            color: #4a5568;
-            font-style: italic;
-            line-height: 1.5;
-            font-size: 1.1rem;
-        }
-    </style>
+  
 
     <!-- Quick Stats Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
-            <div class="card shadow-sm h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            <div class="card shadow-sm h-100 animate__animated animate__fadeInUp animation-delay-100">
                 <div class="card-body text-center">
                     <i class="fas fa-wallet fa-2x text-primary mb-3"></i>
                     <h6 class="text-muted mb-2">Total Balance</h6>
@@ -141,8 +60,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+        <div class="col-md-3">            <div class="card shadow-sm h-100 animate__animated animate__fadeInUp animation-delay-200">
                 <div class="card-body text-center">
                     <i class="fas fa-money-bill-wave fa-2x text-success mb-3"></i>
                     <h6 class="text-muted mb-2">Monthly Income</h6>
@@ -155,8 +73,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+        <div class="col-md-3">            <div class="card shadow-sm h-100 animate__animated animate__fadeInUp animation-delay-300">
                 <div class="card-body text-center">
                     <i class="fas fa-chart-pie fa-2x text-warning mb-3"></i>
                     <h6 class="text-muted mb-2">Monthly Expenses</h6>
@@ -169,15 +86,14 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+        <div class="col-md-3">            <div class="card shadow-sm h-100 animate__animated animate__fadeInUp animation-delay-400">
                 <div class="card-body text-center">
                     <i class="fas fa-piggy-bank fa-2x text-info mb-3"></i>
                     <h6 class="text-muted mb-2">Savings</h6>
                     <h3 class="mb-0">{{ savings_rate|default:0 }}%</h3>
                     <div class="mt-3">
-                        <div class="progress" style="height: 5px;">
-                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ savings_rate }}%"></div>
+            <div class="progress progress-thin">
+                            <div class="progress-bar bg-info progress-dynamic" role="progressbar" data-width="{{ savings_rate }}"></div>
                         </div>
                     </div>
                 </div>
@@ -188,8 +104,7 @@
     <!-- Main Content Area -->
     <div class="row g-4">
         <!-- Recent Expenses -->
-        <div class="col-md-8">
-            <div class="card shadow-sm animate__animated animate__fadeInLeft" style="animation-delay: 0.5s;">
+        <div class="col-md-8">            <div class="card shadow-sm animate__animated animate__fadeInLeft animation-delay-500">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Recent Expenses</h5>
                     <a href="{% url 'expense_dashboard' %}" class="btn btn-sm btn-primary">View All</a>
@@ -212,7 +127,7 @@
                                     <td>{{ expense.date|date:"M d" }}</td>
                                     <td>{{ expense.description }}</td>
                                     <td>
-                                        <span class="badge" style="background-color: {{ expense.category.color }}">
+                                        <span class="badge category-badge" style="background-color: {{ expense.category.color }}">
                                             {{ expense.category.name }}
                                         </span>
                                     </td>
@@ -234,16 +149,14 @@
 
         <!-- Right Sidebar -->
         <div class="col-md-4">
-            <!-- Top Categories -->
-            <div class="card shadow-sm mb-4 animate__animated animate__fadeInRight" style="animation-delay: 0.5s;">
+            <!-- Top Categories -->            <div class="card shadow-sm mb-4 animate__animated animate__fadeInRight animation-delay-500">
                 <div class="card-header bg-white">
                     <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Top Categories</h5>
                 </div>
                 <div class="card-body">
                     {% for category in top_categories %}
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <span class="badge me-2" style="background-color: {{ category.color }}">
+                        <div>                            <span class="badge category-badge me-2" style="background-color: {{ category.color }}">
                                 <i class="fas {{ category.icon }}"></i>
                             </span>
                             {{ category.name }}
@@ -258,8 +171,7 @@
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="card shadow-sm animate__animated animate__fadeInRight" style="animation-delay: 0.6s;">
+            <!-- Quick Actions -->            <div class="card shadow-sm animate__animated animate__fadeInRight animation-delay-600">
                 <div class="card-header bg-white">
                     <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Quick Actions</h5>
                 </div>

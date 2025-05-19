@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.db.models import Sum
 from django.utils import timezone
 import calendar
@@ -453,23 +453,61 @@ def add_savings_goal(request):
 def update_savings(request, goal_id):
     if request.method == 'POST':
         goal = get_object_or_404(SavingsGoal, id=goal_id, user=request.user)
-        amount = Decimal(request.POST.get('amount', 0))
         
-        goal.current_savings += amount
-        goal.save()
+        # Handle adding savings amount
+        amount = request.POST.get('amount')
+        if amount:
+            amount = Decimal(amount)
+            goal.current_savings += amount
+            goal.save()
 
-        # Update profile savings amount
-        profile = request.user.profile
-        profile.savings_amount += amount
-        profile.save()
+            # Update profile savings amount
+            profile = request.user.profile
+            profile.savings_amount += amount
+            profile.save()
 
-        ActivityLog.objects.create(
-            user=request.user,
-            action='Savings Updated',
-            details=f'Added UGX {amount:,.0f} to {goal.name}'
-        )
+            ActivityLog.objects.create(
+                user=request.user,
+                action='Savings Updated',
+                details=f'Added UGX {amount:,.0f} to {goal.name}'
+            )
 
-        messages.success(request, f'Added UGX {amount:,.0f} to your savings goal!')
+            messages.success(request, f'Added UGX {amount:,.0f} to your savings goal!')
+        
+        # Handle updating goal details
+        else:
+            goal.name = request.POST.get('name', goal.name)
+            if 'target_amount' in request.POST:
+                goal.target_amount = Decimal(request.POST['target_amount'])
+            if 'current_savings' in request.POST:
+                goal.current_savings = Decimal(request.POST['current_savings'])
+            if 'target_date' in request.POST:
+                goal.target_date = request.POST['target_date']
+            if 'interest_rate' in request.POST:
+                goal.interest_rate = Decimal(request.POST['interest_rate'])
+            goal.save()
+
+            ActivityLog.objects.create(
+                user=request.user,
+                action='Goal Updated',
+                details=f'Updated savings goal: {goal.name}'
+            )
+
+            messages.success(request, 'Savings goal updated successfully!')
+
         return redirect('profile')
 
+    return HttpResponseBadRequest('Invalid request method')
+
+@login_required
+def get_savings_goal(request, goal_id):
+    if request.method == 'GET':
+        goal = get_object_or_404(SavingsGoal, id=goal_id, user=request.user)
+        return JsonResponse({
+            'name': goal.name,
+            'target_amount': str(goal.target_amount),
+            'current_savings': str(goal.current_savings),
+            'target_date': goal.target_date.strftime('%Y-%m-%d'),
+            'interest_rate': str(goal.interest_rate)
+        })
     return HttpResponseBadRequest('Invalid request method')

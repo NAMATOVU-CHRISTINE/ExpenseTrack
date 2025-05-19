@@ -269,6 +269,8 @@ def category_edit(request, pk):
 
 @login_required
 def add_category_rule(request):
+    rules = CategoryRule.objects.filter(user=request.user).select_related('category').order_by('-priority')
+    
     if request.method == 'POST':
         form = CategoryRuleForm(request.POST)
         if form.is_valid():
@@ -276,10 +278,17 @@ def add_category_rule(request):
             rule.user = request.user
             rule.save()
             messages.success(request, 'Category rule added successfully!')
-            return redirect('expense_dashboard')
+            return redirect('category_rules')
     else:
         form = CategoryRuleForm()
-    return render(request, 'expenses/category_rule_form.html', {'form': form})
+        
+    # Set the queryset for the category field to only show user's categories
+    form.fields['category'].queryset = Category.objects.filter(user=request.user)
+        
+    return render(request, 'expenses/category_rules.html', {
+        'form': form,
+        'category_rules': rules
+    })
 
 @login_required
 def suggest_category(request):

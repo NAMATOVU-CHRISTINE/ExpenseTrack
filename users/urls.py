@@ -22,6 +22,9 @@ urlpatterns = [
     ), name='password_change_done'),
     path('bill/add/', views.add_bill, name='add_bill'),
     path('bill/<int:bill_id>/mark-paid/', views.mark_bill_paid, name='mark_bill_paid'),
+    # Savings goals
     path('savings/goal/add/', views.add_savings_goal, name='add_savings_goal'),
+    path('savings/goal/<int:goal_id>/', views.get_savings_goal, name='get_savings_goal'),
     path('savings/goal/<int:goal_id>/update/', views.update_savings, name='update_savings'),
+    path('add_savings_goal/', views.add_savings_goal, name='add_savings_goal_alt'),  # Alternate URL for backward compatibility
 ]

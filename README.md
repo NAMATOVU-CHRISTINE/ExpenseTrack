@@ -231,3 +231,82 @@ I extend my gratitude to:
 
 **💻 I’m a Computer Scientist and aspiring Full Stack Developer, passionate about building high-quality, impactful software solutions. With a strong foundation in both front-end and back-end technologies, I am dedicated to continuous learning and driven by the desire to create software that makes a real difference. 🚀**
 
+## 🚀 Code Organization
+
+### CSS Structure
+- **core.css**: Contains base styles, variables, and common component styles
+- **layout.css**: Styles for layout and navigation elements
+- **dashboard.css**: Dashboard-specific styles and components
+- **animations.css**: Animation keyframes and utility classes
+- **forms.css**: Form styling and input customization
+
+### JavaScript Modules
+- **charts.js**: Chart initialization and configuration
+- **utils.js**: Utility functions for numbers, dates, and animations
+- **finance-features.js**: Finance-related feature implementations
+- **layout.js**: Layout management and theme switching
+- **dashboard.js**: Main dashboard initialization
+
+### Project Structure
+
+```
+expense_tracker/
+├── static/
+│   ├── css/               # Organized CSS files
+│   ├── js/
+│   │   ├── modules/      # Modular JavaScript components
+│   │   └── dashboard.js  # Main dashboard initialization
+│   └── assets/          # Images and other static assets
+├── templates/
+│   ├── base.html        # Base template
+│   ├── partials/        # Reusable template components
+│   └── app-specific/    # App-specific templates
+└── apps/
+    ├── expenses/        # Expense management
+    ├── budgets/         # Budget management
+    ├── reports/         # Reports and analytics
+    └── users/           # User management
+```
+
+### Dependencies
+- Django 4.2+
+- Bootstrap 5
+- Chart.js
+- Font Awesome
+- Animate.css
+
+### Browser Support
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## 🛠️ Setup Instructions
+
+1. Create and activate a virtual environment:
+```bash
+python -m venv venv
+.\venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/Mac
+```
+
+2. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+3. Apply database migrations:
+```bash
+python manage.py migrate
+```
+
+4. Create a superuser:
+```bash
+python manage.py createsuperuser
+```
+
+5. Run the development server:
+```bash
+python manage.py runserver
+```
+

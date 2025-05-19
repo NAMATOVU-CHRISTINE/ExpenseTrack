@@ -1,6 +1,21 @@
-// Bill Management
+// Finance features module - Handles bills and savings goals
 document.addEventListener('DOMContentLoaded', function() {
     // Handle mark as paid functionality
+    initializeMarkPaidButtons();
+    
+    // Handle adding new bill
+    initializeBillForm();
+    
+    // Handle savings goals
+    initializeSavingsGoalForm();
+    initializeAddSavingsButtons();
+    initializeAdjustGoalButtons();
+    
+    // Setup FAB actions
+    initializeFAB();
+});
+
+function initializeMarkPaidButtons() {
     const markPaidButtons = document.querySelectorAll('.mark-paid-btn');
     markPaidButtons.forEach(button => {
         button.addEventListener('click', async function() {
@@ -19,10 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     billItem.classList.add('fade-out');
                     setTimeout(() => billItem.remove(), 300);
                     
-                    // Show success message
                     showToast('success', 'Bill marked as paid successfully!');
-                    
-                    // Refresh financial health score
                     updateFinancialHealth();
                 }
             } catch (error) {
@@ -30,8 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+}
 
-    // Handle adding new bill
+function initializeBillForm() {
     const addBillForm = document.getElementById('addBillForm');
     if (addBillForm) {
         addBillForm.addEventListener('submit', async function(e) {
@@ -45,15 +58,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (response.ok) {
-                    // Close modal
                     const modal = document.getElementById('addBillModal');
                     const bsModal = bootstrap.Modal.getInstance(modal);
                     bsModal.hide();
                     
-                    // Show success message
                     showToast('success', 'New bill added successfully!');
-                    
-                    // Refresh the bills list
                     location.reload();
                 }
             } catch (error) {
@@ -61,11 +70,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
+}
 
-// Savings Goals Management
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle adding new savings goal
+function initializeSavingsGoalForm() {
     const addGoalForm = document.getElementById('savingsGoalForm');
     if (addGoalForm) {
         addGoalForm.addEventListener('submit', async function(e) {
@@ -79,22 +86,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (response.ok) {
-                    // Close modal
                     const modal = document.getElementById('addSavingsGoalModal');
                     const bsModal = bootstrap.Modal.getInstance(modal);
                     bsModal.hide();
                     
-                    // Show success message
                     showToast('success', 'New savings goal created successfully!');
-                    
-                    // Refresh the page to show new goal
                     location.reload();
                 }
             } catch (error) {
                 showToast('error', 'Failed to create savings goal. Please try again.');
             }
         });
-    }    // Handle updating savings amount
+    }
+}
+
+function initializeAddSavingsButtons() {
     const addSavingsButtons = document.querySelectorAll('.add-savings-btn');
     addSavingsButtons.forEach(button => {
         button.addEventListener('click', async function() {
@@ -127,8 +133,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+}
 
-    // Handle adjusting savings goal
+function initializeAdjustGoalButtons() {
     const adjustGoalButtons = document.querySelectorAll('.adjust-goal-btn');
     adjustGoalButtons.forEach(button => {
         button.addEventListener('click', async function() {
@@ -146,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (response.ok) {
                     const goal = await response.json();
-                    // Update modal title
                     modal.querySelector('.modal-title').textContent = 'Edit Savings Goal';
                     
                     // Populate form fields
@@ -155,10 +161,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     form.elements['current_savings'].value = goal.current_savings;
                     form.elements['target_date'].value = goal.target_date;
                     
-                    // Update form action URL
                     form.action = `/users/savings/goal/${goalId}/update/`;
                     
-                    // Show modal
                     const bsModal = new bootstrap.Modal(modal);
                     bsModal.show();
                 }
@@ -167,53 +171,65 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
-    // Reset add goal modal title when creating new goal
-    const addGoalBtn = document.querySelector('[data-bs-target="#addSavingsGoalModal"]');
-    if (addGoalBtn) {
-        addGoalBtn.addEventListener('click', function() {
-            const modal = document.getElementById('addSavingsGoalModal');
-            modal.querySelector('.modal-title').textContent = 'Create Savings Goal';
-            modal.querySelector('form').reset();
-            modal.querySelector('form').action = "{% url 'add_savings_goal' %}";
+}
+
+function initializeFAB() {
+    const fabContainer = document.querySelector('.fab-container');
+    const fabMainBtn = document.getElementById('fab-main-btn');
+
+    if (fabMainBtn) {
+        fabMainBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fabContainer.classList.toggle('open');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!fabContainer.contains(e.target)) {
+                fabContainer.classList.remove('open');
+            }
         });
     }
+}
 
-    // Toast notification function
-    window.showToast = function(type, message) {
-        const toastContainer = document.getElementById('toastContainer');
-        if (!toastContainer) {
-            const container = document.createElement('div');
-            container.id = 'toastContainer';
-            container.style.position = 'fixed';
-            container.style.top = '20px';
-            container.style.right = '20px';
-            container.style.zIndex = '1050';
-            document.body.appendChild(container);
-        }
-        
-        const toast = document.createElement('div');
-        toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type}`;
-        toast.setAttribute('role', 'alert');
-        toast.setAttribute('aria-live', 'assertive');
-        toast.setAttribute('aria-atomic', 'true');
-        
-        toast.innerHTML = `
-            <div class="d-flex">
-                <div class="toast-body">
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+export function showToast(type, message) {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type}`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                ${message}
             </div>
-        `;
-        
-        toastContainer.appendChild(toast);
-        const bsToast = new bootstrap.Toast(toast);
-        bsToast.show();
-        
-        // Remove toast after it's hidden
-        toast.addEventListener('hidden.bs.toast', function() {
-            toast.remove();
-        });
-    };
-});
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    toast.addEventListener('hidden.bs.toast', function() {
+        toast.remove();
+    });
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.style.position = 'fixed';
+    container.style.top = '20px';
+    container.style.right = '20px';
+    container.style.zIndex = '1050';
+    document.body.appendChild(container);
+    return container;
+}
+
+function updateFinancialHealth() {
+    // Implementation for updating financial health score
+    // This would typically involve an API call and UI updates
+}

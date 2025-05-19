@@ -14,6 +14,7 @@ urlpatterns = [
     path('process-receipt/<int:receipt_id>/', views.process_receipt, name='process_receipt'),
     path('share-expense/<int:expense_id>/', views.share_expense, name='share_expense'),
     path('category-rules/', views.add_category_rule, name='category_rules'),
+    path('category_rules/', views.add_category_rule, name='category_rules_alt'),
     path('bulk-update/', views.bulk_update_categories, name='bulk_update'),
     path('suggest-category/', views.suggest_category, name='suggest_category'),
     path('ajax-update-notes-tags/<int:expense_id>/', views.ajax_update_notes_tags, name='ajax_update_notes_tags'),
