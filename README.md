@@ -11,14 +11,13 @@ Expense Tracker is a robust and feature-rich financial management application de
 - [Key Features](#-key-features)
 - [Screenshots](#-screenshots)
 - [Technologies Used](#-technologies-used)
-- [Development Setup](#️-development-setup)
+- [Deployment Guide](#-deployment-guide)
 - [Project Folder Structure](#project-folder-structure)
 - [API Endpoints](#-api-endpoints)
-- [Deployment Guide](#-deployment-guide)
+
 - [How to Contribute](#-how-to-contribute)
 - [Support](#-support)
 - [Acknowledgments](#-acknowledgments)
-- [Roadmap](#roadmap)
 -[About Me](#-about-me)
 ---
 ## 🚀 Key Features
