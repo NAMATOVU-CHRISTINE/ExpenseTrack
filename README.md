@@ -1,7 +1,28 @@
-# 📊 Expense Tracker – Personal Finance Manager
 
+#### 📊 Expense Tracker – Personal Finance Manager
+
+<span style="font-size:18px;">
 Expense Tracker is a robust and feature-rich financial management application developed with Django, tailored to meet the diverse needs of individuals, families, and businesses aiming to gain full control over their finances. It enables users to effortlessly record and categorize expenses, set and monitor personalized budgets, and visualize spending patterns through interactive analytics and reports. The platform supports multi-user collaboration, allowing for shared financial oversight within households or teams, and incorporates automated notifications for budget limits and upcoming bills to promote proactive money management. With a secure authentication system and user-friendly interface, Expense Tracker simplifies the complexities of daily financial tracking and decision-making, empowering users to build better financial habits, avoid overspending, and confidently achieve their short- and long-term financial goals.
+</span>
+---
 
+## 📑 Table of Contents
+
+- [Key Features](#-key-features)
+- [Screenshots](#-screenshots)
+- [Technologies Used](#-technologies-used)
+- [Development Setup](#️-development-setup)
+- [Project Folder Structure](#project-folder-structure)
+- [API Endpoints](#-api-endpoints)
+- [Deployment Guide](#-deployment-guide)
+- [How to Contribute](#-how-to-contribute)
+- [Support](#-support)
+- [Acknowledgments](#-acknowledgments)
+- [About Me](#-about-me)
+- [Code Organization](#-code-organization)
+- [Roadmap](#roadmap)
+
+---
 ## 🚀 Key Features
 
 ### 📌 Expense Management
