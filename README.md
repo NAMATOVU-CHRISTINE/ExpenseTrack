@@ -1,10 +1,16 @@
-
 #### 📊 Expense Tracker – Personal Finance Manager
 
 <span style="font-size:18px;">
 Expense Tracker is a robust and feature-rich financial management application developed with Django, tailored to meet the diverse needs of individuals, families, and businesses aiming to gain full control over their finances. It enables users to effortlessly record and categorize expenses, set and monitor personalized budgets, and visualize spending patterns through interactive analytics and reports. The platform supports multi-user collaboration, allowing for shared financial oversight within households or teams, and incorporates automated notifications for budget limits and upcoming bills to promote proactive money management. With a secure authentication system and user-friendly interface, Expense Tracker simplifies the complexities of daily financial tracking and decision-making, empowering users to build better financial habits, avoid overspending, and confidently achieve their short- and long-term financial goals.
 </span>
 ---
+
+<!-- Badges -->
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
+  <img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build Status">
+  <img src="https://img.shields.io/badge/python-3.8%2B-blue.svg" alt="Python Version">
+</p>
 
 ## 📑 Table of Contents
 
@@ -108,6 +114,8 @@ Below are some screenshots to give you a quick look at how Expense Tracker works
 2. Configure **PostgreSQL** or another production-ready database.  
 3. Enable **SSL** for secure data encryption.  
 4. Set up **static file hosting** using Django’s built-in settings.  
+5. Configure environment variables for secrets and sensitive settings.  
+6. Set up media file storage (e.g., AWS S3, local storage).  
 
 ---
 
@@ -182,7 +190,6 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-```  
 ## Project Folder Structure
 
 ```plaintext
@@ -261,5 +268,24 @@ I extend my gratitude to:
 ## **🚀 About Me**  
 
 **💻 I’m a Computer Scientist and aspiring Full Stack Developer, passionate about building high-quality, impactful software solutions. With a strong foundation in both front-end and back-end technologies, I am dedicated to continuous learning and driven by the desire to create software that makes a real difference. 🚀**
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## ❓ FAQ / Troubleshooting
+
+**Q: I get a database error when running migrations.**
+A: Ensure your database settings in `settings.py` are correct and the database server is running.
+
+**Q: Static files are not loading in production.**
+A: Make sure you have run `python manage.py collectstatic` and configured your static files settings properly.
+
+**Q: How do I reset my admin password?**
+A: Run `python manage.py changepassword <username>`.
 
 
