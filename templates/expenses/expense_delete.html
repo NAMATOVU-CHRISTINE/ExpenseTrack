@@ -1,27 +1,42 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center animate__animated animate__fadeIn" style="min-height: 80vh;">
-    <div class="card shadow-lg p-4" style="max-width: 500px; width: 100%; border-radius: 1.5rem;">
-        <div class="text-center mb-4">
-            <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #e53e3e;"></i>
-            <h2 class="fw-bold" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                Delete Expense
-            </h2>
+<div class="container d-flex flex-column justify-content-center align-items-center animate__animated animate__fadeIn" style="min-height: 80vh;">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="w-100 mb-3">
+        <ol class="breadcrumb bg-transparent px-0">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'expense_list' %}">Expenses</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Delete</li>
+        </ol>
+    </nav>
+
+    <div class="card shadow-lg p-4 w-100" style="max-width: 500px; border-radius: 1.5rem;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="text-center flex-grow-1">
+                <i class="fas fa-exclamation-triangle fa-3x mb-3" style="color: #e53e3e;" aria-hidden="true"></i>
+                <h2 class="fw-bold mb-0" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Delete Expense
+                </h2>
+            </div>
+            <!-- Dark mode toggle -->
+            <button id="darkModeToggle" class="btn btn-sm btn-outline-dark ms-2" aria-label="Toggle dark mode" tabindex="0">
+                <i class="fas fa-moon"></i>
+            </button>
         </div>
-        
+
         <div class="alert alert-danger animate__animated animate__fadeInDown mb-4" role="alert">
-            <i class="fas fa-info-circle me-2"></i>
+            <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
             Are you sure you want to delete this expense?
         </div>
 
-        <div class="card mb-4 animate__animated animate__fadeInUp">
+        <div class="card mb-4 animate__animated animate__fadeInUp bg-light" aria-label="Expense details">
             <div class="card-body">
                 <h5 class="card-title mb-3">
-                    <i class="fas fa-tag me-2" style="color: #667eea;"></i>
+                    <i class="fas fa-tag me-2" style="color: #667eea;" aria-hidden="true"></i>
                     {{ expense.category.name|default:"No Category" }}
                 </h5>
                 <p class="text-muted mb-2">
-                    <i class="fas fa-calendar-alt me-2"></i>
+                    <i class="fas fa-calendar-alt me-2" aria-hidden="true"></i>
                     {{ expense.date|date:"M d, Y" }}
                 </p>
                 <h4 class="mb-2" style="color: #2d3748;">
@@ -29,24 +44,108 @@
                 </h4>
                 {% if expense.description %}
                     <p class="text-muted mb-0">
-                        <i class="fas fa-align-left me-2"></i>
+                        <i class="fas fa-align-left me-2" aria-hidden="true"></i>
                         {{ expense.description }}
                     </p>
+                {% endif %}
+                {% if expense.tags_json %}
+                    <div class="mt-2">
+                        <i class="fas fa-tags me-2" style="color: #38a169;" aria-hidden="true"></i>
+                        {% for tag in expense.tags_json %}
+                            <span class="badge bg-success me-1">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% if expense.receipt %}
+                    <div class="mt-3">
+                        <img src="{{ expense.receipt.url }}" alt="Receipt image" class="img-fluid rounded shadow-sm" style="max-height: 120px;">
+                    </div>
                 {% endif %}
             </div>
         </div>
 
-        <form method="post" class="animate__animated animate__fadeInUp">
+        <!-- Feedback message area -->
+        {% if messages %}
+            <div class="mb-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} animate__animated animate__fadeIn" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Delete confirmation modal trigger -->
+        <form method="post" class="animate__animated animate__fadeInUp" id="deleteForm">
             {% csrf_token %}
             <div class="d-flex justify-content-between align-items-center">
-                <a href="{% url 'expense_list' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i>Cancel
+                <a href="{% url 'expense_list' %}" class="btn btn-outline-secondary" tabindex="0">
+                    <i class="fas fa-arrow-left me-1" aria-hidden="true"></i>Cancel
                 </a>
-                <button type="submit" class="btn btn-danger px-4">
-                    <i class="fas fa-trash-alt me-2"></i>Delete Expense
+                <button type="button" class="btn btn-danger px-4" id="deleteBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="This action cannot be undone" tabindex="0">
+                    <span id="deleteBtnText"><i class="fas fa-trash-alt me-2" aria-hidden="true"></i>Delete Expense</span>
+                    <span id="deleteSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                 </button>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Are you absolutely sure you want to delete this expense? This action cannot be undone.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+                  </div>
+                </div>
+              </div>
             </div>
         </form>
     </div>
 </div>
-{% endblock %} 
+
+<script>
+// Tooltip for delete button
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+  new bootstrap.Tooltip(tooltipTriggerEl);
+});
+
+// Modal confirmation
+const deleteBtn = document.getElementById('deleteBtn');
+const confirmDeleteModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+const deleteForm = document.getElementById('deleteForm');
+const deleteSpinner = document.getElementById('deleteSpinner');
+const deleteBtnText = document.getElementById('deleteBtnText');
+
+deleteBtn.addEventListener('click', function() {
+    confirmDeleteModal.show();
+});
+
+document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    // Show spinner
+    deleteBtnText.classList.add('d-none');
+    deleteSpinner.classList.remove('d-none');
+    // Submit form
+    deleteForm.submit();
+});
+
+// Keyboard navigation for accessibility
+deleteBtn.addEventListener('keyup', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+        confirmDeleteModal.show();
+    }
+});
+
+// Dark mode toggle
+const darkModeToggle = document.getElementById('darkModeToggle');
+darkModeToggle.addEventListener('click', function() {
+    document.body.classList.toggle('bg-dark');
+    document.body.classList.toggle('text-light');
+});
+</script>
+{% endblock %}
