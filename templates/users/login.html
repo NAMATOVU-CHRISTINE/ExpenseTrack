@@ -63,16 +63,23 @@
         }
         .form-control {
             border-radius: 12px;
-            padding: 0.85rem 1rem;
+            padding: 1rem 1rem 0.5rem 1rem;
             border: 2px solid #e2e8f0;
             transition: all 0.3s ease;
             font-size: 1rem;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
+            color: #2d3748;
+            z-index: 1;
+            position: relative;
         }
         .form-control:focus {
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
             border-color: #667eea;
             background: #fff;
+            outline: none;
+        }
+        .form-control::placeholder {
+            color: transparent;
         }
         .input-group-text {
             background: transparent;
@@ -145,6 +152,16 @@
         }
         .form-floating label {
             padding-left: 1rem;
+            z-index: 2;
+            background: transparent;
+        }
+        .form-floating > .form-control:focus ~ label,
+        .form-floating > .form-control:not(:placeholder-shown) ~ label {
+            opacity: 0.65;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
         }
         .password-toggle {
             position: absolute;

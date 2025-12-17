@@ -16,8 +16,8 @@ public interface ApiService {
     @POST("api/auth/login/")
     Call<LoginResponse> login(@Body LoginRequest loginRequest);
     
-    // Dashboard
-    @GET("api/financial-data/")
+    // Dashboard - Pointing to the new mobile-specific endpoint
+    @GET("api/dashboard/")
     Call<FinancialData> getFinancialData(@Header("Authorization") String token);
     
     @GET("api/expenses/recent/")

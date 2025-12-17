@@ -65,6 +65,10 @@ def home(request):
     
     return render(request, 'home.html', context)
 
+def mobile_app(request):
+    """Mobile app simulator view"""
+    return render(request, 'mobile_app.html')
+
 def login(request):
     if request.user.is_authenticated:
         return render(request, 'home.html')

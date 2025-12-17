@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Expense Tracker - Mobile App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Mobile App Styling */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            overflow-x: hidden;
+        }
+        
+        .mobile-container {
+            max-width: 414px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .mobile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 20px 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 15px;
+        }
+        
+        .app-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .mobile-content {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border: none;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 18px;
+        }
+        
+        .expense-icon { background: #ffe8e8; color: #ff4757; }
+        .budget-icon { background: #e8f5e8; color: #2ed573; }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 25px 0 15px;
+            color: #333;
+        }
+        
+        .expense-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        }
+        
+        .expense-icon-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+        
+        .expense-details {
+            flex: 1;
+        }
+        
+        .expense-name {
+            font-weight: 500;
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .expense-category {
+            font-size: 12px;
+            color: #666;
+            margin: 2px 0 0;
+        }
+        
+        .expense-amount {
+            font-weight: 600;
+            color: #ff4757;
+            font-size: 14px;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 414px;
+            background: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            color: #666;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-item i {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            border: none;
+            cursor: pointer;
+            z-index: 99;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 414px) {
+            .mobile-container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Status Bar -->
+        <div class="mobile-header">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 📶 📶 🔋</span>
+            </div>
+            <div class="app-header">
+                <h1 class="app-title">💰 Expense Tracker</h1>
+                <i class="fas fa-bell"></i>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="mobile-content">
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-card">
+                    <div class="stat-icon expense-icon">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="stat-value">$1,234</div>
+                    <div class="stat-label">This Month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon budget-icon">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="stat-value">$2,500</div>
+                    <div class="stat-label">Budget Left</div>
+                </div>
+            </div>
+            
+            <!-- Chart -->
+            <div class="chart-container">
+                <h3 style="margin: 0 0 15px; font-size: 16px;">Spending Overview</h3>
+                <canvas id="expenseChart" width="300" height="200"></canvas>
+            </div>
+            
+            <!-- Recent Expenses -->
+            <h2 class="section-title">Recent Expenses</h2>
+            
+            <div class="expense-item">
+                <div class="expense-icon-small" style="background: #ffe8e8; color: #ff4757;">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="expense-details">
+                    <div class="expense-name">Lunch at Restaurant</div>
+                    <div class="expense-category">Food & Dining</div>
+                </div>
+                <div class="expense-amount">-$25.50</div>
+            </div>
+            
+            <div class="expense-item">
+                <div class="expense-icon-small" style="background: #e8f4ff; color: #3742fa;">
+                    <i class="fas fa-gas-pump"></i>
+                </div>
+                <div class="expense-details">
+                    <div class="expense-name">Gas Station</div>
+                    <div class="expense-category">Transportation</div>
+                </div>
+                <div class="expense-amount">-$45.00</div>
+            </div>
+            
+            <div class="expense-item">
+                <div class="expense-icon-small" style="background: #fff0e8; color: #ff6b35;">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="expense-details">
+                    <div class="expense-name">Grocery Shopping</div>
+                    <div class="expense-category">Groceries</div>
+                </div>
+                <div class="expense-amount">-$87.32</div>
+            </div>
+            
+            <div class="expense-item">
+                <div class="expense-icon-small" style="background: #f0e8ff; color: #8b5cf6;">
+                    <i class="fas fa-film"></i>
+                </div>
+                <div class="expense-details">
+                    <div class="expense-name">Movie Tickets</div>
+                    <div class="expense-category">Entertainment</div>
+                </div>
+                <div class="expense-amount">-$24.00</div>
+            </div>
+        </div>
+        
+        <!-- Floating Action Button -->
+        <button class="fab" onclick="addExpense()">
+            <i class="fas fa-plus"></i>
+        </button>
+        
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-item active">
+                <i class="fas fa-home"></i>
+                Home
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-pie"></i>
+                Reports
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-wallet"></i>
+                Budget
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-user"></i>
+                Profile
+            </a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Simple chart
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Food', 'Transport', 'Shopping', 'Entertainment'],
+                datasets: [{
+                    data: [300, 150, 200, 100],
+                    backgroundColor: ['#ff4757', '#3742fa', '#ff6b35', '#8b5cf6'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            font: { size: 12 }
+                        }
+                    }
+                }
+            }
+        });
+        
+        function addExpense() {
+            alert('Add Expense feature - Connect to Django backend!');
+        }
+        
+        // Make it feel more app-like
+        document.addEventListener('touchstart', function() {}, true);
+        
+        // Prevent zoom
+        document.addEventListener('gesturestart', function (e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
