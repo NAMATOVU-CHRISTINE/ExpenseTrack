@@ -1,23 +1,22 @@
-package com.expensetracker.app;
+package com.expensetracker.simple;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.app.Activity;
 
 public class MainActivity extends Activity {
     
     private WebView webView;
     
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
         
-        webView = findViewById(R.id.webview);
+        // Create WebView programmatically
+        webView = new WebView(this);
+        setContentView(webView);
         
         // Configure WebView settings
         WebSettings webSettings = webView.getSettings();
@@ -28,9 +27,8 @@ public class MainActivity extends Activity {
         webSettings.setBuiltInZoomControls(false);
         webSettings.setDisplayZoomControls(false);
         webSettings.setSupportZoom(false);
-        webSettings.setDefaultTextEncodingName("utf-8");
         
-        // Set WebView client to handle page navigation
+        // Set WebView client
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {

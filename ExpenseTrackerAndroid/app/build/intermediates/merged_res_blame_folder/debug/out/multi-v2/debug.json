@@ -1,0 +1,62 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.expensetracker.app-merged_res-5:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/src/main/res/values/colors.xml",
+                    "from": {
+                        "startLines": "13,24,7,20,16,23,19,15,21,17,11,12,2,3,4,5,6,8",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "517,919,286,766,617,869,716,569,815,664,422,470,55,102,149,196,241,328",
+                        "endColumns": "46,50,41,48,46,49,49,47,48,46,47,46,46,46,46,44,44,41",
+                        "endOffsets": "559,965,323,810,659,914,761,612,859,706,465,512,97,144,191,236,281,365"
+                    },
+                    "to": {
+                        "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "55,102,153,195,244,291,341,391,439,488,535,583,630,677,724,771,816,861",
+                        "endColumns": "46,50,41,48,46,49,49,47,48,46,47,46,46,46,46,44,44,41",
+                        "endOffsets": "97,148,190,239,286,336,386,434,483,530,578,625,672,719,766,811,856,898"
+                    }
+                },
+                {
+                    "source": "/home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "52",
+                        "endOffsets": "103"
+                    },
+                    "to": {
+                        "startLines": "20",
+                        "startColumns": "4",
+                        "startOffsets": "903",
+                        "endColumns": "52",
+                        "endOffsets": "951"
+                    }
+                },
+                {
+                    "source": "/home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/src/main/res/values/themes.xml",
+                    "from": {
+                        "startLines": "3,18",
+                        "startColumns": "4,4",
+                        "startOffsets": "139,905",
+                        "endLines": "16,21",
+                        "endColumns": "12,12",
+                        "endOffsets": "895,1062"
+                    },
+                    "to": {
+                        "startLines": "21,35",
+                        "startColumns": "4,4",
+                        "startOffsets": "956,1596",
+                        "endLines": "34,38",
+                        "endColumns": "12,12",
+                        "endOffsets": "1591,1753"
+                    }
+                }
+            ]
+        }
+    ]
+}

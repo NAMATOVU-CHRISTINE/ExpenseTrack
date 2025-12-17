@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.expensetracker.app-merged_res-5:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.expensetracker.app-main-7:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.expensetracker.app-merged_res-5:/layout_activity_main.xml.flat",
+        "source": "com.expensetracker.app-main-7:/layout/activity_main.xml"
+    }
+]
