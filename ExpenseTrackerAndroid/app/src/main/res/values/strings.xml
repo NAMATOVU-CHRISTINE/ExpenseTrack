@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Expense Tracker</string>
-    <string name="login">Login</string>
-    <string name="signup">Sign Up</string>
-    <string name="username">Username</string>
-    <string name="password">Password</string>
-    <string name="email">Email</string>
-    <string name="dashboard">Dashboard</string>
-    <string name="add_expense">Add Expense</string>
-    <string name="total_expenses">Total Expenses</string>
-    <string name="monthly_budget">Monthly Budget</string>
-    <string name="recent_expenses">Recent Expenses</string>
-    <string name="expenses_by_category">Expenses by Category</string>
 </resources>
