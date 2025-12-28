@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'dart:io';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -1140,8 +1143,9 @@ class _HomePageState extends State<HomePage> {
   void _toggleBillPaid(String id) {
     setState(() {
       final index = recurringBills.indexWhere((b) => b.id == id);
-      if (index != -1)
+      if (index != -1) {
         recurringBills[index].isPaid = !recurringBills[index].isPaid;
+      }
     });
     DataService.saveRecurringBills(recurringBills);
   }
@@ -1834,7 +1838,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<int>(
-                        value: dueDay,
+                        initialValue: dueDay,
                         items: List.generate(
                           28,
                           (i) => DropdownMenuItem(
@@ -2017,6 +2021,7 @@ class DashboardPage extends StatelessWidget {
             icon: const Icon(Icons.more_vert),
             onSelected: (value) {
               if (value == 'currency') _showCurrencyPicker(context);
+              if (value == 'export') _exportToCSV(context);
             },
             itemBuilder: (context) => [
               PopupMenuItem(
@@ -2026,6 +2031,16 @@ class DashboardPage extends StatelessWidget {
                     const Icon(Icons.attach_money, size: 20),
                     const SizedBox(width: 8),
                     Text('Currency: $currency'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'export',
+                child: Row(
+                  children: [
+                    Icon(Icons.download, size: 20),
+                    SizedBox(width: 8),
+                    Text('Export to CSV'),
                   ],
                 ),
               ),
@@ -2207,6 +2222,56 @@ class DashboardPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _exportToCSV(BuildContext context) async {
+    if (expenses.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No expenses to export')));
+      return;
+    }
+
+    try {
+      // Create CSV content
+      final StringBuffer csv = StringBuffer();
+      csv.writeln('Date,Title,Category,Amount ($currency),Notes');
+
+      for (final expense in expenses) {
+        final date =
+            '${expense.date.year}-${expense.date.month.toString().padLeft(2, '0')}-${expense.date.day.toString().padLeft(2, '0')}';
+        final title = expense.title.replaceAll(',', ';');
+        final notes = (expense.notes ?? '').replaceAll(',', ';');
+        csv.writeln(
+          '$date,$title,${expense.category},${expense.amount},$notes',
+        );
+      }
+
+      // Get temporary directory and save file
+      final directory = await getTemporaryDirectory();
+      final now = DateTime.now();
+      final fileName =
+          'expenses_${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}.csv';
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsString(csv.toString());
+
+      // Share the file
+      await Share.shareXFiles([
+        XFile(file.path),
+      ], subject: 'Expense Report - ${formatDate(now)}');
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Expenses exported successfully!')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      }
+    }
   }
 
   Widget _buildSection(
@@ -2911,8 +2976,9 @@ void showExpenseSheet({
                           firstDate: DateTime(2020),
                           lastDate: DateTime.now(),
                         );
-                        if (picked != null)
+                        if (picked != null) {
                           setModalState(() => selectedDate = picked);
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(16),
@@ -3758,8 +3824,9 @@ class BudgetsPage extends StatelessWidget {
       return;
     }
 
-    if (!isEdit && availableCategories.isNotEmpty)
+    if (!isEdit && availableCategories.isNotEmpty) {
       selectedCategory = availableCategories.first;
+    }
 
     showModalBottomSheet(
       context: context,
@@ -4488,8 +4555,9 @@ class _FinancePageState extends State<FinancePage>
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2030),
                           );
-                          if (picked != null)
+                          if (picked != null) {
                             setModalState(() => targetDate = picked);
+                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.all(16),
@@ -4843,7 +4911,7 @@ class _FinancePageState extends State<FinancePage>
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<int>(
-                        value: dueDay,
+                        initialValue: dueDay,
                         items: List.generate(
                           28,
                           (i) => DropdownMenuItem(
