@@ -708,3 +708,4 @@ class _HomePageState extends State<HomePage> {
 // Update 35 - Fix date formatting
 // Update 36 - Add recurring expenses
 // Update 37 - Update animations
+// Update 38 - Fix layout issues
