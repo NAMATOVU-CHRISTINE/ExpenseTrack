@@ -29,6 +29,7 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _themeMode = prefs.getBool('darkMode') ?? false
           ? ThemeMode.dark
@@ -40,12 +41,14 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
   void _toggleTheme(bool isDark) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('darkMode', isDark);
+    if (!mounted) return;
     setState(() => _themeMode = isDark ? ThemeMode.dark : ThemeMode.light);
   }
 
   void _setCurrency(String currency) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('currency', currency);
+    if (!mounted) return;
     setState(() => _currency = currency);
   }
 
@@ -653,6 +656,7 @@ class _AppWrapperState extends State<AppWrapper> {
 
   Future<void> _checkOnboarding() async {
     final onboarded = await DataService.isOnboarded();
+    if (!mounted) return;
     setState(() {
       _showOnboarding = !onboarded;
       _isLoading = false;
@@ -953,6 +957,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadAllData() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
     expenses = await DataService.getExpenses();
     budgets = await DataService.getBudgets();
@@ -961,6 +966,7 @@ class _HomePageState extends State<HomePage> {
     recurringBills = await DataService.getRecurringBills();
     profile = await DataService.getProfile();
     _recalculateBudgetSpent();
+    if (!mounted) return;
     setState(() => _isLoading = false);
   }
 
@@ -1026,6 +1032,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _showBudgetAlert(String title, String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -1173,6 +1180,730 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildCurrentPage() {
+    switch (_currentIndex) {
+      case 0:
+        return DashboardPage(
+          key: const ValueKey('dashboard'),
+          expenses: expenses,
+          budgets: budgets,
+          incomeSources: incomeSources,
+          savingsGoals: savingsGoals,
+          recurringBills: recurringBills,
+          profile: profile,
+          currency: widget.currency,
+          isDarkMode: widget.isDarkMode,
+          onToggleTheme: widget.onToggleTheme,
+          onSetCurrency: widget.onSetCurrency,
+          onQuickAdd: _showQuickAddExpense,
+        );
+      case 1:
+        return ExpensesPage(
+          key: const ValueKey('expenses'),
+          expenses: expenses,
+          budgets: budgets,
+          currency: widget.currency,
+          onAdd: _addExpense,
+          onUpdate: _updateExpense,
+          onDelete: _deleteExpense,
+        );
+      case 2:
+        return BudgetsPage(
+          key: const ValueKey('budgets'),
+          budgets: budgets,
+          currency: widget.currency,
+          onAdd: _addBudget,
+          onUpdate: _updateBudget,
+          onDelete: _deleteBudget,
+        );
+      case 3:
+        return FinancePage(
+          key: const ValueKey('finance'),
+          incomeSources: incomeSources,
+          savingsGoals: savingsGoals,
+          recurringBills: recurringBills,
+          profile: profile,
+          currency: widget.currency,
+          onAddIncome: _addIncomeSource,
+          onUpdateIncome: _updateIncomeSource,
+          onDeleteIncome: _deleteIncomeSource,
+          onAddGoal: _addSavingsGoal,
+          onUpdateGoal: _updateSavingsGoal,
+          onDeleteGoal: _deleteSavingsGoal,
+          onAddBill: _addRecurringBill,
+          onUpdateBill: _updateRecurringBill,
+          onToggleBill: _toggleBillPaid,
+          onDeleteBill: _deleteRecurringBill,
+          onUpdateProfile: _updateProfile,
+        );
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget? _buildFab() {
+    switch (_currentIndex) {
+      case 0:
+        return FloatingActionButton(
+          heroTag: 'home_fab',
+          onPressed: _showQuickAddExpense,
+          child: const Icon(Icons.add),
+        );
+      case 1:
+        return FloatingActionButton.extended(
+          heroTag: 'expenses_fab',
+          onPressed: _showQuickAddExpense,
+          icon: const Icon(Icons.add),
+          label: const Text('Add'),
+        );
+      case 2:
+        return FloatingActionButton.extended(
+          heroTag: 'budgets_fab',
+          onPressed: () => _showBudgetSheet(),
+          icon: const Icon(Icons.add),
+          label: const Text('Add'),
+        );
+      case 3:
+        return FloatingActionButton.extended(
+          heroTag: 'finance_fab',
+          onPressed: () => _showFinanceSheet(),
+          icon: const Icon(Icons.add),
+          label: const Text('Add'),
+        );
+      default:
+        return null;
+    }
+  }
+
+  void _showBudgetSheet() {
+    final existingCategories = budgets.map((b) => b.category).toSet();
+    final availableCategories = CategoryHelper.defaultCategories
+        .where((c) => !existingCategories.contains(c))
+        .toList();
+
+    if (availableCategories.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All categories have budgets')),
+      );
+      return;
+    }
+
+    String selectedCategory = availableCategories.first;
+    final limitController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Add Budget',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'Category',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: availableCategories.map((cat) {
+                          final selected = selectedCategory == cat;
+                          final color = CategoryHelper.getColor(cat);
+                          return ChoiceChip(
+                            label: Text(cat),
+                            selected: selected,
+                            onSelected: (v) =>
+                                setModalState(() => selectedCategory = cat),
+                            avatar: Icon(
+                              CategoryHelper.getIcon(cat),
+                              size: 16,
+                              color: selected ? Colors.white : color,
+                            ),
+                            backgroundColor: color.withOpacity(0.1),
+                            selectedColor: color,
+                            labelStyle: TextStyle(
+                              color: selected ? Colors.white : null,
+                              fontSize: 12,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        limitController,
+                        'Budget Limit (${widget.currency})',
+                        Icons.attach_money,
+                        keyboardType: TextInputType.number,
+                        hint: '0',
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          final limit = double.tryParse(limitController.text);
+                          if (limit == null || limit <= 0) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please enter a valid limit'),
+                              ),
+                            );
+                            return;
+                          }
+                          HapticFeedback.mediumImpact();
+                          _addBudget(
+                            Budget(category: selectedCategory, limit: limit),
+                          );
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(
+                              content: Text('Budget added successfully!'),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Add Budget',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showFinanceSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Add New',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(Icons.attach_money, color: Colors.green),
+              title: const Text('Income Source'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showIncomeSheet();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.flag, color: Colors.blue),
+              title: const Text('Savings Goal'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showGoalSheet();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.receipt, color: Colors.orange),
+              title: const Text('Recurring Bill'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _showBillSheet();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showIncomeSheet() {
+    final nameController = TextEditingController();
+    final amountController = TextEditingController();
+    String frequency = 'Monthly';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+          ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Add Income',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildTextField(
+                        nameController,
+                        'Source Name',
+                        Icons.work,
+                        hint: 'e.g., Salary, Freelance',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        amountController,
+                        'Amount (${widget.currency})',
+                        Icons.attach_money,
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Frequency',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: ['Monthly', 'Weekly', 'Bi-weekly', 'Yearly']
+                            .map(
+                              (f) => ChoiceChip(
+                                label: Text(f),
+                                selected: frequency == f,
+                                onSelected: (v) =>
+                                    setModalState(() => frequency = f),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          final amount = double.tryParse(amountController.text);
+                          if (nameController.text.isEmpty ||
+                              amount == null ||
+                              amount <= 0) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill all fields'),
+                              ),
+                            );
+                            return;
+                          }
+                          HapticFeedback.mediumImpact();
+                          _addIncomeSource(
+                            IncomeSource(
+                              name: nameController.text.trim(),
+                              amount: amount,
+                              frequency: frequency,
+                            ),
+                          );
+                          Navigator.pop(ctx);
+                        },
+                        child: const Text('Add Income'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showGoalSheet() {
+    final nameController = TextEditingController();
+    final targetController = TextEditingController();
+    DateTime targetDate = DateTime.now().add(const Duration(days: 365));
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Add Goal',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildTextField(
+                        nameController,
+                        'Goal Name',
+                        Icons.flag,
+                        hint: 'e.g., Emergency Fund',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        targetController,
+                        'Target Amount (${widget.currency})',
+                        Icons.attach_money,
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Target Date',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: targetDate,
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2030),
+                          );
+                          if (picked != null) {
+                            setModalState(() => targetDate = picked);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(formatDate(targetDate)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          final target = double.tryParse(targetController.text);
+                          if (nameController.text.isEmpty ||
+                              target == null ||
+                              target <= 0) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill all fields'),
+                              ),
+                            );
+                            return;
+                          }
+                          HapticFeedback.mediumImpact();
+                          _addSavingsGoal(
+                            SavingsGoal(
+                              name: nameController.text.trim(),
+                              targetAmount: target,
+                              targetDate: targetDate,
+                            ),
+                          );
+                          Navigator.pop(ctx);
+                        },
+                        child: const Text('Add Goal'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showBillSheet() {
+    final nameController = TextEditingController();
+    final amountController = TextEditingController();
+    int dueDay = 1;
+    String frequency = 'Monthly';
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    const Text(
+                      'Add Bill',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildTextField(
+                        nameController,
+                        'Bill Name',
+                        Icons.receipt,
+                        hint: 'e.g., Rent, Netflix',
+                      ),
+                      const SizedBox(height: 16),
+                      _buildTextField(
+                        amountController,
+                        'Amount (${widget.currency})',
+                        Icons.attach_money,
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Due Day of Month',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<int>(
+                        value: dueDay,
+                        items: List.generate(
+                          28,
+                          (i) => DropdownMenuItem(
+                            value: i + 1,
+                            child: Text('Day ${i + 1}'),
+                          ),
+                        ),
+                        onChanged: (v) => setModalState(() => dueDay = v ?? 1),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Frequency',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: ['Monthly', 'Quarterly', 'Yearly']
+                            .map(
+                              (f) => ChoiceChip(
+                                label: Text(f),
+                                selected: frequency == f,
+                                onSelected: (v) =>
+                                    setModalState(() => frequency = f),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          final amount = double.tryParse(amountController.text);
+                          if (nameController.text.isEmpty ||
+                              amount == null ||
+                              amount <= 0) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill all fields'),
+                              ),
+                            );
+                            return;
+                          }
+                          HapticFeedback.mediumImpact();
+                          _addRecurringBill(
+                            RecurringBill(
+                              name: nameController.text.trim(),
+                              amount: amount,
+                              dueDay: dueDay,
+                              frequency: frequency,
+                            ),
+                          );
+                          Navigator.pop(ctx);
+                        },
+                        child: const Text('Add Bill'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -1180,64 +1911,8 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          DashboardPage(
-            expenses: expenses,
-            budgets: budgets,
-            incomeSources: incomeSources,
-            savingsGoals: savingsGoals,
-            recurringBills: recurringBills,
-            profile: profile,
-            currency: widget.currency,
-            isDarkMode: widget.isDarkMode,
-            onToggleTheme: widget.onToggleTheme,
-            onSetCurrency: widget.onSetCurrency,
-            onQuickAdd: _showQuickAddExpense,
-          ),
-          ExpensesPage(
-            expenses: expenses,
-            budgets: budgets,
-            currency: widget.currency,
-            onAdd: _addExpense,
-            onUpdate: _updateExpense,
-            onDelete: _deleteExpense,
-          ),
-          BudgetsPage(
-            budgets: budgets,
-            currency: widget.currency,
-            onAdd: _addBudget,
-            onUpdate: _updateBudget,
-            onDelete: _deleteBudget,
-          ),
-          FinancePage(
-            incomeSources: incomeSources,
-            savingsGoals: savingsGoals,
-            recurringBills: recurringBills,
-            profile: profile,
-            currency: widget.currency,
-            onAddIncome: _addIncomeSource,
-            onUpdateIncome: _updateIncomeSource,
-            onDeleteIncome: _deleteIncomeSource,
-            onAddGoal: _addSavingsGoal,
-            onUpdateGoal: _updateSavingsGoal,
-            onDeleteGoal: _deleteSavingsGoal,
-            onAddBill: _addRecurringBill,
-            onUpdateBill: _updateRecurringBill,
-            onToggleBill: _toggleBillPaid,
-            onDeleteBill: _deleteRecurringBill,
-            onUpdateProfile: _updateProfile,
-          ),
-        ],
-      ),
-      floatingActionButton: _currentIndex == 0
-          ? FloatingActionButton(
-              heroTag: 'home_fab',
-              onPressed: _showQuickAddExpense,
-              child: const Icon(Icons.add),
-            )
-          : null,
+      body: _buildCurrentPage(),
+      floatingActionButton: _buildFab(),
       bottomNavigationBar: NavigationBar(
         height: 65,
         selectedIndex: _currentIndex,
@@ -2682,17 +3357,6 @@ class _ExpensesPageState extends State<ExpensesPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'expenses_fab',
-        onPressed: () => showExpenseSheet(
-          context: context,
-          budgets: widget.budgets,
-          currency: widget.currency,
-          onSave: widget.onAdd,
-        ),
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-      ),
     );
   }
 
@@ -3070,12 +3734,6 @@ class BudgetsPage extends StatelessWidget {
                 }),
               ],
             ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'budgets_fab',
-        onPressed: () => _showBudgetSheet(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-      ),
     );
   }
 
@@ -3334,24 +3992,6 @@ class _FinancePageState extends State<FinancePage>
       body: TabBarView(
         controller: _tabController,
         children: [_buildIncomeTab(), _buildGoalsTab(), _buildBillsTab()],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'finance_fab',
-        onPressed: () {
-          switch (_tabController.index) {
-            case 0:
-              _showIncomeSheet(context);
-              break;
-            case 1:
-              _showGoalSheet(context);
-              break;
-            case 2:
-              _showBillSheet(context);
-              break;
-          }
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
       ),
     );
   }
