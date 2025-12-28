@@ -1729,7 +1729,10 @@ class _SpendingChartCard extends StatelessWidget {
                     width: 120,
                     height: 120,
                     child: CustomPaint(
-                      painter: _PieChartPainter(categorySpending),
+                      painter: _PieChartPainter(
+                        categorySpending,
+                        Theme.of(context).cardColor,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -1785,7 +1788,8 @@ class _SpendingChartCard extends StatelessWidget {
 
 class _PieChartPainter extends CustomPainter {
   final Map<String, double> data;
-  _PieChartPainter(this.data);
+  final Color centerColor;
+  _PieChartPainter(this.data, this.centerColor);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1812,7 +1816,7 @@ class _PieChartPainter extends CustomPainter {
     }
 
     // Inner circle for donut effect
-    canvas.drawCircle(center, radius * 0.5, Paint()..color = Colors.white);
+    canvas.drawCircle(center, radius * 0.5, Paint()..color = centerColor);
   }
 
   @override
