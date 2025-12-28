@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.ExpenseTracker" parent="Theme.Material3.DayNight">
+    <style name="Theme.ExpenseTracker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
@@ -14,10 +14,5 @@
         <item name="android:statusBarColor">@color/primary_dark</item>
         <!-- Customize your theme here. -->
         <item name="android:windowBackground">@color/background_color</item>
-    </style>
-    
-    <style name="Theme.ExpenseTracker.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
     </style>
 </resources>
