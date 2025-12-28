@@ -60,37 +60,7 @@ Expense Tracker is a robust and feature-rich financial management application de
 
 ## Screenshots
 
-Below are some screenshots to give you a quick look at how Expense Tracker works:
-
-### Visual View
-*The login page provides a secure and user-friendly authentication process, ensuring safe access to personal finance management tools.*
-![login Screenshot](static/assets/screenshots/login.jpg)
-
-*The signup page allows new users to create a secure account, personalize their financial settings, and start managing their expenses effortlessly.*
-![signup Screenshot](static/assets/screenshots/signup.jpg)
-
-*The main dashboard provides an overview of your spending and income, as well as visual financial reports.*
-![Dashboard Screenshot](static/assets/screenshots/dashboard.jpg)
-
-### Adding Expenses
-*Easily add new expenses with categories, descriptions, and receipt attachments.*
-![Add Expense Screenshot](static/assets/screenshots/add-expense.jpg)
-
-### Expense Categories
-*Organize and track expenses with customizable categories and tags.*
-![Expense Categories Screenshot](static/assets/screenshots/expense.jpg)
-
-### Analytics Dashboard
-*Detailed financial analytics and visualizations to track your spending patterns.*
-![Analytics Screenshot](static/assets/screenshots/reports.jpg)
-
-### Budget Management
-*Set and monitor budgets for different expense categories.*
-![Budget Management Screenshot](static/assets/screenshots/budget.jpg)
-
-### Shared Expenses
-*Collaborate and split expenses with family members or roommates.*
-![Shared Expenses Screenshot](static/assets/screenshots/sexpense.jpg)
+*Screenshots coming soon*
 
 ---
 
