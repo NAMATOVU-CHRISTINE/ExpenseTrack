@@ -722,3 +722,4 @@ class _HomePageState extends State<HomePage> {
 // Update 49 - Update form validation
 // Update 50 - Fix performance issues
 // Update 51 - Add expense backup
+// Update 52 - Update error messages
