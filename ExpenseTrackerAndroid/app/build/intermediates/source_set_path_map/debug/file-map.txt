@@ -1,8 +1,0 @@
-com.expensetracker.app-pngs-0 /home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/build/generated/res/pngs/debug
-com.expensetracker.app-resValues-1 /home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/build/generated/res/resValues/debug
-com.expensetracker.app-rs-2 /home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/build/generated/res/rs/debug
-com.expensetracker.app-mergeDebugResources-3 /home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/build/intermediates/incremental/debug/mergeDebugResources/merged.dir
-com.expensetracker.app-mergeDebugResources-4 /home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/build/intermediates/incremental/debug/mergeDebugResources/stripped.dir
-com.expensetracker.app-merged_res-5 /home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/build/intermediates/merged_res/debug
-com.expensetracker.app-debug-6 /home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/src/debug/res
-com.expensetracker.app-main-7 /home/christine/Documents/GitHub/ExpenseTrack/ExpenseTrackerAndroid/app/src/main/res
