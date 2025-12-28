@@ -1,8 +1,8 @@
 # Contributing to ExpenseTracker
 
-First off, thank you for considering contributing to ExpenseTracker! 🎉
+First off, thank you for considering contributing to ExpenseTracker!
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
 - [How Can I Contribute?](#how-can-i-contribute)
@@ -11,7 +11,7 @@ First off, thank you for considering contributing to ExpenseTracker! 🎉
 - [Style Guidelines](#style-guidelines)
 - [Commit Messages](#commit-messages)
 
-## 📜 Code of Conduct
+## Code of Conduct
 
 This project follows a simple code of conduct:
 - Be respectful and inclusive
@@ -19,9 +19,9 @@ This project follows a simple code of conduct:
 - Focus on constructive feedback
 - Assume good intentions
 
-## 🤔 How Can I Contribute?
+## How Can I Contribute?
 
-### 🐛 Reporting Bugs
+### Reporting Bugs
 
 Before creating a bug report, please check existing issues. When creating a bug report, include:
 
@@ -31,7 +31,7 @@ Before creating a bug report, please check existing issues. When creating a bug 
 - **Screenshots** if applicable
 - **Device/OS information**
 
-### 💡 Suggesting Features
+### Suggesting Features
 
 Feature requests are welcome! Please include:
 
@@ -39,7 +39,7 @@ Feature requests are welcome! Please include:
 - **Use case** - why is this feature needed?
 - **Possible implementation** (optional)
 
-### 🔧 Code Contributions
+### Code Contributions
 
 Great for:
 - Bug fixes
@@ -48,7 +48,7 @@ Great for:
 - Code refactoring
 - Test coverage
 
-## 🛠️ Development Setup
+## Development Setup
 
 1. **Fork and clone**
    ```bash
@@ -79,7 +79,7 @@ Great for:
    flutter analyze
    ```
 
-## 🔄 Pull Request Process
+## Pull Request Process
 
 1. **Create a branch**
    ```bash
@@ -119,7 +119,7 @@ Great for:
 - [ ] Documentation updated (if needed)
 - [ ] PR description is clear and complete
 
-## 🎨 Style Guidelines
+## Style Guidelines
 
 ### Dart/Flutter Code Style
 
@@ -129,7 +129,7 @@ Great for:
 - Add documentation comments for public APIs
 
 ```dart
-// ✅ Good
+// Good
 /// Calculates the total expenses for the given month.
 double calculateMonthlyTotal(List<Expense> expenses, DateTime month) {
   return expenses
@@ -137,7 +137,7 @@ double calculateMonthlyTotal(List<Expense> expenses, DateTime month) {
       .fold(0.0, (sum, e) => sum + e.amount);
 }
 
-// ❌ Bad
+// Bad
 double calc(List<Expense> e, DateTime m) {
   var t = 0.0;
   for (var x in e) {
@@ -153,7 +153,7 @@ double calc(List<Expense> e, DateTime m) {
 - Use clear section comments for large files
 - Extract reusable widgets when appropriate
 
-## 📝 Commit Messages
+## Commit Messages
 
 We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
@@ -193,7 +193,7 @@ git commit -m "feat: add expense analytics chart
 Co-authored-by: Partner Name <partner@email.com>"
 ```
 
-## 🏷️ Issue Labels
+## Issue Labels
 
 | Label | Description |
 |-------|-------------|
@@ -204,7 +204,7 @@ Co-authored-by: Partner Name <partner@email.com>"
 | `documentation` | Documentation improvements |
 | `question` | Further information requested |
 
-## 💬 Getting Help
+## Getting Help
 
 - Open an issue for questions
 - Check existing issues and PRs
@@ -212,4 +212,4 @@ Co-authored-by: Partner Name <partner@email.com>"
 
 ---
 
-Thank you for contributing! 🚀
+Thank you for contributing!

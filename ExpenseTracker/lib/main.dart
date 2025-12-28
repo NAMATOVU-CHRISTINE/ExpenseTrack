@@ -2055,7 +2055,7 @@ class DashboardPage extends StatelessWidget {
           children: [
             // Welcome
             Text(
-              'Welcome back!',
+              'Welcome back',
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),

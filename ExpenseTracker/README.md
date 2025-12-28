@@ -1,4 +1,4 @@
-# 💰 ExpenseTracker
+# ExpenseTracker
 
 A beautiful, feature-rich expense tracking app built with Flutter.
 
@@ -7,24 +7,24 @@ A beautiful, feature-rich expense tracking app built with Flutter.
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
 
-## ✨ Features
+## Features
 
-- 📊 **Expense Tracking** - Log daily expenses with categories and notes
-- 💵 **Budget Management** - Set budgets per category with overspend alerts
-- 🎯 **Savings Goals** - Track progress toward financial goals
-- 📅 **Recurring Bills** - Never miss a payment with bill tracking
-- 💰 **Income Sources** - Track multiple income streams
-- 🌙 **Dark/Light Theme** - Easy on the eyes, day or night
-- 💱 **Multi-Currency** - Support for UGX, USD, EUR, GBP, KES, and more
-- 📱 **Offline First** - Works without internet connection
+- **Expense Tracking** - Log daily expenses with categories and notes
+- **Budget Management** - Set budgets per category with overspend alerts
+- **Savings Goals** - Track progress toward financial goals
+- **Recurring Bills** - Never miss a payment with bill tracking
+- **Income Sources** - Track multiple income streams
+- **Dark/Light Theme** - Easy on the eyes, day or night
+- **Multi-Currency** - Support for UGX, USD, EUR, GBP, KES, and more
+- **Offline First** - Works without internet connection
 
-## 📱 Screenshots
+## Screenshots
 
 | Dashboard | Expenses | Budgets | Finance |
 |-----------|----------|---------|---------|
 | ![Dashboard](screenshots/dashboard.png) | ![Expenses](screenshots/expenses.png) | ![Budgets](screenshots/budgets.png) | ![Finance](screenshots/finance.png) |
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -59,7 +59,7 @@ flutter build apk --release
 
 The APK will be available at `build/app/outputs/flutter-apk/app-release.apk`
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 lib/
@@ -69,7 +69,7 @@ lib/
 └── utils/             # Helper functions and constants
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Flutter
 - **Language**: Dart
@@ -77,7 +77,7 @@ lib/
 - **Storage**: SharedPreferences (local storage)
 - **Architecture**: Single-file monolith (simple app)
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a PR.
 
@@ -89,7 +89,7 @@ Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTIN
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📋 Roadmap
+## Roadmap
 
 - [x] Export expenses to CSV
 - [ ] Charts and analytics
@@ -99,25 +99,25 @@ Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTIN
 - [ ] Expense reminders/notifications
 - [ ] Monthly/weekly expense reports
 
-## 🐛 Known Issues
+## Known Issues
 
 See [Issues](https://github.com/NAMATOVU-CHRISTINE/ExpenseTrack/issues) for a list of known issues and feature requests.
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👩‍💻 Author
+## Author
 
 **Christine Namatovu**
 
 - GitHub: [@NAMATOVU-CHRISTINE](https://github.com/NAMATOVU-CHRISTINE)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Flutter team for the amazing framework
 - All contributors who help improve this project
 
 ---
 
-⭐ **Star this repo if you find it helpful!**
+**Star this repo if you find it helpful!**
