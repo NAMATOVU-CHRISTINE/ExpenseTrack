@@ -1233,6 +1233,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
+              heroTag: 'home_fab',
               onPressed: _showQuickAddExpense,
               child: const Icon(Icons.add),
             )
@@ -2682,6 +2683,7 @@ class _ExpensesPageState extends State<ExpensesPage> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'expenses_fab',
         onPressed: () => showExpenseSheet(
           context: context,
           budgets: widget.budgets,
@@ -3069,6 +3071,7 @@ class BudgetsPage extends StatelessWidget {
               ],
             ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'budgets_fab',
         onPressed: () => _showBudgetSheet(context),
         icon: const Icon(Icons.add),
         label: const Text('Add'),
