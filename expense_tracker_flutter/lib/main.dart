@@ -703,3 +703,4 @@ class _HomePageState extends State<HomePage> {
 // Update 30 - Add expense export
 // Update 31 - Update splash screen
 // Update 32 - Fix memory leak
+// Update 33 - Add expense import
