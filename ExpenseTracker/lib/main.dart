@@ -3617,26 +3617,18 @@ class _FinancePageState extends State<FinancePage>
   }
 
   Widget _buildGoalsTab() {
-    return Scaffold(
-      body: widget.savingsGoals.isEmpty
-          ? _buildEmptyState(
-              Icons.flag,
-              'No savings goals',
-              'Set goals to save towards',
-            )
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: widget.savingsGoals
-                  .map((goal) => _buildGoalCard(goal))
-                  .toList(),
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'goals',
-        onPressed: () => _showGoalSheet(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-      ),
-    );
+    return widget.savingsGoals.isEmpty
+        ? _buildEmptyState(
+            Icons.flag,
+            'No savings goals',
+            'Set goals to save towards',
+          )
+        : ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+            children: widget.savingsGoals
+                .map((goal) => _buildGoalCard(goal))
+                .toList(),
+          );
   }
 
   Widget _buildGoalCard(SavingsGoal goal) {
@@ -3985,49 +3977,41 @@ class _FinancePageState extends State<FinancePage>
     final unpaid = widget.recurringBills.where((b) => !b.isPaid).toList();
     final paid = widget.recurringBills.where((b) => b.isPaid).toList();
 
-    return Scaffold(
-      body: widget.recurringBills.isEmpty
-          ? _buildEmptyState(
-              Icons.receipt_long,
-              'No recurring bills',
-              'Track your regular payments',
-            )
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                if (unpaid.isNotEmpty) ...[
-                  Text(
-                    'Unpaid (${unpaid.length})',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+    return widget.recurringBills.isEmpty
+        ? _buildEmptyState(
+            Icons.receipt_long,
+            'No recurring bills',
+            'Track your regular payments',
+          )
+        : ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+            children: [
+              if (unpaid.isNotEmpty) ...[
+                Text(
+                  'Unpaid (${unpaid.length})',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
-                  const SizedBox(height: 8),
-                  ...unpaid.map((bill) => _buildBillCard(bill)),
-                  const SizedBox(height: 16),
-                ],
-                if (paid.isNotEmpty) ...[
-                  Text(
-                    'Paid (${paid.length})',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  ...paid.map((bill) => _buildBillCard(bill)),
-                ],
+                ),
+                const SizedBox(height: 8),
+                ...unpaid.map((bill) => _buildBillCard(bill)),
+                const SizedBox(height: 16),
               ],
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'bills',
-        onPressed: () => _showBillSheet(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-      ),
-    );
+              if (paid.isNotEmpty) ...[
+                Text(
+                  'Paid (${paid.length})',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...paid.map((bill) => _buildBillCard(bill)),
+              ],
+            ],
+          );
   }
 
   Widget _buildBillCard(RecurringBill bill) {
