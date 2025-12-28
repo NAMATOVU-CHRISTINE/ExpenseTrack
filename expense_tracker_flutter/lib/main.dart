@@ -692,3 +692,4 @@ class _HomePageState extends State<HomePage> {
 // Update 19 - Add loading indicators
 // Update 20 - Improve error handling
 // Update 21 - Add expense sorting
+// Update 22 - Update card shadows
