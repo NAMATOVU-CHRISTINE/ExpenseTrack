@@ -696,3 +696,4 @@ class _HomePageState extends State<HomePage> {
 // Update 23 - Fix text overflow
 // Update 24 - Add swipe to delete
 // Update 25 - Update color scheme
+// Update 26 - Fix keyboard issues
