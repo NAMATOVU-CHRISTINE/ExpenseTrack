@@ -705,3 +705,4 @@ class _HomePageState extends State<HomePage> {
 // Update 32 - Fix memory leak
 // Update 33 - Add expense import
 // Update 34 - Update app icon
+// Update 35 - Fix date formatting
