@@ -671,3 +671,4 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }
+// Update 1 - Add expense category icons
