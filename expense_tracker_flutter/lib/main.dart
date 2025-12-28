@@ -16,9 +16,29 @@ class ExpenseTrackerApp extends StatelessWidget {
       title: 'Expense Tracker',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF667eea),
-          brightness: Brightness.light,
+        colorScheme: const ColorScheme.light(
+          primary: Colors.black,
+          onPrimary: Colors.white,
+          secondary: Colors.black87,
+          onSecondary: Colors.white,
+          surface: Colors.white,
+          onSurface: Colors.black,
+        ),
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        cardTheme: CardTheme(
+          color: Colors.white,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
         ),
         useMaterial3: true,
       ),
@@ -226,7 +246,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddExpenseDialog(context),
-        backgroundColor: const Color(0xFF667eea),
+        backgroundColor: const Colors.black,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('Add Expense', style: TextStyle(color: Colors.white)),
       ),
@@ -264,7 +284,7 @@ class _HomePageState extends State<HomePage> {
             background: Container(
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                  colors: [Colors.black, Colors.black87],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -403,7 +423,7 @@ class _HomePageState extends State<HomePage> {
                               : 0,
                           backgroundColor: Colors.grey[200],
                           valueColor: const AlwaysStoppedAnimation(
-                            Color(0xFF667eea),
+                            Colors.black,
                           ),
                           minHeight: 10,
                           borderRadius: BorderRadius.circular(5),
@@ -585,7 +605,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Expenses'),
-        backgroundColor: const Color(0xFF667eea),
+        backgroundColor: const Colors.black,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -660,7 +680,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Budget Management'),
-        backgroundColor: const Color(0xFF667eea),
+        backgroundColor: const Colors.black,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -811,7 +831,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Financial Reports'),
-        backgroundColor: const Color(0xFF667eea),
+        backgroundColor: const Colors.black,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -827,7 +847,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             // Summary Cards
             Card(
-              color: const Color(0xFF667eea),
+              color: const Colors.black,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -952,7 +972,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile & Settings'),
-        backgroundColor: const Color(0xFF667eea),
+        backgroundColor: const Colors.black,
         foregroundColor: Colors.white,
       ),
       body: ListView(
@@ -966,7 +986,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const CircleAvatar(
                     radius: 50,
-                    backgroundColor: Color(0xFF667eea),
+                    backgroundColor: Colors.black,
                     child: Icon(Icons.person, size: 50, color: Colors.white),
                   ),
                   const SizedBox(height: 16),
@@ -996,7 +1016,7 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   leading: const Icon(
                     Icons.attach_money,
-                    color: Color(0xFF667eea),
+                    color: Colors.black,
                   ),
                   title: const Text('Monthly Income'),
                   subtitle: Text(formatUGX(monthlyIncome)),
@@ -1005,7 +1025,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.savings, color: Color(0xFF667eea)),
+                  leading: const Icon(Icons.savings, color: Colors.black),
                   title: const Text('Savings Target'),
                   subtitle: Text(formatUGX(savingsTarget)),
                   trailing: const Icon(Icons.edit),
@@ -1015,7 +1035,7 @@ class _HomePageState extends State<HomePage> {
                 ListTile(
                   leading: const Icon(
                     Icons.account_balance,
-                    color: Color(0xFF667eea),
+                    color: Colors.black,
                   ),
                   title: const Text('Current Savings'),
                   subtitle: Text(formatUGX(currentSavings)),
@@ -1037,7 +1057,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.download, color: Color(0xFF667eea)),
+                  leading: const Icon(Icons.download, color: Colors.black),
                   title: const Text('Export Data'),
                   subtitle: const Text('Download your expense data'),
                   onTap: () => _exportReport(),
@@ -1174,7 +1194,7 @@ class _HomePageState extends State<HomePage> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF667eea),
+                      backgroundColor: const Colors.black,
                       foregroundColor: Colors.white,
                     ),
                     onPressed: () {
