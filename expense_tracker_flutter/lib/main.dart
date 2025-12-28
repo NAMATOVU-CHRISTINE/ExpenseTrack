@@ -727,3 +727,4 @@ class _HomePageState extends State<HomePage> {
 // Update 54 - Add expense history
 // Update 55 - Update padding values
 // Update 56 - Fix theme switching
+// Update 57 - Add expense analytics
