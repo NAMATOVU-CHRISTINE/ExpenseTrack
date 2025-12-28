@@ -698,3 +698,4 @@ class _HomePageState extends State<HomePage> {
 // Update 25 - Update color scheme
 // Update 26 - Fix keyboard issues
 // Update 27 - Add expense tags
+// Update 28 - Update bottom navigation
