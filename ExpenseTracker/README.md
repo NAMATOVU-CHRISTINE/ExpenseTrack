@@ -18,12 +18,6 @@ A beautiful, feature-rich expense tracking app built with Flutter.
 - **Multi-Currency** - Support for UGX, USD, EUR, GBP, KES, and more
 - **Offline First** - Works without internet connection
 
-## Screenshots
-
-| Dashboard | Expenses | Budgets | Finance |
-|-----------|----------|---------|---------|
-| ![Dashboard](screenshots/dashboard.png) | ![Expenses](screenshots/expenses.png) | ![Budgets](screenshots/budgets.png) | ![Finance](screenshots/finance.png) |
-
 ## Getting Started
 
 ### Prerequisites
