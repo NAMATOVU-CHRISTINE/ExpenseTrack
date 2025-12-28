@@ -680,3 +680,4 @@ class _HomePageState extends State<HomePage> {
 // Update 7 - Fix date picker issue
 // Update 8 - Update expense list styling
 // Update 9 - Add category colors
+// Update 10 - Improve chart animations
