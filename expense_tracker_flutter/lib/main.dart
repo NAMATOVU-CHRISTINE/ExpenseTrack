@@ -29,13 +29,7 @@ class ExpenseTrackerApp extends StatelessWidget {
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
         ),
-        cardTheme: CardTheme(
-          color: Colors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+        cardTheme: const CardThemeData(color: Colors.white, elevation: 2),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: Colors.black,
           foregroundColor: Colors.white,
@@ -246,7 +240,7 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddExpenseDialog(context),
-        backgroundColor: const Colors.black,
+        backgroundColor: Colors.black,
         icon: const Icon(Icons.add, color: Colors.white),
         label: const Text('Add Expense', style: TextStyle(color: Colors.white)),
       ),
@@ -605,7 +599,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All Expenses'),
-        backgroundColor: const Colors.black,
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -680,7 +674,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Budget Management'),
-        backgroundColor: const Colors.black,
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -831,7 +825,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Financial Reports'),
-        backgroundColor: const Colors.black,
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
@@ -847,7 +841,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             // Summary Cards
             Card(
-              color: const Colors.black,
+              color: Colors.black,
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -972,7 +966,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile & Settings'),
-        backgroundColor: const Colors.black,
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
       ),
       body: ListView(
@@ -1014,10 +1008,7 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(
-                    Icons.attach_money,
-                    color: Colors.black,
-                  ),
+                  leading: const Icon(Icons.attach_money, color: Colors.black),
                   title: const Text('Monthly Income'),
                   subtitle: Text(formatUGX(monthlyIncome)),
                   trailing: const Icon(Icons.edit),
@@ -1194,7 +1185,7 @@ class _HomePageState extends State<HomePage> {
                   height: 50,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Colors.black,
+                      backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
                     ),
                     onPressed: () {
