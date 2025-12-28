@@ -675,3 +675,4 @@ class _HomePageState extends State<HomePage> {
 // Update 2 - Update dashboard layout
 // Update 3 - Fix budget calculation
 // Update 4 - Add expense filtering
+// Update 5 - Improve UI responsiveness
