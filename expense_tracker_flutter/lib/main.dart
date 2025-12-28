@@ -685,3 +685,4 @@ class _HomePageState extends State<HomePage> {
 // Update 12 - Add expense search
 // Update 13 - Update profile page
 // Update 14 - Add settings screen
+// Update 15 - Fix currency formatting
