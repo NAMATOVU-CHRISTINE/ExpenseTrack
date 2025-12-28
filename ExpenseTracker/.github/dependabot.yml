@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # Maintain dependencies for pub (Dart/Flutter)
+  - package-ecosystem: "pub"
+    directory: "/ExpenseTracker"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "flutter"
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
