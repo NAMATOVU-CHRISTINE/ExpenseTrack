@@ -678,3 +678,4 @@ class _HomePageState extends State<HomePage> {
 // Update 5 - Improve UI responsiveness
 // Update 6 - Add dark mode support
 // Update 7 - Fix date picker issue
+// Update 8 - Update expense list styling
