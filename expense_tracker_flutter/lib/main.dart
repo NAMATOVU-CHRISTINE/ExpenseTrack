@@ -716,3 +716,4 @@ class _HomePageState extends State<HomePage> {
 // Update 43 - Update gradient colors
 // Update 44 - Fix async operations
 // Update 45 - Add expense categories
+// Update 46 - Update list animations
