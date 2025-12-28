@@ -706,3 +706,4 @@ class _HomePageState extends State<HomePage> {
 // Update 33 - Add expense import
 // Update 34 - Update app icon
 // Update 35 - Fix date formatting
+// Update 36 - Add recurring expenses
