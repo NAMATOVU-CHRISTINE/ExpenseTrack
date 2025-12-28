@@ -91,12 +91,13 @@ Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTIN
 
 ## 📋 Roadmap
 
-- [ ] Export expenses to CSV/PDF
+- [x] Export expenses to CSV
 - [ ] Charts and analytics
 - [ ] Cloud sync with Firebase
 - [ ] Expense categories customization
 - [ ] Receipt photo attachment
 - [ ] Expense reminders/notifications
+- [ ] Monthly/weekly expense reports
 
 ## 🐛 Known Issues
 
