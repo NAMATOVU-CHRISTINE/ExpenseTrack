@@ -724,3 +724,4 @@ class _HomePageState extends State<HomePage> {
 // Update 51 - Add expense backup
 // Update 52 - Update error messages
 // Update 53 - Fix widget rebuild
+// Update 54 - Add expense history
