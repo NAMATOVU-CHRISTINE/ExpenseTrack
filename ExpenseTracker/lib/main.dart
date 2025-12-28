@@ -3332,6 +3332,24 @@ class _FinancePageState extends State<FinancePage>
         controller: _tabController,
         children: [_buildIncomeTab(), _buildGoalsTab(), _buildBillsTab()],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'finance_fab',
+        onPressed: () {
+          switch (_tabController.index) {
+            case 0:
+              _showIncomeSheet(context);
+              break;
+            case 1:
+              _showGoalSheet(context);
+              break;
+            case 2:
+              _showBillSheet(context);
+              break;
+          }
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Add'),
+      ),
     );
   }
 
@@ -3340,62 +3358,52 @@ class _FinancePageState extends State<FinancePage>
       0.0,
       (sum, i) => sum + i.amount,
     );
-    return Scaffold(
-      body: widget.incomeSources.isEmpty
-          ? _buildEmptyState(
-              Icons.trending_up,
-              'No income sources',
-              'Add your income sources',
-            )
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
-              children: [
-                Card(
-                  color: Colors.green.shade50,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.trending_up,
-                          color: Colors.green.shade700,
-                          size: 32,
-                        ),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Total Income',
-                              style: TextStyle(color: Colors.green.shade700),
+    return widget.incomeSources.isEmpty
+        ? _buildEmptyState(
+            Icons.trending_up,
+            'No income sources',
+            'Add your income sources',
+          )
+        : ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
+            children: [
+              Card(
+                color: Colors.green.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.trending_up,
+                        color: Colors.green.shade700,
+                        size: 32,
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Total Income',
+                            style: TextStyle(color: Colors.green.shade700),
+                          ),
+                          Text(
+                            formatCurrency(totalIncome, widget.currency),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green.shade700,
                             ),
-                            Text(
-                              formatCurrency(totalIncome, widget.currency),
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green.shade700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                ...widget.incomeSources.map(
-                  (source) => _buildIncomeCard(source),
-                ),
-              ],
-            ),
-      floatingActionButton: FloatingActionButton.extended(
-        heroTag: 'income',
-        onPressed: () => _showIncomeSheet(context),
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-      ),
-    );
+              ),
+              const SizedBox(height: 16),
+              ...widget.incomeSources.map((source) => _buildIncomeCard(source)),
+            ],
+          );
   }
 
   Widget _buildIncomeCard(IncomeSource source) {
