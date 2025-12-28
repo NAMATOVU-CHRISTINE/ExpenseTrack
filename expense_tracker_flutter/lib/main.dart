@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const ExpenseTrackerApp());
@@ -26,12 +27,21 @@ class ExpenseTrackerApp extends StatelessWidget {
   }
 }
 
+// Currency formatter for UGX
+String formatUGX(double amount) {
+  final formatter = NumberFormat('#,###', 'en_US');
+  return 'UGX ${formatter.format(amount.round())}';
+}
+
 class Expense {
   final String id;
   final String description;
   final double amount;
   final String category;
   final DateTime date;
+  final String? notes;
+  final bool isRecurring;
+  final List<String> tags;
 
   Expense({
     required this.id,
@@ -39,6 +49,9 @@ class Expense {
     required this.amount,
     required this.category,
     required this.date,
+    this.notes,
+    this.isRecurring = false,
+    this.tags = const [],
   });
 
   Map<String, dynamic> toJson() => {
@@ -47,6 +60,9 @@ class Expense {
     'amount': amount,
     'category': category,
     'date': date.toIso8601String(),
+    'notes': notes,
+    'isRecurring': isRecurring,
+    'tags': tags,
   };
 
   factory Expense.fromJson(Map<String, dynamic> json) => Expense(
@@ -55,6 +71,41 @@ class Expense {
     amount: json['amount'].toDouble(),
     category: json['category'],
     date: DateTime.parse(json['date']),
+    notes: json['notes'],
+    isRecurring: json['isRecurring'] ?? false,
+    tags: List<String>.from(json['tags'] ?? []),
+  );
+}
+
+class Budget {
+  final String id;
+  final String category;
+  final double limit;
+  final DateTime month;
+  final bool notifications;
+
+  Budget({
+    required this.id,
+    required this.category,
+    required this.limit,
+    required this.month,
+    this.notifications = true,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'category': category,
+    'limit': limit,
+    'month': month.toIso8601String(),
+    'notifications': notifications,
+  };
+
+  factory Budget.fromJson(Map<String, dynamic> json) => Budget(
+    id: json['id'],
+    category: json['category'],
+    limit: json['limit'].toDouble(),
+    month: DateTime.parse(json['month']),
+    notifications: json['notifications'] ?? true,
   );
 }
 
@@ -67,46 +118,86 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Expense> expenses = [];
-  double budget = 2500.0;
+  List<Budget> budgets = [];
+  double monthlyIncome = 5000000; // 5M UGX default
+  double savingsTarget = 1000000; // 1M UGX default
+  double currentSavings = 0;
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadExpenses();
+    _loadData();
   }
 
-  Future<void> _loadExpenses() async {
+  Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // Load expenses
     final expensesJson = prefs.getString('expenses');
     if (expensesJson != null) {
       final List<dynamic> decoded = jsonDecode(expensesJson);
-      setState(() {
-        expenses = decoded.map((e) => Expense.fromJson(e)).toList();
-      });
+      expenses = decoded.map((e) => Expense.fromJson(e)).toList();
     }
+    
+    // Load budgets
+    final budgetsJson = prefs.getString('budgets');
+    if (budgetsJson != null) {
+      final List<dynamic> decoded = jsonDecode(budgetsJson);
+      budgets = decoded.map((b) => Budget.fromJson(b)).toList();
+    }
+    
+    // Load settings
+    monthlyIncome = prefs.getDouble('monthlyIncome') ?? 5000000;
+    savingsTarget = prefs.getDouble('savingsTarget') ?? 1000000;
+    currentSavings = prefs.getDouble('currentSavings') ?? 0;
+    
+    setState(() {});
   }
 
-  Future<void> _saveExpenses() async {
+  Future<void> _saveData() async {
     final prefs = await SharedPreferences.getInstance();
-    final expensesJson = jsonEncode(expenses.map((e) => e.toJson()).toList());
-    await prefs.setString('expenses', expensesJson);
+    await prefs.setString('expenses', jsonEncode(expenses.map((e) => e.toJson()).toList()));
+    await prefs.setString('budgets', jsonEncode(budgets.map((b) => b.toJson()).toList()));
+    await prefs.setDouble('monthlyIncome', monthlyIncome);
+    await prefs.setDouble('savingsTarget', savingsTarget);
+    await prefs.setDouble('currentSavings', currentSavings);
   }
 
   double get totalExpenses => expenses.fold(0, (sum, e) => sum + e.amount);
+  double get thisMonthExpenses {
+    final now = DateTime.now();
+    return expenses.where((e) => e.date.month == now.month && e.date.year == now.year)
+        .fold(0, (sum, e) => sum + e.amount);
+  }
+  double get disposableIncome => monthlyIncome - thisMonthExpenses;
 
   void _addExpense(Expense expense) {
-    setState(() {
-      expenses.insert(0, expense);
-    });
-    _saveExpenses();
+    setState(() => expenses.insert(0, expense));
+    _saveData();
+    _checkBudgetAlerts(expense.category);
   }
 
   void _deleteExpense(String id) {
-    setState(() {
-      expenses.removeWhere((e) => e.id == id);
-    });
-    _saveExpenses();
+    setState(() => expenses.removeWhere((e) => e.id == id));
+    _saveData();
+  }
+
+  void _checkBudgetAlerts(String category) {
+    final budget = budgets.where((b) => b.category == category).firstOrNull;
+    if (budget != null && budget.notifications) {
+      final spent = expenses.where((e) => e.category == category)
+          .fold(0.0, (sum, e) => sum + e.amount);
+      final percentage = (spent / budget.limit) * 100;
+      if (percentage >= 80) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Warning: You\'ve used ${percentage.toStringAsFixed(0)}% of your $category budget!'),
+            backgroundColor: percentage >= 100 ? Colors.red : Colors.orange,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -117,617 +208,27 @@ class _HomePageState extends State<HomePage> {
         children: [
           _buildDashboard(),
           _buildExpensesList(),
+          _buildBudgets(),
           _buildReports(),
           _buildProfile(),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddExpenseDialog(context),
         backgroundColor: const Color(0xFF667eea),
-        child: const Icon(Icons.add, color: Colors.white),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Add Expense', style: TextStyle(color: Colors.white)),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) =>
-            setState(() => _selectedIndex = index),
+        onDestinationSelected: (index) => setState(() => _selectedIndex = index),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.list), label: 'Expenses'),
+          NavigationDestination(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+          NavigationDestination(icon: Icon(Icons.receipt_long), label: 'Expenses'),
+          NavigationDestination(icon: Icon(Icons.account_balance_wallet), label: 'Budgets'),
           NavigationDestination(icon: Icon(Icons.pie_chart), label: 'Reports'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
-
-  Widget _buildDashboard() {
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 200,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-            background: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Expense Tracker',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Track your daily expenses',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        'Total Expenses',
-                        '\$${totalExpenses.toStringAsFixed(2)}',
-                        Icons.trending_down,
-                        Colors.red,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _buildStatCard(
-                        'Budget Left',
-                        '\$${(budget - totalExpenses).toStringAsFixed(2)}',
-                        Icons.account_balance_wallet,
-                        Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Recent Expenses',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                if (expenses.isEmpty)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32),
-                      child: Text('No expenses yet. Tap + to add one!'),
-                    ),
-                  )
-                else
-                  ...expenses.take(5).map((e) => _buildExpenseItem(e)),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              title,
-              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildExpenseItem(Expense expense) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _getCategoryColor(expense.category).withOpacity(0.2),
-          child: Icon(
-            _getCategoryIcon(expense.category),
-            color: _getCategoryColor(expense.category),
-          ),
-        ),
-        title: Text(expense.description),
-        subtitle: Text(expense.category),
-        trailing: Text(
-          '-\$${expense.amount.toStringAsFixed(2)}',
-          style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        onLongPress: () => _showDeleteDialog(expense),
-      ),
-    );
-  }
-
-  Widget _buildExpensesList() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('All Expenses'),
-        backgroundColor: const Color(0xFF667eea),
-        foregroundColor: Colors.white,
-      ),
-      body: expenses.isEmpty
-          ? const Center(child: Text('No expenses yet'))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: expenses.length,
-              itemBuilder: (context, index) =>
-                  _buildExpenseItem(expenses[index]),
-            ),
-    );
-  }
-
-  Widget _buildReports() {
-    final categoryTotals = <String, double>{};
-    for (var expense in expenses) {
-      categoryTotals[expense.category] =
-          (categoryTotals[expense.category] ?? 0) + expense.amount;
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reports'),
-        backgroundColor: const Color(0xFF667eea),
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Spending by Category',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            if (categoryTotals.isEmpty)
-              const Center(child: Text('No data to display'))
-            else
-              Expanded(
-                child: ListView(
-                  children: categoryTotals.entries.map((entry) {
-                    final percentage = totalExpenses > 0
-                        ? (entry.value / totalExpenses * 100)
-                        : 0.0;
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      _getCategoryIcon(entry.key),
-                                      color: _getCategoryColor(entry.key),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(entry.key),
-                                  ],
-                                ),
-                                Text(
-                                  '\$${entry.value.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            LinearProgressIndicator(
-                              value: percentage / 100,
-                              backgroundColor: Colors.grey[200],
-                              valueColor: AlwaysStoppedAnimation(
-                                _getCategoryColor(entry.key),
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${percentage.toStringAsFixed(1)}%',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProfile() {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        backgroundColor: const Color(0xFF667eea),
-        foregroundColor: Colors.white,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          const CircleAvatar(
-            radius: 50,
-            backgroundColor: Color(0xFF667eea),
-            child: Icon(Icons.person, size: 50, color: Colors.white),
-          ),
-          const SizedBox(height: 16),
-          const Center(
-            child: Text(
-              'User',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const SizedBox(height: 32),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.account_balance_wallet),
-              title: const Text('Monthly Budget'),
-              subtitle: Text('\$${budget.toStringAsFixed(2)}'),
-              trailing: IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: () => _showBudgetDialog(),
-              ),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.delete_outline),
-              title: const Text('Clear All Expenses'),
-              onTap: () => _showClearAllDialog(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAddExpenseDialog(BuildContext context) {
-    final descController = TextEditingController();
-    final amountController = TextEditingController();
-    String selectedCategory = 'Food & Dining';
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16,
-            right: 16,
-            top: 16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Add Expense',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: descController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Amount',
-                  border: OutlineInputBorder(),
-                  prefixText: '\$ ',
-                ),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: selectedCategory,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  border: OutlineInputBorder(),
-                ),
-                items:
-                    [
-                          'Food & Dining',
-                          'Transportation',
-                          'Shopping',
-                          'Entertainment',
-                          'Bills & Utilities',
-                          'Healthcare',
-                          'Education',
-                          'Travel',
-                          'Other',
-                        ]
-                        .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                        .toList(),
-                onChanged: (value) =>
-                    setModalState(() => selectedCategory = value!),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF667eea),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: () {
-                    if (descController.text.isNotEmpty &&
-                        amountController.text.isNotEmpty) {
-                      final expense = Expense(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        description: descController.text,
-                        amount: double.tryParse(amountController.text) ?? 0,
-                        category: selectedCategory,
-                        date: DateTime.now(),
-                      );
-                      _addExpense(expense);
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('Save Expense'),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteDialog(Expense expense) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Expense'),
-        content: Text('Delete "${expense.description}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              _deleteExpense(expense.id);
-              Navigator.pop(context);
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showBudgetDialog() {
-    final controller = TextEditingController(text: budget.toString());
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Set Budget'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(
-            labelText: 'Monthly Budget',
-            prefixText: '\$ ',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                budget = double.tryParse(controller.text) ?? budget;
-              });
-              Navigator.pop(context);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showClearAllDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear All Expenses'),
-        content: const Text('Are you sure? This cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() => expenses.clear());
-              _saveExpenses();
-              Navigator.pop(context);
-            },
-            child: const Text('Clear All', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Food & Dining':
-        return Icons.restaurant;
-      case 'Transportation':
-        return Icons.directions_car;
-      case 'Shopping':
-        return Icons.shopping_cart;
-      case 'Entertainment':
-        return Icons.movie;
-      case 'Bills & Utilities':
-        return Icons.receipt;
-      case 'Healthcare':
-        return Icons.local_hospital;
-      case 'Education':
-        return Icons.school;
-      case 'Travel':
-        return Icons.flight;
-      default:
-        return Icons.attach_money;
-    }
-  }
-
-  Color _getCategoryColor(String category) {
-    switch (category) {
-      case 'Food & Dining':
-        return Colors.orange;
-      case 'Transportation':
-        return Colors.blue;
-      case 'Shopping':
-        return Colors.pink;
-      case 'Entertainment':
-        return Colors.purple;
-      case 'Bills & Utilities':
-        return Colors.teal;
-      case 'Healthcare':
-        return Colors.red;
-      case 'Education':
-        return Colors.indigo;
-      case 'Travel':
-        return Colors.cyan;
-      default:
-        return Colors.grey;
-    }
-  }
-}
-// Update 1 - Add expense category icons
-// Update 2 - Update dashboard layout
-// Update 3 - Fix budget calculation
-// Update 4 - Add expense filtering
-// Update 5 - Improve UI responsiveness
-// Update 6 - Add dark mode support
-// Update 7 - Fix date picker issue
-// Update 8 - Update expense list styling
-// Update 9 - Add category colors
-// Update 10 - Improve chart animations
-// Update 11 - Fix navigation bug
-// Update 12 - Add expense search
-// Update 13 - Update profile page
-// Update 14 - Add settings screen
-// Update 15 - Fix currency formatting
-// Update 16 - Add expense notes field
-// Update 17 - Update button styles
-// Update 18 - Fix scroll behavior
-// Update 19 - Add loading indicators
-// Update 20 - Improve error handling
-// Update 21 - Add expense sorting
-// Update 22 - Update card shadows
-// Update 23 - Fix text overflow
-// Update 24 - Add swipe to delete
-// Update 25 - Update color scheme
-// Update 26 - Fix keyboard issues
-// Update 27 - Add expense tags
-// Update 28 - Update bottom navigation
-// Update 29 - Fix state management
-// Update 30 - Add expense export
-// Update 31 - Update splash screen
-// Update 32 - Fix memory leak
-// Update 33 - Add expense import
-// Update 34 - Update app icon
-// Update 35 - Fix date formatting
-// Update 36 - Add recurring expenses
-// Update 37 - Update animations
-// Update 38 - Fix layout issues
-// Update 39 - Add expense reminders
-// Update 40 - Update typography
-// Update 41 - Fix input validation
-// Update 42 - Add expense statistics
-// Update 43 - Update gradient colors
-// Update 44 - Fix async operations
-// Update 45 - Add expense categories
-// Update 46 - Update list animations
-// Update 47 - Fix null safety
-// Update 48 - Add expense sharing
-// Update 49 - Update form validation
-// Update 50 - Fix performance issues
-// Update 51 - Add expense backup
-// Update 52 - Update error messages
-// Update 53 - Fix widget rebuild
-// Update 54 - Add expense history
-// Update 55 - Update padding values
-// Update 56 - Fix theme switching
-// Update 57 - Add expense analytics
-// Update 58 - Update border radius
-// Update 59 - Fix data persistence
-// Update 60 - Add final polish
