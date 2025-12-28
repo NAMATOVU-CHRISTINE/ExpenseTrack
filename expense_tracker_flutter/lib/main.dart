@@ -730,3 +730,4 @@ class _HomePageState extends State<HomePage> {
 // Update 57 - Add expense analytics
 // Update 58 - Update border radius
 // Update 59 - Fix data persistence
+// Update 60 - Add final polish
