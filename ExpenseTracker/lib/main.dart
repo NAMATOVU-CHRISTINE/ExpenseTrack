@@ -222,13 +222,6 @@ class CategoryHelper {
 // ==================== MODELS ====================
 
 class Expense {
-  final String id;
-  final String title;
-  final double amount;
-  final String category;
-  final DateTime date;
-  final String? notes;
-  final bool isRecurring;
 
   Expense({
     String? id,
@@ -239,6 +232,25 @@ class Expense {
     this.notes,
     this.isRecurring = false,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+  factory Expense.fromJson(Map<String, dynamic> json) => Expense(
+    id: json['id'],
+    title: json['title'],
+    amount: json['amount'].toDouble(),
+    category: json['category'],
+    date: json['date'] is String
+        ? DateTime.parse(json['date'])
+        : DateTime.now(),
+    notes: json['notes'],
+    isRecurring: json['isRecurring'] ?? false,
+  );
+  final String id;
+  final String title;
+  final double amount;
+  final String category;
+  final DateTime date;
+  final String? notes;
+  final bool isRecurring;
 
   Expense copyWith({
     String? title,
@@ -268,26 +280,9 @@ class Expense {
     'notes': notes,
     'isRecurring': isRecurring,
   };
-
-  factory Expense.fromJson(Map<String, dynamic> json) => Expense(
-    id: json['id'],
-    title: json['title'],
-    amount: json['amount'].toDouble(),
-    category: json['category'],
-    date: json['date'] is String
-        ? DateTime.parse(json['date'])
-        : DateTime.now(),
-    notes: json['notes'],
-    isRecurring: json['isRecurring'] ?? false,
-  );
 }
 
 class Budget {
-  final String id;
-  final String category;
-  final double limit;
-  double spent;
-  final double warningThreshold;
 
   Budget({
     String? id,
@@ -296,6 +291,19 @@ class Budget {
     this.spent = 0,
     this.warningThreshold = 0.8,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+
+  factory Budget.fromJson(Map<String, dynamic> json) => Budget(
+    id: json['id'],
+    category: json['category'],
+    limit: json['limit'].toDouble(),
+    spent: json['spent']?.toDouble() ?? 0,
+    warningThreshold: json['warningThreshold']?.toDouble() ?? 0.8,
+  );
+  final String id;
+  final String category;
+  final double limit;
+  double spent;
+  final double warningThreshold;
 
   Budget copyWith({
     String? category,
@@ -320,14 +328,6 @@ class Budget {
     'warningThreshold': warningThreshold,
   };
 
-  factory Budget.fromJson(Map<String, dynamic> json) => Budget(
-    id: json['id'],
-    category: json['category'],
-    limit: json['limit'].toDouble(),
-    spent: json['spent']?.toDouble() ?? 0,
-    warningThreshold: json['warningThreshold']?.toDouble() ?? 0.8,
-  );
-
   double get progress => limit > 0 ? (spent / limit).clamp(0, 1.5) : 0;
   double get remaining => limit - spent;
   bool get isOverBudget => spent > limit;
@@ -335,10 +335,6 @@ class Budget {
 }
 
 class IncomeSource {
-  final String id;
-  final String name;
-  final double amount;
-  final String frequency;
 
   IncomeSource({
     String? id,
@@ -346,6 +342,16 @@ class IncomeSource {
     required this.amount,
     required this.frequency,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+  factory IncomeSource.fromJson(Map<String, dynamic> json) => IncomeSource(
+    id: json['id'],
+    name: json['name'],
+    amount: json['amount'].toDouble(),
+    frequency: json['frequency'],
+  );
+  final String id;
+  final String name;
+  final double amount;
+  final String frequency;
 
   IncomeSource copyWith({String? name, double? amount, String? frequency}) {
     return IncomeSource(
@@ -362,20 +368,9 @@ class IncomeSource {
     'amount': amount,
     'frequency': frequency,
   };
-  factory IncomeSource.fromJson(Map<String, dynamic> json) => IncomeSource(
-    id: json['id'],
-    name: json['name'],
-    amount: json['amount'].toDouble(),
-    frequency: json['frequency'],
-  );
 }
 
 class SavingsGoal {
-  final String id;
-  final String name;
-  final double targetAmount;
-  double currentAmount;
-  final DateTime targetDate;
 
   SavingsGoal({
     String? id,
@@ -384,6 +379,20 @@ class SavingsGoal {
     this.currentAmount = 0,
     required this.targetDate,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+  factory SavingsGoal.fromJson(Map<String, dynamic> json) => SavingsGoal(
+    id: json['id'],
+    name: json['name'],
+    targetAmount: json['targetAmount'].toDouble(),
+    currentAmount: json['currentAmount']?.toDouble() ?? 0,
+    targetDate: json['targetDate'] is String
+        ? DateTime.parse(json['targetDate'])
+        : DateTime.now().add(const Duration(days: 365)),
+  );
+  final String id;
+  final String name;
+  final double targetAmount;
+  double currentAmount;
+  final DateTime targetDate;
 
   SavingsGoal copyWith({
     String? name,
@@ -407,27 +416,12 @@ class SavingsGoal {
     'currentAmount': currentAmount,
     'targetDate': targetDate.toIso8601String(),
   };
-  factory SavingsGoal.fromJson(Map<String, dynamic> json) => SavingsGoal(
-    id: json['id'],
-    name: json['name'],
-    targetAmount: json['targetAmount'].toDouble(),
-    currentAmount: json['currentAmount']?.toDouble() ?? 0,
-    targetDate: json['targetDate'] is String
-        ? DateTime.parse(json['targetDate'])
-        : DateTime.now().add(const Duration(days: 365)),
-  );
 
   double get progress =>
       targetAmount > 0 ? (currentAmount / targetAmount).clamp(0, 1) : 0;
 }
 
 class RecurringBill {
-  final String id;
-  final String name;
-  final double amount;
-  final int dueDay;
-  final String frequency;
-  bool isPaid;
 
   RecurringBill({
     String? id,
@@ -437,6 +431,20 @@ class RecurringBill {
     required this.frequency,
     this.isPaid = false,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+  factory RecurringBill.fromJson(Map<String, dynamic> json) => RecurringBill(
+    id: json['id'],
+    name: json['name'],
+    amount: json['amount'].toDouble(),
+    dueDay: json['dueDay'] ?? 1,
+    frequency: json['frequency'],
+    isPaid: json['isPaid'] ?? false,
+  );
+  final String id;
+  final String name;
+  final double amount;
+  final int dueDay;
+  final String frequency;
+  bool isPaid;
 
   RecurringBill copyWith({
     String? name,
@@ -463,14 +471,6 @@ class RecurringBill {
     'frequency': frequency,
     'isPaid': isPaid,
   };
-  factory RecurringBill.fromJson(Map<String, dynamic> json) => RecurringBill(
-    id: json['id'],
-    name: json['name'],
-    amount: json['amount'].toDouble(),
-    dueDay: json['dueDay'] ?? 1,
-    frequency: json['frequency'],
-    isPaid: json['isPaid'] ?? false,
-  );
 }
 
 // ==================== DATA SERVICE ====================
@@ -630,10 +630,6 @@ String formatShortDate(DateTime date) {
 // ==================== APP WRAPPER ====================
 
 class AppWrapper extends StatefulWidget {
-  final String currency;
-  final bool isDarkMode;
-  final Function(bool) onToggleTheme;
-  final Function(String) onSetCurrency;
 
   const AppWrapper({
     super.key,
@@ -642,6 +638,10 @@ class AppWrapper extends StatefulWidget {
     required this.onToggleTheme,
     required this.onSetCurrency,
   });
+  final String currency;
+  final bool isDarkMode;
+  final Function(bool) onToggleTheme;
+  final Function(String) onSetCurrency;
 
   @override
   State<AppWrapper> createState() => _AppWrapperState();
@@ -691,8 +691,8 @@ class _AppWrapperState extends State<AppWrapper> {
 // ==================== ONBOARDING PAGE ====================
 
 class OnboardingPage extends StatefulWidget {
-  final VoidCallback onComplete;
   const OnboardingPage({super.key, required this.onComplete});
+  final VoidCallback onComplete;
 
   @override
   State<OnboardingPage> createState() => _OnboardingPageState();
@@ -926,10 +926,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 // ==================== HOME PAGE ====================
 
 class HomePage extends StatefulWidget {
-  final String currency;
-  final bool isDarkMode;
-  final Function(bool) onToggleTheme;
-  final Function(String) onSetCurrency;
 
   const HomePage({
     super.key,
@@ -938,6 +934,10 @@ class HomePage extends StatefulWidget {
     required this.onToggleTheme,
     required this.onSetCurrency,
   });
+  final String currency;
+  final bool isDarkMode;
+  final Function(bool) onToggleTheme;
+  final Function(String) onSetCurrency;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -1951,17 +1951,6 @@ class _HomePageState extends State<HomePage> {
 // ==================== DASHBOARD PAGE ====================
 
 class DashboardPage extends StatelessWidget {
-  final List<Expense> expenses;
-  final List<Budget> budgets;
-  final List<IncomeSource> incomeSources;
-  final List<SavingsGoal> savingsGoals;
-  final List<RecurringBill> recurringBills;
-  final Map<String, dynamic> profile;
-  final String currency;
-  final bool isDarkMode;
-  final Function(bool) onToggleTheme;
-  final Function(String) onSetCurrency;
-  final VoidCallback onQuickAdd;
 
   const DashboardPage({
     super.key,
@@ -1977,6 +1966,17 @@ class DashboardPage extends StatelessWidget {
     required this.onSetCurrency,
     required this.onQuickAdd,
   });
+  final List<Expense> expenses;
+  final List<Budget> budgets;
+  final List<IncomeSource> incomeSources;
+  final List<SavingsGoal> savingsGoals;
+  final List<RecurringBill> recurringBills;
+  final Map<String, dynamic> profile;
+  final String currency;
+  final bool isDarkMode;
+  final Function(bool) onToggleTheme;
+  final Function(String) onSetCurrency;
+  final VoidCallback onQuickAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -2054,9 +2054,9 @@ class DashboardPage extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           children: [
             // Welcome
-            Text(
+            const Text(
               'Welcome back',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
             Text(
@@ -2309,11 +2309,6 @@ class DashboardPage extends StatelessWidget {
 }
 
 class _SummaryCard extends StatelessWidget {
-  final String title;
-  final double amount;
-  final IconData icon;
-  final Color color;
-  final String currency;
 
   const _SummaryCard({
     required this.title,
@@ -2322,6 +2317,11 @@ class _SummaryCard extends StatelessWidget {
     required this.color,
     required this.currency,
   });
+  final String title;
+  final double amount;
+  final IconData icon;
+  final Color color;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -2370,15 +2370,15 @@ class _SummaryCard extends StatelessWidget {
 }
 
 class _SpendingComparisonCard extends StatelessWidget {
-  final double current;
-  final double previous;
-  final String currency;
 
   const _SpendingComparisonCard({
     required this.current,
     required this.previous,
     required this.currency,
   });
+  final double current;
+  final double previous;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -2431,13 +2431,13 @@ class _SpendingComparisonCard extends StatelessWidget {
 }
 
 class _SpendingChartCard extends StatelessWidget {
-  final Map<String, double> categorySpending;
-  final String currency;
 
   const _SpendingChartCard({
     required this.categorySpending,
     required this.currency,
   });
+  final Map<String, double> categorySpending;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -2451,11 +2451,11 @@ class _SpendingChartCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            const Row(
               children: [
-                const Icon(Icons.donut_large, size: 20),
-                const SizedBox(width: 8),
-                const Text(
+                Icon(Icons.donut_large, size: 20),
+                SizedBox(width: 8),
+                Text(
                   'Spending by Category',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
@@ -2528,9 +2528,9 @@ class _SpendingChartCard extends StatelessWidget {
 }
 
 class _PieChartPainter extends CustomPainter {
+  _PieChartPainter(this.data, this.centerColor);
   final Map<String, double> data;
   final Color centerColor;
-  _PieChartPainter(this.data, this.centerColor);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -2565,10 +2565,10 @@ class _PieChartPainter extends CustomPainter {
 }
 
 class _BudgetAlertCard extends StatelessWidget {
-  final Budget budget;
-  final String currency;
 
   const _BudgetAlertCard({required this.budget, required this.currency});
+  final Budget budget;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -2619,10 +2619,6 @@ class _BudgetAlertCard extends StatelessWidget {
 }
 
 class _ProgressCard extends StatelessWidget {
-  final double current, target;
-  final Color color;
-  final bool showRemaining;
-  final String currency;
 
   const _ProgressCard({
     required this.current,
@@ -2631,6 +2627,10 @@ class _ProgressCard extends StatelessWidget {
     this.showRemaining = false,
     required this.currency,
   });
+  final double current, target;
+  final Color color;
+  final bool showRemaining;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -2689,9 +2689,9 @@ class _ProgressCard extends StatelessWidget {
 }
 
 class _BillTile extends StatelessWidget {
+  const _BillTile({required this.bill, required this.currency});
   final RecurringBill bill;
   final String currency;
-  const _BillTile({required this.bill, required this.currency});
 
   @override
   Widget build(BuildContext context) {
@@ -2734,9 +2734,9 @@ class _BillTile extends StatelessWidget {
 }
 
 class _GoalTile extends StatelessWidget {
+  const _GoalTile({required this.goal, required this.currency});
   final SavingsGoal goal;
   final String currency;
-  const _GoalTile({required this.goal, required this.currency});
 
   @override
   Widget build(BuildContext context) {
@@ -2777,9 +2777,9 @@ class _GoalTile extends StatelessWidget {
 }
 
 class _TransactionTile extends StatelessWidget {
+  const _TransactionTile({required this.expense, required this.currency});
   final Expense expense;
   final String currency;
-  const _TransactionTile({required this.expense, required this.currency});
 
   @override
   Widget build(BuildContext context) {
@@ -3107,12 +3107,6 @@ Widget _buildTextField(
 // ==================== EXPENSES PAGE ====================
 
 class ExpensesPage extends StatefulWidget {
-  final List<Expense> expenses;
-  final List<Budget> budgets;
-  final String currency;
-  final Function(Expense) onAdd;
-  final Function(Expense) onUpdate;
-  final Function(String) onDelete;
 
   const ExpensesPage({
     super.key,
@@ -3123,6 +3117,12 @@ class ExpensesPage extends StatefulWidget {
     required this.onUpdate,
     required this.onDelete,
   });
+  final List<Expense> expenses;
+  final List<Budget> budgets;
+  final String currency;
+  final Function(Expense) onAdd;
+  final Function(Expense) onUpdate;
+  final Function(String) onDelete;
 
   @override
   State<ExpensesPage> createState() => _ExpensesPageState();
@@ -3506,11 +3506,6 @@ class _ExpensesPageState extends State<ExpensesPage> {
 // ==================== BUDGETS PAGE ====================
 
 class BudgetsPage extends StatelessWidget {
-  final List<Budget> budgets;
-  final String currency;
-  final Function(Budget) onAdd;
-  final Function(Budget) onUpdate;
-  final Function(String) onDelete;
 
   const BudgetsPage({
     super.key,
@@ -3520,6 +3515,11 @@ class BudgetsPage extends StatelessWidget {
     required this.onUpdate,
     required this.onDelete,
   });
+  final List<Budget> budgets;
+  final String currency;
+  final Function(Budget) onAdd;
+  final Function(Budget) onUpdate;
+  final Function(String) onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -3978,22 +3978,6 @@ class BudgetsPage extends StatelessWidget {
 // ==================== FINANCE PAGE ====================
 
 class FinancePage extends StatefulWidget {
-  final List<IncomeSource> incomeSources;
-  final List<SavingsGoal> savingsGoals;
-  final List<RecurringBill> recurringBills;
-  final Map<String, dynamic> profile;
-  final String currency;
-  final Function(IncomeSource) onAddIncome;
-  final Function(IncomeSource) onUpdateIncome;
-  final Function(String) onDeleteIncome;
-  final Function(SavingsGoal) onAddGoal;
-  final Function(SavingsGoal) onUpdateGoal;
-  final Function(String) onDeleteGoal;
-  final Function(RecurringBill) onAddBill;
-  final Function(RecurringBill) onUpdateBill;
-  final Function(String) onToggleBill;
-  final Function(String) onDeleteBill;
-  final Function(Map<String, dynamic>) onUpdateProfile;
 
   const FinancePage({
     super.key,
@@ -4014,6 +3998,22 @@ class FinancePage extends StatefulWidget {
     required this.onDeleteBill,
     required this.onUpdateProfile,
   });
+  final List<IncomeSource> incomeSources;
+  final List<SavingsGoal> savingsGoals;
+  final List<RecurringBill> recurringBills;
+  final Map<String, dynamic> profile;
+  final String currency;
+  final Function(IncomeSource) onAddIncome;
+  final Function(IncomeSource) onUpdateIncome;
+  final Function(String) onDeleteIncome;
+  final Function(SavingsGoal) onAddGoal;
+  final Function(SavingsGoal) onUpdateGoal;
+  final Function(String) onDeleteGoal;
+  final Function(RecurringBill) onAddBill;
+  final Function(RecurringBill) onUpdateBill;
+  final Function(String) onToggleBill;
+  final Function(String) onDeleteBill;
+  final Function(Map<String, dynamic>) onUpdateProfile;
 
   @override
   State<FinancePage> createState() => _FinancePageState();
