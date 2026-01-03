@@ -295,6 +295,7 @@ class Budget {
     required this.limit,
     this.spent = 0,
     this.warningThreshold = 0.8,
+    this.period = 'monthly',
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
   factory Budget.fromJson(Map<String, dynamic> json) => Budget(
@@ -303,18 +304,21 @@ class Budget {
     limit: json['limit'].toDouble(),
     spent: json['spent']?.toDouble() ?? 0,
     warningThreshold: json['warningThreshold']?.toDouble() ?? 0.8,
+    period: json['period'] ?? 'monthly',
   );
   final String id;
   final String category;
   final double limit;
   double spent;
   final double warningThreshold;
+  final String period; // 'monthly', '3months', 'food1', 'food3', 'food4plus'
 
   Budget copyWith({
     String? category,
     double? limit,
     double? spent,
     double? warningThreshold,
+    String? period,
   }) {
     return Budget(
       id: id,
@@ -322,6 +326,7 @@ class Budget {
       limit: limit ?? this.limit,
       spent: spent ?? this.spent,
       warningThreshold: warningThreshold ?? this.warningThreshold,
+      period: period ?? this.period,
     );
   }
 
@@ -331,6 +336,7 @@ class Budget {
     'limit': limit,
     'spent': spent,
     'warningThreshold': warningThreshold,
+    'period': period,
   };
 
   double get progress => limit > 0 ? (spent / limit).clamp(0, 1.5) : 0;
@@ -1321,6 +1327,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     String selectedCategory = availableCategories.first;
+    String selectedPeriod = 'monthly';
     final limitController = TextEditingController();
 
     showModalBottomSheet(
@@ -1330,7 +1337,7 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
           ),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
@@ -1411,6 +1418,52 @@ class _HomePageState extends State<HomePage> {
                         }).toList(),
                       ),
                       const SizedBox(height: 16),
+                      const Text(
+                        'Budget Period',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Monthly'),
+                            selected: selectedPeriod == 'monthly',
+                            onSelected: (v) =>
+                                setModalState(() => selectedPeriod = 'monthly'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('3 Months'),
+                            selected: selectedPeriod == '3months',
+                            onSelected: (v) =>
+                                setModalState(() => selectedPeriod = '3months'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Food - 1 Month'),
+                            selected: selectedPeriod == 'food1',
+                            onSelected: (v) =>
+                                setModalState(() => selectedPeriod = 'food1'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Food - 3 Months'),
+                            selected: selectedPeriod == 'food3',
+                            onSelected: (v) =>
+                                setModalState(() => selectedPeriod = 'food3'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Food - 4+ Months'),
+                            selected: selectedPeriod == 'food4plus',
+                            onSelected: (v) => setModalState(
+                              () => selectedPeriod = 'food4plus',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
                       _buildTextField(
                         limitController,
                         'Budget Limit (${widget.currency})',
@@ -1432,7 +1485,11 @@ class _HomePageState extends State<HomePage> {
                           }
                           HapticFeedback.mediumImpact();
                           _addBudget(
-                            Budget(category: selectedCategory, limit: limit),
+                            Budget(
+                              category: selectedCategory,
+                              limit: limit,
+                              period: selectedPeriod,
+                            ),
                           );
                           Navigator.pop(ctx);
                           ScaffoldMessenger.of(ctx).showSnackBar(
@@ -2178,22 +2235,6 @@ class DashboardPage extends StatelessWidget {
           IconButton(
             icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => onToggleTheme(!isDarkMode),
-          ),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
-            onSelected: (value) {},
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'ugx',
-                child: Row(
-                  children: [
-                    const Icon(Icons.attach_money, size: 20),
-                    const SizedBox(width: 8),
-                    const Text('UGX /='),
-                  ],
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -3952,6 +3993,7 @@ class BudgetsPage extends StatelessWidget {
     );
     String selectedCategory =
         budget?.category ?? CategoryHelper.defaultCategories.first;
+    String selectedPeriod = budget?.period ?? 'monthly';
     final existingCategories = budgets.map((b) => b.category).toSet();
     final availableCategories = isEdit
         ? CategoryHelper.defaultCategories
@@ -3977,7 +4019,7 @@ class BudgetsPage extends StatelessWidget {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
+            maxHeight: MediaQuery.of(context).size.height * 0.8,
           ),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
@@ -4060,6 +4102,52 @@ class BudgetsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                       ],
+                      const Text(
+                        'Budget Period',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          ChoiceChip(
+                            label: const Text('Monthly'),
+                            selected: selectedPeriod == 'monthly',
+                            onSelected: (v) =>
+                                setModalState(() => selectedPeriod = 'monthly'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('3 Months'),
+                            selected: selectedPeriod == '3months',
+                            onSelected: (v) =>
+                                setModalState(() => selectedPeriod = '3months'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Food - 1 Month'),
+                            selected: selectedPeriod == 'food1',
+                            onSelected: (v) =>
+                                setModalState(() => selectedPeriod = 'food1'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Food - 3 Months'),
+                            selected: selectedPeriod == 'food3',
+                            onSelected: (v) =>
+                                setModalState(() => selectedPeriod = 'food3'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Food - 4+ Months'),
+                            selected: selectedPeriod == 'food4plus',
+                            onSelected: (v) => setModalState(
+                              () => selectedPeriod = 'food4plus',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
                       _buildTextField(
                         limitController,
                         'Budget Limit ($currency)',
@@ -4081,10 +4169,19 @@ class BudgetsPage extends StatelessWidget {
                           }
                           HapticFeedback.mediumImpact();
                           if (isEdit) {
-                            onUpdate(budget.copyWith(limit: limit));
+                            onUpdate(
+                              budget.copyWith(
+                                limit: limit,
+                                period: selectedPeriod,
+                              ),
+                            );
                           } else {
                             onAdd(
-                              Budget(category: selectedCategory, limit: limit),
+                              Budget(
+                                category: selectedCategory,
+                                limit: limit,
+                                period: selectedPeriod,
+                              ),
                             );
                           }
                           Navigator.pop(ctx);
