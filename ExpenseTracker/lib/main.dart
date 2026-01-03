@@ -408,6 +408,7 @@ class SavingsGoal {
     required this.targetAmount,
     this.currentAmount = 0,
     required this.targetDate,
+    this.fundAdditions = const [],
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
   factory SavingsGoal.fromJson(Map<String, dynamic> json) => SavingsGoal(
     id: json['id'],
@@ -417,18 +418,25 @@ class SavingsGoal {
     targetDate: json['targetDate'] is String
         ? DateTime.parse(json['targetDate'])
         : DateTime.now().add(const Duration(days: 365)),
+    fundAdditions:
+        (json['fundAdditions'] as List?)
+            ?.map((e) => FundAddition.fromJson(e))
+            .toList() ??
+        [],
   );
   final String id;
   final String name;
   final double targetAmount;
   double currentAmount;
   final DateTime targetDate;
+  final List<FundAddition> fundAdditions;
 
   SavingsGoal copyWith({
     String? name,
     double? targetAmount,
     double? currentAmount,
     DateTime? targetDate,
+    List<FundAddition>? fundAdditions,
   }) {
     return SavingsGoal(
       id: id,
@@ -436,6 +444,7 @@ class SavingsGoal {
       targetAmount: targetAmount ?? this.targetAmount,
       currentAmount: currentAmount ?? this.currentAmount,
       targetDate: targetDate ?? this.targetDate,
+      fundAdditions: fundAdditions ?? this.fundAdditions,
     );
   }
 
@@ -445,10 +454,30 @@ class SavingsGoal {
     'targetAmount': targetAmount,
     'currentAmount': currentAmount,
     'targetDate': targetDate.toIso8601String(),
+    'fundAdditions': fundAdditions.map((f) => f.toJson()).toList(),
   };
 
   double get progress =>
       targetAmount > 0 ? (currentAmount / targetAmount).clamp(0, 1) : 0;
+}
+
+class FundAddition {
+  FundAddition({required this.amount, required this.date});
+
+  factory FundAddition.fromJson(Map<String, dynamic> json) => FundAddition(
+    amount: json['amount'].toDouble(),
+    date: json['date'] is String
+        ? DateTime.parse(json['date'])
+        : DateTime.now(),
+  );
+
+  final double amount;
+  final DateTime date;
+
+  Map<String, dynamic> toJson() => {
+    'amount': amount,
+    'date': date.toIso8601String(),
+  };
 }
 
 class RecurringBill {
@@ -4804,6 +4833,53 @@ class _FinancePageState extends State<FinancePage>
                   ),
                 ),
                 const SizedBox(height: 12),
+                if (goal.fundAdditions.isNotEmpty) ...[
+                  const Text(
+                    'Fund History',
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: goal.fundAdditions.length,
+                      itemBuilder: (context, index) {
+                        final fund = goal.fundAdditions[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                formatShortDate(fund.date),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              Text(
+                                formatCurrency(fund.amount, widget.currency),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 Row(
                   children: [
                     Expanded(
@@ -5001,56 +5077,106 @@ class _FinancePageState extends State<FinancePage>
 
   void _showAddToGoalSheet(BuildContext context, SavingsGoal goal) {
     final amountController = TextEditingController();
+    DateTime selectedDate = DateTime.now();
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          top: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Add to ${goal.name}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildTextField(
-              amountController,
-              'Amount (${widget.currency})',
-              Icons.add,
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                final amount = double.tryParse(amountController.text);
-                if (amount == null || amount <= 0) return;
-                HapticFeedback.mediumImpact();
-                widget.onUpdateGoal(
-                  goal.copyWith(currentAmount: goal.currentAmount + amount),
-                );
-                Navigator.pop(ctx);
-                ScaffoldMessenger.of(ctx).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Added ${formatCurrency(amount, widget.currency)} to ${goal.name}',
-                    ),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Add to ${goal.name}',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                amountController,
+                'Amount (${widget.currency})',
+                Icons.add,
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime(2020),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    setModalState(() => selectedDate = picked);
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
                   ),
-                );
-              },
-              child: const Text('Add Funds'),
-            ),
-          ],
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_today, color: Colors.grey.shade600),
+                      const SizedBox(width: 12),
+                      Text(
+                        formatDate(selectedDate),
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  final amount = double.tryParse(amountController.text);
+                  if (amount == null || amount <= 0) return;
+                  HapticFeedback.mediumImpact();
+
+                  final updatedFunds = [...goal.fundAdditions];
+                  updatedFunds.add(
+                    FundAddition(amount: amount, date: selectedDate),
+                  );
+
+                  widget.onUpdateGoal(
+                    goal.copyWith(
+                      currentAmount: goal.currentAmount + amount,
+                      fundAdditions: updatedFunds,
+                    ),
+                  );
+                  Navigator.pop(ctx);
+                  ScaffoldMessenger.of(ctx).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Added ${formatCurrency(amount, widget.currency)} to ${goal.name}',
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('Add Funds'),
+              ),
+            ],
+          ),
         ),
       ),
     );
