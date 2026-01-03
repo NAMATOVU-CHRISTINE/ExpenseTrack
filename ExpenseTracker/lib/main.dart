@@ -1654,6 +1654,45 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                         ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Date',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime.now(),
+                          );
+                          if (picked != null) {
+                            setModalState(() {});
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(formatDate(DateTime.now())),
+                            ],
+                          ),
+                        ),
+                      ),
                       if (incomeType == 'recurring') ...[
                         const SizedBox(height: 16),
                         const Text(
@@ -1700,6 +1739,7 @@ class _HomePageState extends State<HomePage> {
                               frequency: incomeType == 'once'
                                   ? 'once'
                                   : frequency,
+                              date: DateTime.now(),
                             ),
                           );
                           Navigator.pop(ctx);
