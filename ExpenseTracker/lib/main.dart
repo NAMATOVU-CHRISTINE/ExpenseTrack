@@ -232,6 +232,7 @@ class Expense {
     required this.date,
     this.notes,
     this.isRecurring = false,
+    this.receiptPath,
   }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 
   factory Expense.fromJson(Map<String, dynamic> json) => Expense(
@@ -244,6 +245,7 @@ class Expense {
         : DateTime.now(),
     notes: json['notes'],
     isRecurring: json['isRecurring'] ?? false,
+    receiptPath: json['receiptPath'],
   );
   final String id;
   final String title;
@@ -252,6 +254,7 @@ class Expense {
   final DateTime date;
   final String? notes;
   final bool isRecurring;
+  final String? receiptPath;
 
   Expense copyWith({
     String? title,
@@ -260,6 +263,7 @@ class Expense {
     DateTime? date,
     String? notes,
     bool? isRecurring,
+    String? receiptPath,
   }) {
     return Expense(
       id: id,
@@ -269,6 +273,7 @@ class Expense {
       date: date ?? this.date,
       notes: notes ?? this.notes,
       isRecurring: isRecurring ?? this.isRecurring,
+      receiptPath: receiptPath ?? this.receiptPath,
     );
   }
 
@@ -278,6 +283,11 @@ class Expense {
     'amount': amount,
     'category': category,
     'date': date.toIso8601String(),
+    'notes': notes,
+    'isRecurring': isRecurring,
+    'receiptPath': receiptPath,
+  };
+}
     'notes': notes,
     'isRecurring': isRecurring,
   };
