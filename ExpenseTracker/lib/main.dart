@@ -288,10 +288,6 @@ class Expense {
     'receiptPath': receiptPath,
   };
 }
-    'notes': notes,
-    'isRecurring': isRecurring,
-  };
-}
 
 class Budget {
   Budget({
@@ -350,24 +346,41 @@ class IncomeSource {
     required this.name,
     required this.amount,
     required this.frequency,
-  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
+    DateTime? date,
+    this.source,
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+       date = date ?? DateTime.now();
+
   factory IncomeSource.fromJson(Map<String, dynamic> json) => IncomeSource(
     id: json['id'],
     name: json['name'],
     amount: json['amount'].toDouble(),
     frequency: json['frequency'],
+    date: json['date'] != null ? DateTime.parse(json['date']) : DateTime.now(),
+    source: json['source'],
   );
+
   final String id;
   final String name;
   final double amount;
-  final String frequency;
+  final String frequency; // 'once', 'weekly', 'monthly', 'yearly'
+  final DateTime date;
+  final String? source; // e.g., 'Gift', 'Salary', 'Freelance', 'Other'
 
-  IncomeSource copyWith({String? name, double? amount, String? frequency}) {
+  IncomeSource copyWith({
+    String? name,
+    double? amount,
+    String? frequency,
+    DateTime? date,
+    String? source,
+  }) {
     return IncomeSource(
       id: id,
       name: name ?? this.name,
       amount: amount ?? this.amount,
       frequency: frequency ?? this.frequency,
+      date: date ?? this.date,
+      source: source ?? this.source,
     );
   }
 
@@ -376,7 +389,11 @@ class IncomeSource {
     'name': name,
     'amount': amount,
     'frequency': frequency,
+    'date': date.toIso8601String(),
+    'source': source,
   };
+
+  bool get isOneTime => frequency == 'once';
 }
 
 class SavingsGoal {
