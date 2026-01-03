@@ -77,7 +77,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (m) => '${m[1]},',
         );
-    return '$currency $formatted';
+    return '${widget.currency} $formatted';
   }
 
   String getMonthName(int month) {
@@ -164,7 +164,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
                   title: 'Income',
                   amount: totalIncome,
                   color: Colors.green,
-                  currency: currency,
+                  currency: widget.currency,
                 ),
               ),
               const SizedBox(width: 12),
@@ -173,7 +173,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
                   title: 'Expenses',
                   amount: totalExpenses,
                   color: Colors.red,
-                  currency: currency,
+                  currency: widget.currency,
                 ),
               ),
             ],
@@ -183,7 +183,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
             title: 'Balance',
             amount: balance,
             color: balance >= 0 ? Colors.green : Colors.red,
-            currency: currency,
+            currency: widget.currency,
           ),
           const SizedBox(height: 24),
 
