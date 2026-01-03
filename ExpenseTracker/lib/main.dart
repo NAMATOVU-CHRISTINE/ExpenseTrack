@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'screens/monthly_report_screen.dart';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:io';
@@ -1260,6 +1261,13 @@ class _HomePageState extends State<HomePage> {
           onDeleteBill: _deleteRecurringBill,
           onUpdateProfile: _updateProfile,
         );
+      case 4:
+        return MonthlyReportScreen(
+          key: const ValueKey('reports'),
+          expenses: expenses.map((e) => e.toJson()).toList(),
+          incomeSources: incomeSources.map((i) => i.toJson()).toList(),
+          currency: widget.currency,
+        );
       default:
         return const SizedBox();
     }
@@ -2091,6 +2099,11 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.account_balance_wallet_outlined),
             selectedIcon: Icon(Icons.account_balance_wallet),
             label: 'Finance',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.assessment_outlined),
+            selectedIcon: Icon(Icons.assessment),
+            label: 'Reports',
           ),
         ],
       ),
