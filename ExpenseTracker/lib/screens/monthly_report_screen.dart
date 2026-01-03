@@ -310,7 +310,7 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            ...monthlyExpenses.map((expense) {
+            ...monthlyExpenses.take(5).map((expense) {
               return Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(

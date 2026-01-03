@@ -2181,28 +2181,15 @@ class DashboardPage extends StatelessWidget {
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
-            onSelected: (value) {
-              if (value == 'currency') _showCurrencyPicker(context);
-              if (value == 'export') _exportToCSV(context);
-            },
+            onSelected: (value) {},
             itemBuilder: (context) => [
               PopupMenuItem(
-                value: 'currency',
+                value: 'ugx',
                 child: Row(
                   children: [
                     const Icon(Icons.attach_money, size: 20),
                     const SizedBox(width: 8),
-                    Text('Currency: $currency'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'export',
-                child: Row(
-                  children: [
-                    Icon(Icons.download, size: 20),
-                    SizedBox(width: 8),
-                    Text('Export to CSV'),
+                    const Text('UGX /='),
                   ],
                 ),
               ),
@@ -4342,7 +4329,9 @@ class _FinancePageState extends State<FinancePage>
     final amountController = TextEditingController(
       text: income?.amount.toStringAsFixed(0) ?? '',
     );
+    String incomeType = income?.frequency == 'once' ? 'once' : 'recurring';
     String frequency = income?.frequency ?? 'Monthly';
+    DateTime selectedDate = income?.date ?? DateTime.now();
 
     showModalBottomSheet(
       context: context,
@@ -4351,7 +4340,7 @@ class _FinancePageState extends State<FinancePage>
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.6,
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
           ),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
@@ -4413,7 +4402,7 @@ class _FinancePageState extends State<FinancePage>
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Frequency',
+                        'Type',
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
@@ -4422,17 +4411,143 @@ class _FinancePageState extends State<FinancePage>
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
-                        children: ['Monthly', 'Weekly', 'Bi-weekly', 'Yearly']
-                            .map(
-                              (f) => ChoiceChip(
-                                label: Text(f),
-                                selected: frequency == f,
-                                onSelected: (v) =>
-                                    setModalState(() => frequency = f),
-                              ),
-                            )
-                            .toList(),
+                        children: [
+                          ChoiceChip(
+                            label: const Text('One-Time'),
+                            selected: incomeType == 'once',
+                            onSelected: (v) =>
+                                setModalState(() => incomeType = 'once'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Recurring'),
+                            selected: incomeType == 'recurring',
+                            onSelected: (v) =>
+                                setModalState(() => incomeType = 'recurring'),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 16),
+                      if (incomeType == 'once')
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.green.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'This is a one-time income.',
+                                  style: TextStyle(
+                                    color: Colors.green.shade700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.blue.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Colors.blue,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'This income will repeat regularly.',
+                                  style: TextStyle(
+                                    color: Colors.blue.shade700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Date',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime.now(),
+                          );
+                          if (picked != null) {
+                            setModalState(() => selectedDate = picked);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(formatDate(selectedDate)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      if (incomeType == 'recurring') ...[
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Frequency',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          children: ['Monthly', 'Weekly', 'Bi-weekly', 'Yearly']
+                              .map(
+                                (f) => ChoiceChip(
+                                  label: Text(f),
+                                  selected: frequency == f,
+                                  onSelected: (v) =>
+                                      setModalState(() => frequency = f),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () {
@@ -4453,7 +4568,10 @@ class _FinancePageState extends State<FinancePage>
                               income.copyWith(
                                 name: nameController.text.trim(),
                                 amount: amount,
-                                frequency: frequency,
+                                frequency: incomeType == 'once'
+                                    ? 'once'
+                                    : frequency,
+                                date: selectedDate,
                               ),
                             );
                           } else {
@@ -4461,7 +4579,10 @@ class _FinancePageState extends State<FinancePage>
                               IncomeSource(
                                 name: nameController.text.trim(),
                                 amount: amount,
-                                frequency: frequency,
+                                frequency: incomeType == 'once'
+                                    ? 'once'
+                                    : frequency,
+                                date: selectedDate,
                               ),
                             );
                           }
