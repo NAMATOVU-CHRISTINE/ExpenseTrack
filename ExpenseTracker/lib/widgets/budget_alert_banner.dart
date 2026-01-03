@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
 class BudgetAlertBanner extends StatelessWidget {
-  final String category;
-  final double spent;
-  final double limit;
-  final String currency;
-  final VoidCallback? onDismiss;
 
   const BudgetAlertBanner({
     super.key,
@@ -15,6 +10,11 @@ class BudgetAlertBanner extends StatelessWidget {
     required this.currency,
     this.onDismiss,
   });
+  final String category;
+  final double spent;
+  final double limit;
+  final String currency;
+  final VoidCallback? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +97,6 @@ class BudgetAlertBanner extends StatelessWidget {
 }
 
 class BudgetAlertList extends StatelessWidget {
-  final List<BudgetAlert> alerts;
-  final String currency;
-  final Function(String)? onDismiss;
 
   const BudgetAlertList({
     super.key,
@@ -107,6 +104,9 @@ class BudgetAlertList extends StatelessWidget {
     required this.currency,
     this.onDismiss,
   });
+  final List<BudgetAlert> alerts;
+  final String currency;
+  final Function(String)? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -129,15 +129,15 @@ class BudgetAlertList extends StatelessWidget {
 }
 
 class BudgetAlert {
-  final String category;
-  final double spent;
-  final double limit;
 
   BudgetAlert({
     required this.category,
     required this.spent,
     required this.limit,
   });
+  final String category;
+  final double spent;
+  final double limit;
 
   bool get isOverBudget => spent > limit;
   bool get isNearLimit => spent / limit >= 0.8 && !isOverBudget;

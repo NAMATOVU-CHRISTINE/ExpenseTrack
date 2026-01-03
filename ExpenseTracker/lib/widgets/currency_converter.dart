@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import '../services/currency_service.dart';
 
 class CurrencyConverterWidget extends StatefulWidget {
-  final String baseCurrency;
 
   const CurrencyConverterWidget({super.key, required this.baseCurrency});
+  final String baseCurrency;
 
   @override
   State<CurrencyConverterWidget> createState() =>
@@ -152,15 +152,15 @@ class _CurrencyConverterWidgetState extends State<CurrencyConverterWidget> {
 }
 
 class _CurrencyDropdown extends StatelessWidget {
-  final String value;
-  final ValueChanged<String?> onChanged;
 
   const _CurrencyDropdown({required this.value, required this.onChanged});
+  final String value;
+  final ValueChanged<String?> onChanged;
 
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: const InputDecoration(
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),

@@ -4,16 +4,15 @@ import '../widgets/date_picker_field.dart';
 import '../widgets/receipt_image_picker.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  final Function(Map<String, dynamic>) onSave;
-  final Map<String, dynamic>? existingExpense;
-  final List<String>? categories;
-
   const AddExpenseScreen({
     super.key,
     required this.onSave,
     this.existingExpense,
     this.categories,
   });
+  final Function(Map<String, dynamic>) onSave;
+  final Map<String, dynamic>? existingExpense;
+  final List<String>? categories;
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -82,16 +81,18 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               ),
               validator: (v) {
                 if (v?.isEmpty ?? true) return 'Please enter an amount';
-                if (double.tryParse(v!) == null)
+                if (double.tryParse(v!) == null) {
                   return 'Please enter a valid number';
-                if (double.parse(v) <= 0)
+                }
+                if (double.parse(v) <= 0) {
                   return 'Amount must be greater than 0';
+                }
                 return null;
               },
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _categories.contains(_category)
+              initialValue: _categories.contains(_category)
                   ? _category
                   : _categories.first,
               decoration: const InputDecoration(
@@ -122,13 +123,75 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               textCapitalization: TextCapitalization.sentences,
             ),
             const SizedBox(height: 16),
-            SwitchListTile(
-              title: const Text('Recurring Expense'),
-              subtitle: const Text('This expense repeats regularly'),
-              value: _isRecurring,
-              onChanged: (v) => setState(() => _isRecurring = v),
-              contentPadding: EdgeInsets.zero,
+            DropdownButtonFormField<String>(
+              initialValue: _isRecurring ? 'recurring' : 'once',
+              decoration: const InputDecoration(
+                labelText: 'Type',
+                prefixIcon: Icon(Icons.repeat),
+              ),
+              items: const [
+                DropdownMenuItem(
+                  value: 'once',
+                  child: Text('One-Time Expense'),
+                ),
+                DropdownMenuItem(
+                  value: 'recurring',
+                  child: Text('Recurring Expense'),
+                ),
+              ],
+              onChanged: (v) => setState(() => _isRecurring = v == 'recurring'),
             ),
+            const SizedBox(height: 16),
+            if (_isRecurring)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Colors.blue),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'This expense will repeat regularly.',
+                        style: TextStyle(
+                          color: Colors.blue.shade700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.green.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Colors.green),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'This is a one-time expense recorded for the selected date only.',
+                        style: TextStyle(
+                          color: Colors.green.shade700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             const SizedBox(height: 16),
             ReceiptImagePicker(
               receiptPath: _receiptPath,

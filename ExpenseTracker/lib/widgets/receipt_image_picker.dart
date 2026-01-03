@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import '../services/receipt_service.dart';
 
 class ReceiptImagePicker extends StatelessWidget {
-  final String? receiptPath;
-  final Function(String?) onReceiptChanged;
 
   const ReceiptImagePicker({
     super.key,
     this.receiptPath,
     required this.onReceiptChanged,
   });
+  final String? receiptPath;
+  final Function(String?) onReceiptChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -150,11 +150,11 @@ class ReceiptImagePicker extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
+
+  const _ActionButton({required this.icon, required this.onTap, this.color});
   final IconData icon;
   final VoidCallback onTap;
   final Color? color;
-
-  const _ActionButton({required this.icon, required this.onTap, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -174,9 +174,9 @@ class _ActionButton extends StatelessWidget {
 }
 
 class ReceiptFullScreenView extends StatelessWidget {
-  final String receiptPath;
 
   const ReceiptFullScreenView({super.key, required this.receiptPath});
+  final String receiptPath;
 
   @override
   Widget build(BuildContext context) {

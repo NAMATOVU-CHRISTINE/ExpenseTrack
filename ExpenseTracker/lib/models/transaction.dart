@@ -1,13 +1,5 @@
 /// Represents a financial transaction (expense or income)
 class Transaction {
-  final String id;
-  final String title;
-  final double amount;
-  final DateTime date;
-  final String category;
-  final TransactionType type;
-  final String? notes;
-  final String? receiptPath;
 
   Transaction({
     String? id,
@@ -32,6 +24,14 @@ class Transaction {
     notes: json['notes'],
     receiptPath: json['receiptPath'],
   );
+  final String id;
+  final String title;
+  final double amount;
+  final DateTime date;
+  final String category;
+  final TransactionType type;
+  final String? notes;
+  final String? receiptPath;
 
   Map<String, dynamic> toJson() => {
     'id': id,

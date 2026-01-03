@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 
 class SummaryCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color? color;
-  final String? subtitle;
-  final VoidCallback? onTap;
 
   const SummaryCard({
     super.key,
@@ -17,6 +11,12 @@ class SummaryCard extends StatelessWidget {
     this.subtitle,
     this.onTap,
   });
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color? color;
+  final String? subtitle;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -86,10 +86,6 @@ class SummaryCard extends StatelessWidget {
 }
 
 class MiniSummaryCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final IconData? icon;
 
   const MiniSummaryCard({
     super.key,
@@ -98,6 +94,10 @@ class MiniSummaryCard extends StatelessWidget {
     required this.color,
     this.icon,
   });
+  final String label;
+  final String value;
+  final Color color;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {

@@ -1,12 +1,5 @@
 /// Represents a savings goal
 class SavingsGoalModel {
-  final String id;
-  final String name;
-  final double targetAmount;
-  double currentAmount;
-  final DateTime targetDate;
-  final String? description;
-  final String? iconName;
 
   SavingsGoalModel({
     String? id,
@@ -28,6 +21,13 @@ class SavingsGoalModel {
         description: json['description'],
         iconName: json['iconName'],
       );
+  final String id;
+  final String name;
+  final double targetAmount;
+  double currentAmount;
+  final DateTime targetDate;
+  final String? description;
+  final String? iconName;
 
   Map<String, dynamic> toJson() => {
     'id': id,

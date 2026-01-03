@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
 class DatePickerField extends StatelessWidget {
-  final DateTime selectedDate;
-  final ValueChanged<DateTime> onDateChanged;
-  final String? label;
-  final DateTime? firstDate;
-  final DateTime? lastDate;
 
   const DatePickerField({
     super.key,
@@ -15,6 +10,11 @@ class DatePickerField extends StatelessWidget {
     this.firstDate,
     this.lastDate,
   });
+  final DateTime selectedDate;
+  final ValueChanged<DateTime> onDateChanged;
+  final String? label;
+  final DateTime? firstDate;
+  final DateTime? lastDate;
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +89,6 @@ class DatePickerField extends StatelessWidget {
 }
 
 class DateRangePickerField extends StatelessWidget {
-  final DateTimeRange selectedRange;
-  final ValueChanged<DateTimeRange> onRangeChanged;
-  final String? label;
 
   const DateRangePickerField({
     super.key,
@@ -99,6 +96,9 @@ class DateRangePickerField extends StatelessWidget {
     required this.onRangeChanged,
     this.label,
   });
+  final DateTimeRange selectedRange;
+  final ValueChanged<DateTimeRange> onRangeChanged;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {

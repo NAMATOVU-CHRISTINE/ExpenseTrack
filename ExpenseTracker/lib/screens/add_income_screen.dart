@@ -3,10 +3,9 @@ import '../utils/constants.dart';
 import '../widgets/date_picker_field.dart';
 
 class AddIncomeScreen extends StatefulWidget {
+  const AddIncomeScreen({super.key, required this.onSave, this.existingIncome});
   final Function(Map<String, dynamic>) onSave;
   final Map<String, dynamic>? existingIncome;
-
-  const AddIncomeScreen({super.key, required this.onSave, this.existingIncome});
 
   @override
   State<AddIncomeScreen> createState() => _AddIncomeScreenState();
@@ -65,16 +64,17 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
               ),
               validator: (v) {
                 if (v?.isEmpty ?? true) return 'Please enter an amount';
-                if (double.tryParse(v!) == null)
+                if (double.tryParse(v!) == null) {
                   return 'Please enter a valid number';
+                }
                 return null;
               },
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _frequency,
+              initialValue: _frequency,
               decoration: const InputDecoration(
-                labelText: 'Frequency',
+                labelText: 'Type',
                 prefixIcon: Icon(Icons.repeat),
               ),
               items: AppConstants.incomeFrequencies.map((f) {
@@ -87,7 +87,7 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _source,
+              initialValue: _source,
               decoration: const InputDecoration(
                 labelText: 'Source',
                 prefixIcon: Icon(Icons.source),
@@ -108,19 +108,45 @@ class _AddIncomeScreenState extends State<AddIncomeScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.purple.withOpacity(0.3)),
+                  border: Border.all(
+                    color: Colors.green.withValues(alpha: 0.3),
+                  ),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: Colors.purple),
+                    const Icon(Icons.info_outline, color: Colors.green),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'This is a one-time income. It will be recorded for the selected date only.',
                         style: TextStyle(
-                          color: Colors.purple.shade700,
+                          color: Colors.green.shade700,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Colors.blue),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'This income will repeat regularly.',
+                        style: TextStyle(
+                          color: Colors.blue.shade700,
                           fontSize: 13,
                         ),
                       ),

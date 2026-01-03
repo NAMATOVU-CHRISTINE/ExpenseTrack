@@ -1,14 +1,6 @@
 import 'package:flutter/material.dart';
 
 class IncomeListItem extends StatelessWidget {
-  final String name;
-  final double amount;
-  final String frequency;
-  final DateTime date;
-  final String? source;
-  final String currency;
-  final VoidCallback? onTap;
-  final VoidCallback? onDelete;
 
   const IncomeListItem({
     super.key,
@@ -21,6 +13,14 @@ class IncomeListItem extends StatelessWidget {
     this.onTap,
     this.onDelete,
   });
+  final String name;
+  final double amount;
+  final String frequency;
+  final DateTime date;
+  final String? source;
+  final String currency;
+  final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {

@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ProgressIndicatorCard extends StatelessWidget {
-  final String title;
-  final double progress;
-  final String currentValue;
-  final String targetValue;
-  final Color? color;
-  final IconData? icon;
 
   const ProgressIndicatorCard({
     super.key,
@@ -17,6 +11,12 @@ class ProgressIndicatorCard extends StatelessWidget {
     this.color,
     this.icon,
   });
+  final String title;
+  final double progress;
+  final String currentValue;
+  final String targetValue;
+  final Color? color;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -94,11 +94,6 @@ class ProgressIndicatorCard extends StatelessWidget {
 }
 
 class CircularProgressCard extends StatelessWidget {
-  final String title;
-  final double progress;
-  final String centerText;
-  final Color? color;
-  final double size;
 
   const CircularProgressCard({
     super.key,
@@ -108,6 +103,11 @@ class CircularProgressCard extends StatelessWidget {
     this.color,
     this.size = 100,
   });
+  final String title;
+  final double progress;
+  final String centerText;
+  final Color? color;
+  final double size;
 
   @override
   Widget build(BuildContext context) {

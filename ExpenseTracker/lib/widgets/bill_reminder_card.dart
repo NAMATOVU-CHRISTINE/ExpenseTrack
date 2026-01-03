@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import '../services/notification_service.dart';
 
 class BillReminderCard extends StatelessWidget {
-  final BillReminder reminder;
-  final String currency;
-  final VoidCallback? onTap;
-  final VoidCallback? onDelete;
 
   const BillReminderCard({
     super.key,
@@ -14,6 +10,10 @@ class BillReminderCard extends StatelessWidget {
     this.onTap,
     this.onDelete,
   });
+  final BillReminder reminder;
+  final String currency;
+  final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {

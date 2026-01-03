@@ -3,9 +3,9 @@ import '../services/notification_service.dart';
 import '../widgets/bill_reminder_card.dart';
 
 class BillRemindersScreen extends StatefulWidget {
-  final String currency;
 
   const BillRemindersScreen({super.key, required this.currency});
+  final String currency;
 
   @override
   State<BillRemindersScreen> createState() => _BillRemindersScreenState();
@@ -176,7 +176,7 @@ class _BillRemindersScreenState extends State<BillRemindersScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
-                  value: dueDay,
+                  initialValue: dueDay,
                   decoration: const InputDecoration(
                     labelText: 'Due Day of Month',
                     prefixIcon: Icon(Icons.calendar_today),
@@ -188,7 +188,7 @@ class _BillRemindersScreenState extends State<BillRemindersScreen> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<int>(
-                  value: reminderDays,
+                  initialValue: reminderDays,
                   decoration: const InputDecoration(
                     labelText: 'Remind Before',
                     prefixIcon: Icon(Icons.notifications),

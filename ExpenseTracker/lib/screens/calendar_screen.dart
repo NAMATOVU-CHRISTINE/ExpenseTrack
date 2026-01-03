@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:collection';
 
 class CalendarScreen extends StatefulWidget {
-  final List<dynamic> expenses;
-  final List<dynamic> incomes;
-  final String currency;
-  final Function(dynamic)? onExpenseTap;
 
   const CalendarScreen({
     super.key,
@@ -14,6 +10,10 @@ class CalendarScreen extends StatefulWidget {
     required this.currency,
     this.onExpenseTap,
   });
+  final List<dynamic> expenses;
+  final List<dynamic> incomes;
+  final String currency;
+  final Function(dynamic)? onExpenseTap;
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
@@ -397,10 +397,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
 }
 
 class _SummaryCard extends StatelessWidget {
-  final String label;
-  final double amount;
-  final String currency;
-  final Color color;
 
   const _SummaryCard({
     required this.label,
@@ -408,6 +404,10 @@ class _SummaryCard extends StatelessWidget {
     required this.currency,
     required this.color,
   });
+  final String label;
+  final double amount;
+  final String currency;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {

@@ -1,10 +1,5 @@
 /// Represents a budget for a specific category
 class BudgetModel {
-  final String id;
-  final String category;
-  final double limit;
-  double spent;
-  final double warningThreshold;
 
   BudgetModel({
     String? id,
@@ -21,6 +16,11 @@ class BudgetModel {
     spent: (json['spent'] as num?)?.toDouble() ?? 0,
     warningThreshold: (json['warningThreshold'] as num?)?.toDouble() ?? 0.8,
   );
+  final String id;
+  final String category;
+  final double limit;
+  double spent;
+  final double warningThreshold;
 
   Map<String, dynamic> toJson() => {
     'id': id,

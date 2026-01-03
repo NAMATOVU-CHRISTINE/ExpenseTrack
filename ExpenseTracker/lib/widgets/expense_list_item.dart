@@ -2,17 +2,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ExpenseListItem extends StatelessWidget {
-  final String title;
-  final double amount;
-  final String category;
-  final DateTime date;
-  final String? notes;
-  final String? receiptPath;
-  final String currency;
-  final Color categoryColor;
-  final IconData categoryIcon;
-  final VoidCallback? onTap;
-  final VoidCallback? onDelete;
 
   const ExpenseListItem({
     super.key,
@@ -28,6 +17,17 @@ class ExpenseListItem extends StatelessWidget {
     this.onTap,
     this.onDelete,
   });
+  final String title;
+  final double amount;
+  final String category;
+  final DateTime date;
+  final String? notes;
+  final String? receiptPath;
+  final String currency;
+  final Color categoryColor;
+  final IconData categoryIcon;
+  final VoidCallback? onTap;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {

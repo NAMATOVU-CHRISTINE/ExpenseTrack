@@ -86,12 +86,6 @@ class NotificationService {
 }
 
 class BillReminder {
-  final String id;
-  final String billName;
-  final double amount;
-  final int dueDay;
-  final int reminderDaysBefore;
-  final bool isEnabled;
 
   BillReminder({
     String? id,
@@ -110,6 +104,12 @@ class BillReminder {
     reminderDaysBefore: json['reminderDaysBefore'] ?? 3,
     isEnabled: json['isEnabled'] ?? true,
   );
+  final String id;
+  final String billName;
+  final double amount;
+  final int dueDay;
+  final int reminderDaysBefore;
+  final bool isEnabled;
 
   Map<String, dynamic> toJson() => {
     'id': id,
