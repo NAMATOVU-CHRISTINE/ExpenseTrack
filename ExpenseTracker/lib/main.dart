@@ -1499,6 +1499,7 @@ class _HomePageState extends State<HomePage> {
   void _showIncomeSheet() {
     final nameController = TextEditingController();
     final amountController = TextEditingController();
+    String incomeType = 'once';
     String frequency = 'Monthly';
 
     showModalBottomSheet(
@@ -1508,7 +1509,7 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.6,
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
           ),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
@@ -1570,7 +1571,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Frequency',
+                        'Type',
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
@@ -1579,17 +1580,104 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
-                        children: ['Monthly', 'Weekly', 'Bi-weekly', 'Yearly']
-                            .map(
-                              (f) => ChoiceChip(
-                                label: Text(f),
-                                selected: frequency == f,
-                                onSelected: (v) =>
-                                    setModalState(() => frequency = f),
-                              ),
-                            )
-                            .toList(),
+                        children: [
+                          ChoiceChip(
+                            label: const Text('One-Time'),
+                            selected: incomeType == 'once',
+                            onSelected: (v) =>
+                                setModalState(() => incomeType = 'once'),
+                          ),
+                          ChoiceChip(
+                            label: const Text('Recurring'),
+                            selected: incomeType == 'recurring',
+                            onSelected: (v) =>
+                                setModalState(() => incomeType = 'recurring'),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 16),
+                      if (incomeType == 'once')
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.green.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'This is a one-time income.',
+                                  style: TextStyle(
+                                    color: Colors.green.shade700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: Colors.blue.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                color: Colors.blue,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'This income will repeat regularly.',
+                                  style: TextStyle(
+                                    color: Colors.blue.shade700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (incomeType == 'recurring') ...[
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Frequency',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          children: ['Monthly', 'Weekly', 'Bi-weekly', 'Yearly']
+                              .map(
+                                (f) => ChoiceChip(
+                                  label: Text(f),
+                                  selected: frequency == f,
+                                  onSelected: (v) =>
+                                      setModalState(() => frequency = f),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () {
@@ -1609,7 +1697,9 @@ class _HomePageState extends State<HomePage> {
                             IncomeSource(
                               name: nameController.text.trim(),
                               amount: amount,
-                              frequency: frequency,
+                              frequency: incomeType == 'once'
+                                  ? 'once'
+                                  : frequency,
                             ),
                           );
                           Navigator.pop(ctx);
