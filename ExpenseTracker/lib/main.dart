@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:io';
@@ -222,7 +224,6 @@ class CategoryHelper {
 // ==================== MODELS ====================
 
 class Expense {
-
   Expense({
     String? id,
     required this.title,
@@ -283,7 +284,6 @@ class Expense {
 }
 
 class Budget {
-
   Budget({
     String? id,
     required this.category,
@@ -335,7 +335,6 @@ class Budget {
 }
 
 class IncomeSource {
-
   IncomeSource({
     String? id,
     required this.name,
@@ -371,7 +370,6 @@ class IncomeSource {
 }
 
 class SavingsGoal {
-
   SavingsGoal({
     String? id,
     required this.name,
@@ -422,7 +420,6 @@ class SavingsGoal {
 }
 
 class RecurringBill {
-
   RecurringBill({
     String? id,
     required this.name,
@@ -630,7 +627,6 @@ String formatShortDate(DateTime date) {
 // ==================== APP WRAPPER ====================
 
 class AppWrapper extends StatefulWidget {
-
   const AppWrapper({
     super.key,
     required this.currency,
@@ -926,7 +922,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 // ==================== HOME PAGE ====================
 
 class HomePage extends StatefulWidget {
-
   const HomePage({
     super.key,
     required this.currency,
@@ -1951,7 +1946,6 @@ class _HomePageState extends State<HomePage> {
 // ==================== DASHBOARD PAGE ====================
 
 class DashboardPage extends StatelessWidget {
-
   const DashboardPage({
     super.key,
     required this.expenses,
@@ -2309,7 +2303,6 @@ class DashboardPage extends StatelessWidget {
 }
 
 class _SummaryCard extends StatelessWidget {
-
   const _SummaryCard({
     required this.title,
     required this.amount,
@@ -2370,7 +2363,6 @@ class _SummaryCard extends StatelessWidget {
 }
 
 class _SpendingComparisonCard extends StatelessWidget {
-
   const _SpendingComparisonCard({
     required this.current,
     required this.previous,
@@ -2431,7 +2423,6 @@ class _SpendingComparisonCard extends StatelessWidget {
 }
 
 class _SpendingChartCard extends StatelessWidget {
-
   const _SpendingChartCard({
     required this.categorySpending,
     required this.currency,
@@ -2565,7 +2556,6 @@ class _PieChartPainter extends CustomPainter {
 }
 
 class _BudgetAlertCard extends StatelessWidget {
-
   const _BudgetAlertCard({required this.budget, required this.currency});
   final Budget budget;
   final String currency;
@@ -2619,7 +2609,6 @@ class _BudgetAlertCard extends StatelessWidget {
 }
 
 class _ProgressCard extends StatelessWidget {
-
   const _ProgressCard({
     required this.current,
     required this.target,
@@ -3107,7 +3096,6 @@ Widget _buildTextField(
 // ==================== EXPENSES PAGE ====================
 
 class ExpensesPage extends StatefulWidget {
-
   const ExpensesPage({
     super.key,
     required this.expenses,
@@ -3506,7 +3494,6 @@ class _ExpensesPageState extends State<ExpensesPage> {
 // ==================== BUDGETS PAGE ====================
 
 class BudgetsPage extends StatelessWidget {
-
   const BudgetsPage({
     super.key,
     required this.budgets,
@@ -3978,7 +3965,6 @@ class BudgetsPage extends StatelessWidget {
 // ==================== FINANCE PAGE ====================
 
 class FinancePage extends StatefulWidget {
-
   const FinancePage({
     super.key,
     required this.incomeSources,
