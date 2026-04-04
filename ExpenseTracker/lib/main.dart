@@ -2244,6 +2244,7 @@ class DashboardPage extends StatelessWidget {
     final unpaidBills = recurringBills
         .where((b) => !b.isPaid)
         .fold(0.0, (sum, b) => sum + b.amount);
+    final balance = displayIncome - monthlyExpenses;
 
     // Calculate spending by category for pie chart
     final categorySpending = <String, double>{};
@@ -2264,51 +2265,184 @@ class DashboardPage extends StatelessWidget {
           IconButton(
             icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
             onPressed: () => onToggleTheme(!isDarkMode),
+            tooltip: 'Toggle theme',
+          ),
+          IconButton(
+            icon: const Icon(Icons.currency_exchange),
+            onPressed: () => _showCurrencyPicker(context),
+            tooltip: 'Change currency',
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () async {},
+        onRefresh: () async {
+          await Future.delayed(const Duration(milliseconds: 500));
+        },
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            // Welcome
-            const Text(
-              'Welcome back',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            // Welcome Header
+            Text(
+              'Welcome back!',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).primaryColor,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Here\'s your financial overview',
-              style: TextStyle(color: Colors.grey.shade600),
+              formatDate(now),
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Main Balance Card
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: balance >= 0
+                        ? [Colors.green.shade400, Colors.green.shade700]
+                        : [Colors.red.shade400, Colors.red.shade700],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Current Balance',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Icon(
+                          balance >= 0
+                              ? Icons.account_balance_wallet
+                              : Icons.warning_amber_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      formatCurrency(balance, currency),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Income',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatCurrency(displayIncome, currency),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Expenses',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                formatCurrency(monthlyExpenses, currency),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 20),
 
-            // Summary Cards
+            // Quick Stats Row
             Row(
               children: [
                 Expanded(
-                  child: _SummaryCard(
-                    title: 'Income',
-                    amount: displayIncome,
-                    icon: Icons.trending_up,
-                    color: Colors.green,
-                    currency: currency,
+                  child: _QuickStatCard(
+                    title: 'Budget Used',
+                    value: totalBudget > 0
+                        ? '${((totalSpent / totalBudget) * 100).toStringAsFixed(0)}%'
+                        : '0%',
+                    icon: Icons.pie_chart,
+                    color: totalSpent > totalBudget
+                        ? Colors.red
+                        : Colors.blue,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: _SummaryCard(
-                    title: 'Expenses',
-                    amount: monthlyExpenses,
-                    icon: Icons.trending_down,
-                    color: Colors.red,
-                    currency: currency,
+                  child: _QuickStatCard(
+                    title: 'Unpaid Bills',
+                    value: formatCurrency(unpaidBills, currency),
+                    icon: Icons.receipt_long,
+                    color: Colors.orange,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
+
+            // Budget Alerts (if any)
+            ...budgets
+                .where((b) => b.isOverBudget || b.isNearLimit)
+                .map(
+                  (b) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _BudgetAlertCard(budget: b, currency: currency),
+                  ),
+                ),
 
             // Spending Comparison
             if (lastMonthExpenses > 0) ...[
@@ -2317,7 +2451,7 @@ class DashboardPage extends StatelessWidget {
                 previous: lastMonthExpenses,
                 currency: currency,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
 
             // Spending Chart
@@ -2326,74 +2460,46 @@ class DashboardPage extends StatelessWidget {
                 categorySpending: categorySpending,
                 currency: currency,
               ),
-              const SizedBox(height: 16),
-            ],
-
-            // Budget Alerts
-            ...budgets
-                .where((b) => b.isOverBudget || b.isNearLimit)
-                .map(
-                  (b) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: _BudgetAlertCard(budget: b, currency: currency),
-                  ),
-                ),
-
-            // Budget Overview
-            if (budgets.isNotEmpty) ...[
-              _buildSection(context, 'Budget Overview', Icons.pie_chart, [
-                _ProgressCard(
-                  current: totalSpent,
-                  target: totalBudget,
-                  color: totalSpent > totalBudget
-                      ? Colors.red
-                      : Theme.of(context).primaryColor,
-                  showRemaining: true,
-                  currency: currency,
-                ),
-              ]),
-              const SizedBox(height: 16),
-            ],
-
-            // Upcoming Bills
-            if (recurringBills.where((b) => !b.isPaid).isNotEmpty) ...[
-              _buildSection(context, 'Upcoming Bills', Icons.receipt_long, [
-                ...recurringBills
-                    .where((b) => !b.isPaid)
-                    .take(3)
-                    .map((bill) => _BillTile(bill: bill, currency: currency)),
-                if (unpaidBills > 0)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      'Total due: ${formatCurrency(unpaidBills, currency)}',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-              ]),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
 
             // Savings Goals
             if (savingsGoals.isNotEmpty) ...[
-              _buildSection(context, 'Savings Goals', Icons.flag, [
+              _buildSection(context, 'Savings Goals', Icons.savings, [
                 ...savingsGoals
                     .take(3)
                     .map((goal) => _GoalTile(goal: goal, currency: currency)),
               ]),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
             ],
 
             // Recent Transactions
-            _buildSection(context, 'Recent Transactions', Icons.history, [
+            _buildSection(context, 'Recent Transactions', Icons.receipt, [
               if (expenses.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Center(
-                    child: Text(
-                      'No transactions yet',
-                      style: TextStyle(color: Colors.grey.shade500),
-                    ),
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.receipt_long_outlined,
+                        size: 64,
+                        color: Colors.grey.shade300,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No transactions yet',
+                        style: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: onQuickAdd,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add your first expense'),
+                      ),
+                    ],
                   ),
                 )
               else
@@ -2582,6 +2688,69 @@ class _SummaryCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _QuickStatCard extends StatelessWidget {
+  const _QuickStatCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(icon, color: color, size: 20),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
       ),
     );
   }
