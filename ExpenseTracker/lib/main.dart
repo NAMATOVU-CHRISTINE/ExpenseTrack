@@ -3965,75 +3965,50 @@ class _ExpensesPageState extends State<ExpensesPage> {
   @override
   Widget build(BuildContext context) {
     final categories = widget.budgets.map((b) => b.category).toSet().toList();
+    final totalExpenses = filteredExpenses.fold(0.0, (sum, e) => sum + e.amount);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Expenses',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Expenses'),
         actions: [
-          if (widget.expenses.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.filter_list),
-              onPressed: () => _showFilterSheet(categories),
-            ),
+          IconButton(
+            icon: const Icon(Icons.filter_list_outlined),
+            onPressed: () => _showFilterSheet(categories),
+          ),
         ],
       ),
       body: Column(
         children: [
-          // Search Bar
-          if (widget.expenses.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                onChanged: (v) => setState(() => _searchQuery = v),
-                decoration: InputDecoration(
-                  hintText: 'Search expenses...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () => setState(() => _searchQuery = ''),
-                        )
-                      : null,
-                ),
-              ),
-            ),
-
-          // Active Filters
-          if (_filterCategory != null || _dateRange != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  if (_filterCategory != null)
-                    Chip(
-                      label: Text(_filterCategory!),
-                      onDeleted: () => setState(() => _filterCategory = null),
-                      deleteIconColor: Colors.grey,
-                    ),
-                  if (_dateRange != null) ...[
-                    const SizedBox(width: 8),
-                    Chip(
-                      label: Text(
-                        '${formatShortDate(_dateRange!.start)} - ${formatShortDate(_dateRange!.end)}',
-                      ),
-                      onDeleted: () => setState(() => _dateRange = null),
-                      deleteIconColor: Colors.grey,
-                    ),
-                  ],
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => setState(() {
-                      _filterCategory = null;
-                      _dateRange = null;
-                    }),
-                    child: const Text('Clear all'),
+          // Total Expenses Header
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            color: Colors.white,
+            child: Column(
+              children: [
+                Text(
+                  'TOTAL EXPENSES',
+                  style: TextStyle(
+                    color: Colors.grey.shade600,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 1,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  formatCurrency(totalExpenses, widget.currency),
+                  style: TextStyle(
+                    color: Colors.red.shade400,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
+          ),
+          
+          const Divider(height: 1),
 
           // Expense List
           Expanded(
@@ -4043,11 +4018,190 @@ class _ExpensesPageState extends State<ExpensesPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.receipt_long,
+                          Icons.receipt_long_outlined,
                           size: 80,
                           color: Colors.grey.shade300,
                         ),
                         const SizedBox(height: 16),
+                        Text(
+                          'No expenses yet',
+                          style: TextStyle(
+                            color: Colors.grey.shade500,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.separated(
+                    itemCount: filteredExpenses.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final expense = filteredExpenses[index];
+                      final color = CategoryHelper.getColor(expense.category);
+                      
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        leading: CircleAvatar(
+                          backgroundColor: color.withOpacity(0.15),
+                          child: Icon(
+                            CategoryHelper.getIcon(expense.category),
+                            color: color,
+                            size: 22,
+                          ),
+                        ),
+                        title: Text(
+                          expense.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '${expense.category} • ${formatShortDate(expense.date)}',
+                          style: TextStyle(
+                            color: Colors.grey.shade600,
+                            fontSize: 12,
+                          ),
+                        ),
+                        trailing: Text(
+                          formatCurrency(expense.amount, widget.currency),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Colors.red.shade400,
+                          ),
+                        ),
+                        onTap: () => _showExpenseDetails(expense),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showExpenseDetails(Expense expense) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: CategoryHelper.getColor(expense.category).withOpacity(0.15),
+              child: Icon(
+                CategoryHelper.getIcon(expense.category),
+                color: CategoryHelper.getColor(expense.category),
+                size: 30,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              expense.title,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              formatCurrency(expense.amount, widget.currency),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.red.shade400,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${expense.category} • ${formatDate(expense.date)}',
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14,
+              ),
+            ),
+            if (expense.notes != null && expense.notes!.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  expense.notes!,
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      showExpenseSheet(
+                        context: context,
+                        budgets: widget.budgets,
+                        currency: widget.currency,
+                        onSave: widget.onUpdate,
+                        expense: expense,
+                      );
+                    },
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Edit'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      widget.onDelete(expense.id);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Expense deleted')),
+                      );
+                    },
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Delete'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
                         Text(
                           widget.expenses.isEmpty
                               ? 'No expenses yet'
@@ -4321,79 +4475,311 @@ class BudgetsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final totalBudget = budgets.fold(0.0, (sum, b) => sum + b.limit);
     final totalSpent = budgets.fold(0.0, (sum, b) => sum + b.spent);
+    final remaining = totalBudget - totalSpent;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Budgets',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('Budgets'),
       ),
       body: budgets.isEmpty
           ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.pie_chart, size: 80, color: Colors.grey.shade300),
+                  Icon(Icons.pie_chart_outline, size: 80, color: Colors.grey.shade300),
                   const SizedBox(height: 16),
                   Text(
                     'No budgets set',
                     style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Create budgets to track spending',
-                    style: TextStyle(color: Colors.grey.shade500),
-                  ),
                 ],
               ),
             )
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+          : Column(
               children: [
-                // Summary Card
-                Card(
-                  color: Theme.of(context).primaryColor,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Total Budget',
-                          style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 14,
+                // Budget Summary Header
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      Text(
+                        'TOTAL BUDGET',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        formatCurrency(totalBudget, currency),
+                        style: const TextStyle(
+                          color: Color(0xFF2196F3),
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Column(
+                            children: [
+                              Text(
+                                formatCurrency(totalSpent, currency),
+                                style: TextStyle(
+                                  color: Colors.red.shade400,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'SPENT',
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 10,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 40),
+                          Column(
+                            children: [
+                              Text(
+                                formatCurrency(remaining, currency),
+                                style: TextStyle(
+                                  color: remaining >= 0 ? Colors.green.shade400 : Colors.red.shade400,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'REMAINING',
+                                style: TextStyle(
+                                  color: Colors.grey.shade500,
+                                  fontSize: 10,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const Divider(height: 1),
+                
+                // Budget List
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: budgets.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final budget = budgets[index];
+                      final color = CategoryHelper.getColor(budget.category);
+                      final progress = budget.progress.clamp(0.0, 1.0);
+                      
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        leading: CircleAvatar(
+                          backgroundColor: color.withOpacity(0.15),
+                          child: Icon(
+                            CategoryHelper.getIcon(budget.category),
+                            color: color,
+                            size: 22,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          formatCurrency(totalBudget, currency),
+                        title: Text(
+                          budget.category,
                           style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        Row(
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Spent',
-                                    style: TextStyle(
-                                      color: Colors.white.withOpacity(0.7),
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                  Text(
-                                    formatCurrency(totalSpent, currency),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
+                            const SizedBox(height: 8),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(4),
+                              child: LinearProgressIndicator(
+                                value: progress,
+                                backgroundColor: Colors.grey.shade200,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  budget.isOverBudget ? Colors.red.shade400 : color,
+                                ),
+                                minHeight: 6,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${formatCurrency(budget.spent, currency)} of ${formatCurrency(budget.limit, currency)}',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        trailing: Text(
+                          '${(progress * 100).toStringAsFixed(0)}%',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: budget.isOverBudget ? Colors.red.shade400 : color,
+                          ),
+                        ),
+                        onTap: () => _showBudgetDetails(context, budget),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  void _showBudgetDetails(BuildContext context, Budget budget) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: CategoryHelper.getColor(budget.category).withOpacity(0.15),
+              child: Icon(
+                CategoryHelper.getIcon(budget.category),
+                color: CategoryHelper.getColor(budget.category),
+                size: 30,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              budget.category,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Budget: ${formatCurrency(budget.limit, currency)}',
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Column(
+                  children: [
+                    Text(
+                      formatCurrency(budget.spent, currency),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red.shade400,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Spent',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    Text(
+                      formatCurrency(budget.remaining, currency),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: budget.remaining >= 0 ? Colors.green.shade400 : Colors.red.shade400,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Remaining',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      // Edit budget
+                    },
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Edit'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      onDelete(budget.id);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Budget deleted')),
+                      );
+                    },
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Delete'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade400,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
                                     ),
                                   ),
                                 ],
