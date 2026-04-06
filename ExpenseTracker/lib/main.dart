@@ -1130,9 +1130,78 @@ class _HomePageState extends State<HomePage> {
     savingsGoals = await DataService.getSavingsGoals();
     recurringBills = await DataService.getRecurringBills();
     profile = await DataService.getProfile();
+    
+    // Generate recurring transactions
+    await _generateRecurringTransactions();
+    
     _recalculateBudgetSpent();
     if (!mounted) return;
     setState(() => _isLoading = false);
+  }
+
+  Future<void> _generateRecurringTransactions() async {
+    bool hasChanges = false;
+    final now = DateTime.now();
+    
+    // Generate recurring expenses
+    final recurringExpenses = expenses.where((e) => e.isRecurring).toList();
+    for (var recurringExpense in recurringExpenses) {
+      // Check if we need to generate for current month
+      final existsThisMonth = expenses.any((e) =>
+          e.title == recurringExpense.title &&
+          e.category == recurringExpense.category &&
+          e.amount == recurringExpense.amount &&
+          e.date.month == now.month &&
+          e.date.year == now.year);
+      
+      if (!existsThisMonth) {
+        // Generate for current month
+        expenses.add(Expense(
+          title: recurringExpense.title,
+          amount: recurringExpense.amount,
+          category: recurringExpense.category,
+          date: DateTime(now.year, now.month, recurringExpense.date.day),
+          notes: recurringExpense.notes,
+          isRecurring: false, // Mark as generated, not the template
+        ));
+        hasChanges = true;
+      }
+    }
+    
+    // Generate recurring income for current month
+    for (var income in incomeSources) {
+      if (income.frequency != 'once') {
+        // Check if income should be generated for this month
+        final monthsSinceStart = _getMonthsDifference(income.date, now);
+        bool shouldGenerate = false;
+        
+        switch (income.frequency.toLowerCase()) {
+          case 'monthly':
+            shouldGenerate = monthsSinceStart >= 0;
+            break;
+          case 'weekly':
+            shouldGenerate = monthsSinceStart >= 0;
+            break;
+          case 'yearly':
+            shouldGenerate = monthsSinceStart >= 0 && 
+                           now.month == income.date.month;
+            break;
+        }
+        
+        if (shouldGenerate) {
+          // Income is automatically counted in calculations
+          // No need to generate duplicate entries
+        }
+      }
+    }
+    
+    if (hasChanges) {
+      await DataService.saveExpenses(expenses);
+    }
+  }
+
+  int _getMonthsDifference(DateTime start, DateTime end) {
+    return (end.year - start.year) * 12 + end.month - start.month;
   }
 
   void _recalculateBudgetSpent() {
@@ -3628,6 +3697,7 @@ void showExpenseSheet({
       expense?.category ??
       (budgets.isNotEmpty ? budgets.first.category : 'General');
   DateTime selectedDate = expense?.date ?? DateTime.now();
+  bool isRecurring = expense?.isRecurring ?? false;
 
   final categories = budgets.isNotEmpty
       ? budgets.map((b) => b.category).toList()
@@ -3785,6 +3855,16 @@ void showExpenseSheet({
                     ),
                     const SizedBox(height: 16),
 
+                    // Recurring checkbox
+                    CheckboxListTile(
+                      title: const Text('Recurring Expense'),
+                      subtitle: const Text('This expense repeats every month'),
+                      value: isRecurring,
+                      onChanged: (value) => setModalState(() => isRecurring = value ?? false),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    const SizedBox(height: 8),
+
                     _buildTextField(
                       notesController,
                       'Notes (optional)',
@@ -3824,6 +3904,7 @@ void showExpenseSheet({
                             notes: notesController.text.isNotEmpty
                                 ? notesController.text.trim()
                                 : null,
+                            isRecurring: isRecurring,
                           ),
                         );
                         Navigator.pop(ctx);
