@@ -1500,23 +1500,47 @@ class _HomePageState extends State<HomePage> {
       case 1:
         return FloatingActionButton.extended(
           heroTag: 'expenses_fab',
+          backgroundColor: const Color(0xFF2196F3),
+          foregroundColor: Colors.white,
           onPressed: _showQuickAddExpense,
           icon: const Icon(Icons.add),
-          label: const Text('Add'),
+          label: const Text(
+            'Add',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
         );
       case 2:
         return FloatingActionButton.extended(
           heroTag: 'budgets_fab',
+          backgroundColor: const Color(0xFF2196F3),
+          foregroundColor: Colors.white,
           onPressed: () => _showBudgetSheet(),
           icon: const Icon(Icons.add),
-          label: const Text('Add'),
+          label: const Text(
+            'Add',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
         );
       case 3:
         return FloatingActionButton.extended(
           heroTag: 'finance_fab',
+          backgroundColor: const Color(0xFF2196F3),
+          foregroundColor: Colors.white,
           onPressed: () => _showFinanceSheet(),
           icon: const Icon(Icons.add),
-          label: const Text('Add'),
+          label: const Text(
+            'Add',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+          ),
         );
       default:
         return null;
