@@ -1498,49 +1498,28 @@ class _HomePageState extends State<HomePage> {
         // Dashboard has its own buttons, no FAB needed
         return null;
       case 1:
-        return FloatingActionButton.extended(
+        return FloatingActionButton(
           heroTag: 'expenses_fab',
           backgroundColor: const Color(0xFF2196F3),
           foregroundColor: Colors.white,
           onPressed: _showQuickAddExpense,
-          icon: const Icon(Icons.add),
-          label: const Text(
-            'Add',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
-          ),
+          child: const Icon(Icons.add, size: 28),
         );
       case 2:
-        return FloatingActionButton.extended(
+        return FloatingActionButton(
           heroTag: 'budgets_fab',
           backgroundColor: const Color(0xFF2196F3),
           foregroundColor: Colors.white,
           onPressed: () => _showBudgetSheet(),
-          icon: const Icon(Icons.add),
-          label: const Text(
-            'Add',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
-          ),
+          child: const Icon(Icons.add, size: 28),
         );
       case 3:
-        return FloatingActionButton.extended(
+        return FloatingActionButton(
           heroTag: 'finance_fab',
           backgroundColor: const Color(0xFF2196F3),
           foregroundColor: Colors.white,
           onPressed: () => _showFinanceSheet(),
-          icon: const Icon(Icons.add),
-          label: const Text(
-            'Add',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
-          ),
+          child: const Icon(Icons.add, size: 28),
         );
       default:
         return null;
