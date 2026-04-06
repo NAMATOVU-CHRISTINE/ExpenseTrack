@@ -1790,7 +1790,7 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.75,
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
           ),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
@@ -1809,13 +1809,13 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: Row(
                   children: [
                     const Text(
                       'Add Income',
                       style: TextStyle(
-                        fontSize: 22,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1823,11 +1823,13 @@ class _HomePageState extends State<HomePage> {
                     IconButton(
                       icon: const Icon(Icons.close),
                       onPressed: () => Navigator.pop(context),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
                     ),
                   ],
                 ),
               ),
-              Flexible(
+              Expanded(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.only(
                     left: 20,
@@ -1837,13 +1839,14 @@ class _HomePageState extends State<HomePage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      const SizedBox(height: 16),
                       _buildTextField(
                         nameController,
                         'Source Name',
                         Icons.work,
                         hint: 'e.g., Salary, Freelance',
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       _buildTextField(
                         amountController,
                         'Amount (${widget.currency})',
@@ -1851,10 +1854,10 @@ class _HomePageState extends State<HomePage> {
                         keyboardType: TextInputType.number,
                         hint: '0',
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       // One-time vs Recurring Toggle
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.blue.shade50,
                           borderRadius: BorderRadius.circular(12),
@@ -1864,13 +1867,14 @@ class _HomePageState extends State<HomePage> {
                             Icon(
                               isRecurring ? Icons.repeat : Icons.event,
                               color: Colors.blue,
+                              size: 20,
                             ),
                             const SizedBox(width: 12),
                             Text(
                               'Recurring Income',
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 15,
+                                fontSize: 14,
                                 color: Colors.grey.shade800,
                               ),
                             ),
@@ -1893,21 +1897,24 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       if (isRecurring) ...[
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         const Text(
                           'Frequency',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Wrap(
-                          spacing: 8,
+                          spacing: 6,
                           children: ['weekly', 'monthly', 'yearly']
                               .map(
                                 (f) => ChoiceChip(
-                                  label: Text(f[0].toUpperCase() + f.substring(1)),
+                                  label: Text(
+                                    f[0].toUpperCase() + f.substring(1),
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
                                   selected: frequency == f,
                                   selectedColor: Colors.blue.shade100,
                                   onSelected: (v) =>
@@ -1916,29 +1923,30 @@ class _HomePageState extends State<HomePage> {
                               )
                               .toList(),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         const Text(
                           'Duration',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            fontSize: 14,
+                            fontSize: 13,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Row(
                           children: [
                             Expanded(
                               flex: 2,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<int>(
                                     value: recurringDuration,
                                     isExpanded: true,
+                                    style: const TextStyle(fontSize: 14, color: Colors.black),
                                     items: [
                                       for (int i = 1; i <= 24; i++)
                                         DropdownMenuItem(
@@ -1955,19 +1963,20 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 8),
                             Expanded(
                               flex: 3,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     value: durationType,
                                     isExpanded: true,
+                                    style: const TextStyle(fontSize: 14, color: Colors.black),
                                     items: const [
                                       DropdownMenuItem(
                                         value: 'months',
@@ -1989,25 +1998,25 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Text(
                           'Income will repeat for ${recurringDuration} ${durationType}',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             color: Colors.grey.shade600,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       const Text(
                         'Date',
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                          fontSize: 13,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 6),
                       InkWell(
                         onTap: () async {
                           final picked = await showDatePicker(
@@ -2021,25 +2030,34 @@ class _HomePageState extends State<HomePage> {
                           }
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.calendar_today,
                                 color: Colors.grey.shade600,
+                                size: 18,
                               ),
                               const SizedBox(width: 12),
-                              Text(formatDate(selectedDate)),
+                              Text(
+                                formatDate(selectedDate),
+                                style: const TextStyle(fontSize: 14),
+                              ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
                         onPressed: () {
                           final amount = double.tryParse(amountController.text);
                           if (nameController.text.isEmpty ||
@@ -2070,6 +2088,7 @@ class _HomePageState extends State<HomePage> {
                         },
                         child: const Text('Add Income'),
                       ),
+                      const SizedBox(height: 10),
                     ],
                   ),
                 ),
