@@ -1777,8 +1777,11 @@ class _HomePageState extends State<HomePage> {
   void _showIncomeSheet() {
     final nameController = TextEditingController();
     final amountController = TextEditingController();
-    String incomeType = 'once';
-    String frequency = 'Monthly';
+    String frequency = 'monthly';
+    DateTime selectedDate = DateTime.now();
+    bool isRecurring = false;
+    int recurringDuration = 12;
+    String durationType = 'months';
 
     showModalBottomSheet(
       context: context,
@@ -1846,92 +1849,156 @@ class _HomePageState extends State<HomePage> {
                         'Amount (${widget.currency})',
                         Icons.attach_money,
                         keyboardType: TextInputType.number,
+                        hint: '0',
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Type',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                      const SizedBox(height: 20),
+                      // One-time vs Recurring Toggle
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              isRecurring ? Icons.repeat : Icons.event,
+                              color: Colors.blue,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Recurring Income',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                            const Spacer(),
+                            Switch(
+                              value: isRecurring,
+                              onChanged: (v) {
+                                setModalState(() {
+                                  isRecurring = v;
+                                  if (!v) {
+                                    frequency = 'once';
+                                  } else {
+                                    frequency = 'monthly';
+                                  }
+                                });
+                              },
+                              activeColor: Colors.blue,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          ChoiceChip(
-                            label: const Text('One-Time'),
-                            selected: incomeType == 'once',
-                            onSelected: (v) =>
-                                setModalState(() => incomeType = 'once'),
+                      if (isRecurring) ...[
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Frequency',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
                           ),
-                          ChoiceChip(
-                            label: const Text('Recurring'),
-                            selected: incomeType == 'recurring',
-                            onSelected: (v) =>
-                                setModalState(() => incomeType = 'recurring'),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          children: ['weekly', 'monthly', 'yearly']
+                              .map(
+                                (f) => ChoiceChip(
+                                  label: Text(f[0].toUpperCase() + f.substring(1)),
+                                  selected: frequency == f,
+                                  selectedColor: Colors.blue.shade100,
+                                  onSelected: (v) =>
+                                      setModalState(() => frequency = f),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Duration',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      if (incomeType == 'once')
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.green.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.info_outline,
-                                color: Colors.green,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'This is a one-time income.',
-                                  style: TextStyle(
-                                    color: Colors.green.shade700,
-                                    fontSize: 13,
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<int>(
+                                    value: recurringDuration,
+                                    isExpanded: true,
+                                    items: [
+                                      for (int i = 1; i <= 24; i++)
+                                        DropdownMenuItem(
+                                          value: i,
+                                          child: Text('$i'),
+                                        ),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        setModalState(() => recurringDuration = v);
+                                      }
+                                    },
                                   ),
                                 ),
                               ),
-                            ],
-                          ),
-                        )
-                      else
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.blue.withValues(alpha: 0.3),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.info_outline,
-                                color: Colors.blue,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  'This income will repeat regularly.',
-                                  style: TextStyle(
-                                    color: Colors.blue.shade700,
-                                    fontSize: 13,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: durationType,
+                                    isExpanded: true,
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: 'months',
+                                        child: Text('Months'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'years',
+                                        child: Text('Years'),
+                                      ),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        setModalState(() => durationType = v);
+                                      }
+                                    },
                                   ),
                                 ),
                               ),
-                            ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Income will repeat for ${recurringDuration} ${durationType}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
+                      ],
                       const SizedBox(height: 16),
                       const Text(
                         'Date',
@@ -1945,12 +2012,12 @@ class _HomePageState extends State<HomePage> {
                         onTap: () async {
                           final picked = await showDatePicker(
                             context: context,
-                            initialDate: DateTime.now(),
+                            initialDate: selectedDate,
                             firstDate: DateTime(2020),
                             lastDate: DateTime.now(),
                           );
                           if (picked != null) {
-                            setModalState(() {});
+                            setModalState(() => selectedDate = picked);
                           }
                         },
                         child: Container(
@@ -1966,35 +2033,11 @@ class _HomePageState extends State<HomePage> {
                                 color: Colors.grey.shade600,
                               ),
                               const SizedBox(width: 12),
-                              Text(formatDate(DateTime.now())),
+                              Text(formatDate(selectedDate)),
                             ],
                           ),
                         ),
                       ),
-                      if (incomeType == 'recurring') ...[
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Frequency',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          children: ['Monthly', 'Weekly', 'Bi-weekly', 'Yearly']
-                              .map(
-                                (f) => ChoiceChip(
-                                  label: Text(f),
-                                  selected: frequency == f,
-                                  onSelected: (v) =>
-                                      setModalState(() => frequency = f),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ],
                       const SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: () {
@@ -2014,13 +2057,16 @@ class _HomePageState extends State<HomePage> {
                             IncomeSource(
                               name: nameController.text.trim(),
                               amount: amount,
-                              frequency: incomeType == 'once'
-                                  ? 'once'
-                                  : frequency,
-                              date: DateTime.now(),
+                              frequency: isRecurring ? frequency : 'once',
+                              date: selectedDate,
                             ),
                           );
                           Navigator.pop(ctx);
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(
+                              content: Text('Income added successfully!'),
+                            ),
+                          );
                         },
                         child: const Text('Add Income'),
                       ),
@@ -3983,6 +4029,9 @@ void showIncomeSheet({
   );
   String frequency = income?.frequency ?? 'monthly';
   DateTime selectedDate = income?.date ?? DateTime.now();
+  bool isRecurring = income?.frequency != 'once';
+  int recurringDuration = 12; // Default 12 months
+  String durationType = 'months'; // 'months' or 'years'
 
   showModalBottomSheet(
     context: context,
@@ -4052,28 +4101,154 @@ void showIncomeSheet({
                       keyboardType: TextInputType.number,
                       hint: '0',
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Frequency',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
+                    const SizedBox(height: 20),
+                    // One-time vs Recurring Toggle
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isRecurring ? Icons.repeat : Icons.event,
+                            color: Colors.blue,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Recurring Income',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                          const Spacer(),
+                          Switch(
+                            value: isRecurring,
+                            onChanged: (v) {
+                              setModalState(() {
+                                isRecurring = v;
+                                if (!v) {
+                                  frequency = 'once';
+                                } else {
+                                  frequency = 'monthly';
+                                }
+                              });
+                            },
+                            activeColor: Colors.blue,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children: ['once', 'weekly', 'monthly', 'yearly']
-                          .map(
-                            (f) => ChoiceChip(
-                              label: Text(f[0].toUpperCase() + f.substring(1)),
-                              selected: frequency == f,
-                              onSelected: (v) =>
-                                  setModalState(() => frequency = f),
+                    if (isRecurring) ...[
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Frequency',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        children: ['weekly', 'monthly', 'yearly']
+                            .map(
+                              (f) => ChoiceChip(
+                                label: Text(f[0].toUpperCase() + f.substring(1)),
+                                selected: frequency == f,
+                                selectedColor: Colors.blue.shade100,
+                                onSelected: (v) =>
+                                    setModalState(() => frequency = f),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Duration',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<int>(
+                                  value: recurringDuration,
+                                  isExpanded: true,
+                                  items: [
+                                    for (int i = 1; i <= 24; i++)
+                                      DropdownMenuItem(
+                                        value: i,
+                                        child: Text('$i'),
+                                      ),
+                                  ],
+                                  onChanged: (v) {
+                                    if (v != null) {
+                                      setModalState(() => recurringDuration = v);
+                                    }
+                                  },
+                                ),
+                              ),
                             ),
-                          )
-                          .toList(),
-                    ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 3,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade300),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: durationType,
+                                  isExpanded: true,
+                                  items: const [
+                                    DropdownMenuItem(
+                                      value: 'months',
+                                      child: Text('Months'),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'years',
+                                      child: Text('Years'),
+                                    ),
+                                  ],
+                                  onChanged: (v) {
+                                    if (v != null) {
+                                      setModalState(() => durationType = v);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Income will repeat for ${recurringDuration} ${durationType}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 16),
                     const Text(
                       'Date',
