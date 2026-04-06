@@ -4833,7 +4833,7 @@ class BudgetsPage extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       Navigator.pop(ctx);
-                      // Edit budget
+                      _showBudgetSheet(context, budget: budget);
                     },
                     icon: const Icon(Icons.edit_outlined),
                     label: const Text('Edit'),
