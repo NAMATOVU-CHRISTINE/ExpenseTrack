@@ -2337,152 +2337,128 @@ class DashboardPage extends StatelessWidget {
     final now = DateTime.now();
     final monthlyExpenses = expenses
         .where((e) => e.date.month == now.month && e.date.year == now.year)
-        .fold(0.0, (sum, e) => sum + e.amount);
-    final lastMonthExpenses = expenses
-        .where((e) => e.date.month == (now.month == 1 ? 12 : now.month - 1))
-        .fold(0.0, (sum, e) => sum + e.amount);
+        .toList();
+    final totalExpenses = monthlyExpenses.fold(0.0, (sum, e) => sum + e.amount);
     final totalIncome = incomeSources.fold(0.0, (sum, i) => sum + i.amount);
     final displayIncome = totalIncome > 0
         ? totalIncome
         : (profile['monthlyIncome'] ?? 0.0);
-    final totalBudget = budgets.fold(0.0, (sum, b) => sum + b.limit);
-    final totalSpent = budgets.fold(0.0, (sum, b) => sum + b.spent);
-    final unpaidBills = recurringBills
-        .where((b) => !b.isPaid)
-        .fold(0.0, (sum, b) => sum + b.amount);
-    final balance = displayIncome - monthlyExpenses;
+    final balance = displayIncome - totalExpenses;
 
     // Calculate spending by category for pie chart
     final categorySpending = <String, double>{};
-    for (var expense in expenses.where(
-      (e) => e.date.month == now.month && e.date.year == now.year,
-    )) {
+    for (var expense in monthlyExpenses) {
       categorySpending[expense.category] =
           (categorySpending[expense.category] ?? 0) + expense.amount;
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: const Color(0xFF2196F3),
+        elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.calendar_today, size: 16),
+            const Icon(Icons.calendar_today, size: 16, color: Colors.white),
             const SizedBox(width: 8),
             Text(
               '${_getMonthName(now.month)} ${now.year}',
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16, color: Colors.white),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            onPressed: () {},
+            icon: const Icon(Icons.settings_outlined, color: Colors.white),
+            onPressed: () => _showCurrencyPicker(context),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Main content area
+          // Main content area with chart
           Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  
-                  // Circular Chart with Categories
-                  SizedBox(
-                    height: 400,
-                    child: Stack(
-                      alignment: Alignment.center,
+            child: categorySpending.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Pie Chart
-                        if (categorySpending.isNotEmpty)
-                          SizedBox(
-                            width: 200,
-                            height: 200,
-                            child: CustomPaint(
-                              painter: _PieChartPainter(
-                                categorySpending,
-                                Colors.white,
-                              ),
-                            ),
-                          ),
-                        
-                        // Center balance display
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 150),
-                            Text(
-                              formatCurrency(monthlyExpenses, currency),
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red.shade400,
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          Icons.pie_chart_outline,
+                          size: 100,
+                          color: Colors.grey.shade300,
                         ),
-                        
-                        // Category icons around the circle
-                        ..._buildCategoryIcons(categorySpending),
+                        const SizedBox(height: 20),
+                        Text(
+                          'No expenses this month',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap + to add your first expense',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Recent transactions list
-                  if (expenses.isNotEmpty)
-                    Container(
-                      color: Colors.white,
-                      child: Column(
-                        children: expenses
-                            .take(5)
-                            .map((e) => ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: CategoryHelper.getColor(e.category).withOpacity(0.2),
-                                    child: Icon(
-                                      CategoryHelper.getIcon(e.category),
-                                      color: CategoryHelper.getColor(e.category),
-                                      size: 20,
-                                    ),
-                                  ),
-                                  title: Text(
-                                    e.title,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    formatShortDate(e.date),
+                  )
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final size = constraints.maxWidth < constraints.maxHeight
+                          ? constraints.maxWidth * 0.7
+                          : constraints.maxHeight * 0.7;
+                      
+                      return Center(
+                        child: SizedBox(
+                          width: size,
+                          height: size,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Pie Chart
+                              CustomPaint(
+                                size: Size(size, size),
+                                painter: _PieChartPainter(
+                                  categorySpending,
+                                  Colors.white,
+                                ),
+                              ),
+                              
+                              // Center amount
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    formatCurrency(totalExpenses, currency),
                                     style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                  trailing: Text(
-                                    formatCurrency(e.amount, currency),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: size * 0.08,
+                                      fontWeight: FontWeight.bold,
                                       color: Colors.red.shade400,
-                                      fontSize: 14,
                                     ),
                                   ),
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+                                ],
+                              ),
+                              
+                              // Category icons around the circle
+                              ..._buildCategoryIcons(categorySpending, size),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
           
           // Bottom balance bar (Monefy style)
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
               color: const Color(0xFF2196F3),
@@ -2583,36 +2559,34 @@ class DashboardPage extends StatelessWidget {
     return months[month - 1];
   }
 
-  List<Widget> _buildCategoryIcons(Map<String, double> spending) {
+  List<Widget> _buildCategoryIcons(Map<String, double> spending, double chartSize) {
     final categories = spending.keys.toList();
-    final positions = [
-      const Offset(0, -150),      // Top
-      const Offset(130, -100),    // Top right
-      const Offset(150, 0),       // Right
-      const Offset(130, 100),     // Bottom right
-      const Offset(0, 150),       // Bottom
-      const Offset(-130, 100),    // Bottom left
-      const Offset(-150, 0),      // Left
-      const Offset(-130, -100),   // Top left
-    ];
-
+    final total = spending.values.fold(0.0, (a, b) => a + b);
+    final radius = chartSize * 0.55; // Position icons outside the chart
+    
     return List.generate(
       categories.length > 8 ? 8 : categories.length,
       (index) {
         final category = categories[index];
         final color = CategoryHelper.getColor(category);
-        final position = positions[index % positions.length];
+        final percentage = (spending[category]! / total * 100).toStringAsFixed(0);
+        
+        // Calculate position around circle
+        final angle = (index * 2 * math.pi / (categories.length > 8 ? 8 : categories.length)) - math.pi / 2;
+        final x = radius * math.cos(angle);
+        final y = radius * math.sin(angle);
         
         return Positioned(
-          left: 200 + position.dx - 25,
-          top: 200 + position.dy - 25,
+          left: chartSize / 2 + x - 25,
+          top: chartSize / 2 + y - 25,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -2623,9 +2597,9 @@ class DashboardPage extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${((spending[category]! / spending.values.fold(0.0, (a, b) => a + b)) * 100).toStringAsFixed(0)}%',
+                '$percentage%',
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: Colors.grey.shade700,
                 ),
