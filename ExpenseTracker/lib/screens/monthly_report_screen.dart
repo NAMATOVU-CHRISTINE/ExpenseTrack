@@ -36,13 +36,47 @@ class _MonthlyReportScreenState extends State<MonthlyReportScreen> {
   }
 
   List<Map<String, dynamic>> getMonthlyIncome() {
-    return widget.incomeSources.where((i) {
-      final date = i['date'] is DateTime
-          ? i['date']
-          : DateTime.parse(i['date']);
-      return date.year == selectedMonth.year &&
-          date.month == selectedMonth.month;
-    }).toList();
+    final monthlyIncome = <Map<String, dynamic>>[];
+    
+    for (var income in widget.incomeSources) {
+      final date = income['date'] is DateTime
+          ? income['date']
+          : DateTime.parse(income['date']);
+      final frequency = income['frequency'] as String? ?? 'once';
+      
+      // For one-time income, only include if it matches the selected month
+      if (frequency == 'once') {
+        if (date.year == selectedMonth.year &&
+            date.month == selectedMonth.month) {
+          monthlyIncome.add(income);
+        }
+      } else {
+        // For recurring income, check if it should appear in this month
+        final monthsDiff = (selectedMonth.year - date.year) * 12 +
+            (selectedMonth.month - date.month);
+        
+        if (monthsDiff >= 0) {
+          bool shouldInclude = false;
+          
+          if (frequency == 'weekly') {
+            // Weekly income appears every month after start date
+            shouldInclude = true;
+          } else if (frequency == 'monthly') {
+            // Monthly income appears every month after start date
+            shouldInclude = true;
+          } else if (frequency == 'yearly') {
+            // Yearly income appears once per year in the same month
+            shouldInclude = selectedMonth.month == date.month;
+          }
+          
+          if (shouldInclude) {
+            monthlyIncome.add(income);
+          }
+        }
+      }
+    }
+    
+    return monthlyIncome;
   }
 
   double getTotalExpenses() {
