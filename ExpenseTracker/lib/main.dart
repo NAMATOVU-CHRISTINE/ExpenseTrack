@@ -1346,6 +1346,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showQuickAddIncome() {
+    showIncomeSheet(
+      context: context,
+      currency: widget.currency,
+      onSave: _addIncomeSource,
+    );
+  }
+
   Widget _buildCurrentPage() {
     switch (_currentIndex) {
       case 0:
@@ -1362,6 +1370,7 @@ class _HomePageState extends State<HomePage> {
           onToggleTheme: widget.onToggleTheme,
           onSetCurrency: widget.onSetCurrency,
           onQuickAdd: _showQuickAddExpense,
+          onQuickAddIncome: _showQuickAddIncome,
         );
       case 1:
         return ExpensesPage(
@@ -1417,11 +1426,8 @@ class _HomePageState extends State<HomePage> {
   Widget? _buildFab() {
     switch (_currentIndex) {
       case 0:
-        return FloatingActionButton(
-          heroTag: 'home_fab',
-          onPressed: _showQuickAddExpense,
-          child: const Icon(Icons.add),
-        );
+        // Dashboard has its own buttons, no FAB needed
+        return null;
       case 1:
         return FloatingActionButton.extended(
           heroTag: 'expenses_fab',
@@ -2319,6 +2325,7 @@ class DashboardPage extends StatelessWidget {
     required this.onToggleTheme,
     required this.onSetCurrency,
     required this.onQuickAdd,
+    required this.onQuickAddIncome,
   });
   final List<Expense> expenses;
   final List<Budget> budgets;
@@ -2331,6 +2338,7 @@ class DashboardPage extends StatelessWidget {
   final Function(bool) onToggleTheme;
   final Function(String) onSetCurrency;
   final VoidCallback onQuickAdd;
+  final VoidCallback onQuickAddIncome;
 
   @override
   Widget build(BuildContext context) {
@@ -2528,7 +2536,7 @@ class DashboardPage extends StatelessWidget {
                 ),
                 // Plus button (income)
                 InkWell(
-                  onTap: () {},
+                  onTap: onQuickAddIncome,
                   child: Container(
                     width: 70,
                     height: 70,
@@ -3873,6 +3881,197 @@ Widget _buildTextField(
         ),
       ),
     ],
+  );
+}
+
+// ==================== INCOME SHEET HELPER ====================
+
+void showIncomeSheet({
+  required BuildContext context,
+  required String currency,
+  required Function(IncomeSource) onSave,
+  IncomeSource? income,
+}) {
+  final isEdit = income != null;
+  final nameController = TextEditingController(text: income?.name ?? '');
+  final amountController = TextEditingController(
+    text: income?.amount.toStringAsFixed(0) ?? '',
+  );
+  String frequency = income?.frequency ?? 'monthly';
+  DateTime selectedDate = income?.date ?? DateTime.now();
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (ctx) => StatefulBuilder(
+      builder: (context, setModalState) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
+        ),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Text(
+                    isEdit ? 'Edit Income' : 'Add Income',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildTextField(
+                      nameController,
+                      'Source Name',
+                      Icons.work,
+                      hint: 'e.g., Salary, Freelance',
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      amountController,
+                      'Amount ($currency)',
+                      Icons.attach_money,
+                      keyboardType: TextInputType.number,
+                      hint: '0',
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Frequency',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      children: ['once', 'weekly', 'monthly', 'yearly']
+                          .map(
+                            (f) => ChoiceChip(
+                              label: Text(f[0].toUpperCase() + f.substring(1)),
+                              selected: frequency == f,
+                              onSelected: (v) =>
+                                  setModalState(() => frequency = f),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Date',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate,
+                          firstDate: DateTime(2020),
+                          lastDate: DateTime.now(),
+                        );
+                        if (picked != null) {
+                          setModalState(() => selectedDate = picked);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.calendar_today,
+                              color: Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(formatDate(selectedDate)),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () {
+                        final amount = double.tryParse(amountController.text);
+                        if (nameController.text.isEmpty ||
+                            amount == null ||
+                            amount <= 0) {
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            const SnackBar(
+                              content: Text('Please fill all fields'),
+                            ),
+                          );
+                          return;
+                        }
+                        HapticFeedback.mediumImpact();
+                        onSave(
+                          IncomeSource(
+                            id: income?.id,
+                            name: nameController.text.trim(),
+                            amount: amount,
+                            frequency: frequency,
+                            date: selectedDate,
+                          ),
+                        );
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Income ${isEdit ? "updated" : "added"} successfully!',
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(isEdit ? 'Save Changes' : 'Add Income'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
   );
 }
 
