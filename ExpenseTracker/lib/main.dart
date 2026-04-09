@@ -1787,66 +1787,65 @@ class _HomePageState extends State<HomePage> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.85,
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-                child: Row(
-                  children: [
-                    const Text(
-                      'Add Income',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => StatefulBuilder(
+          builder: (context, setModalState) => Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: Row(
                     children: [
-                      const SizedBox(height: 16),
+                      const Text(
+                        'Add Income',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () => Navigator.pop(context),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: EdgeInsets.only(
+                      left: 20,
+                      right: 20,
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+                    ),
+                    children: [
+                      const SizedBox(height: 12),
                       _buildTextField(
                         nameController,
                         'Source Name',
                         Icons.work,
                         hint: 'e.g., Salary, Freelance',
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       _buildTextField(
                         amountController,
                         'Amount (${widget.currency})',
@@ -1854,99 +1853,104 @@ class _HomePageState extends State<HomePage> {
                         keyboardType: TextInputType.number,
                         hint: '0',
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       // One-time vs Recurring Toggle
                       Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           children: [
                             Icon(
                               isRecurring ? Icons.repeat : Icons.event,
                               color: Colors.blue,
-                              size: 20,
+                              size: 18,
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             Text(
                               'Recurring Income',
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
-                                fontSize: 14,
+                                fontSize: 13,
                                 color: Colors.grey.shade800,
                               ),
                             ),
                             const Spacer(),
-                            Switch(
-                              value: isRecurring,
-                              onChanged: (v) {
-                                setModalState(() {
-                                  isRecurring = v;
-                                  if (!v) {
-                                    frequency = 'once';
-                                  } else {
-                                    frequency = 'monthly';
-                                  }
-                                });
-                              },
-                              activeColor: Colors.blue,
+                            Transform.scale(
+                              scale: 0.8,
+                              child: Switch(
+                                value: isRecurring,
+                                onChanged: (v) {
+                                  setModalState(() {
+                                    isRecurring = v;
+                                    if (!v) {
+                                      frequency = 'once';
+                                    } else {
+                                      frequency = 'monthly';
+                                    }
+                                  });
+                                },
+                                activeColor: Colors.blue,
+                              ),
                             ),
                           ],
                         ),
                       ),
                       if (isRecurring) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
                         const Text(
                           'Frequency',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            fontSize: 13,
+                            fontSize: 12,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Wrap(
-                          spacing: 6,
+                          spacing: 4,
                           children: ['weekly', 'monthly', 'yearly']
                               .map(
                                 (f) => ChoiceChip(
                                   label: Text(
                                     f[0].toUpperCase() + f.substring(1),
-                                    style: const TextStyle(fontSize: 12),
+                                    style: const TextStyle(fontSize: 11),
                                   ),
                                   selected: frequency == f,
                                   selectedColor: Colors.blue.shade100,
                                   onSelected: (v) =>
                                       setModalState(() => frequency = f),
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
                                 ),
                               )
                               .toList(),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         const Text(
                           'Duration',
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
-                            fontSize: 13,
+                            fontSize: 12,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Row(
                           children: [
                             Expanded(
                               flex: 2,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                height: 36,
+                                padding: const EdgeInsets.symmetric(horizontal: 6),
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<int>(
                                     value: recurringDuration,
                                     isExpanded: true,
-                                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                                    style: const TextStyle(fontSize: 12, color: Colors.black),
                                     items: [
                                       for (int i = 1; i <= 24; i++)
                                         DropdownMenuItem(
@@ -1963,20 +1967,21 @@ class _HomePageState extends State<HomePage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 6),
                             Expanded(
                               flex: 3,
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                height: 36,
+                                padding: const EdgeInsets.symmetric(horizontal: 6),
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.grey.shade300),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: DropdownButtonHideUnderline(
                                   child: DropdownButton<String>(
                                     value: durationType,
                                     isExpanded: true,
-                                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                                    style: const TextStyle(fontSize: 12, color: Colors.black),
                                     items: const [
                                       DropdownMenuItem(
                                         value: 'months',
@@ -1998,25 +2003,25 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         Text(
-                          'Income will repeat for ${recurringDuration} ${durationType}',
+                          'Repeats for ${recurringDuration} ${durationType}',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 10,
                             color: Colors.grey.shade600,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
                       ],
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       const Text(
                         'Date',
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       InkWell(
                         onTap: () async {
                           final picked = await showDatePicker(
@@ -2030,33 +2035,35 @@ class _HomePageState extends State<HomePage> {
                           }
                         },
                         child: Container(
-                          padding: const EdgeInsets.all(12),
+                          height: 36,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
                             children: [
                               Icon(
                                 Icons.calendar_today,
                                 color: Colors.grey.shade600,
-                                size: 18,
+                                size: 16,
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 8),
                               Text(
                                 formatDate(selectedDate),
-                                style: const TextStyle(fontSize: 14),
+                                style: const TextStyle(fontSize: 12),
                               ),
                             ],
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          textStyle: const TextStyle(fontSize: 14),
                         ),
                         onPressed: () {
                           final amount = double.tryParse(amountController.text);
@@ -2088,12 +2095,12 @@ class _HomePageState extends State<HomePage> {
                         },
                         child: const Text('Add Income'),
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -5498,99 +5505,340 @@ class _FinancePageState extends State<FinancePage>
     final amountController = TextEditingController(
       text: income?.amount.toStringAsFixed(0) ?? '',
     );
-    String incomeType = income?.frequency == 'once' ? 'once' : 'recurring';
-    String frequency = income?.frequency ?? 'Monthly';
+    String frequency = income?.frequency ?? 'monthly';
     DateTime selectedDate = income?.date ?? DateTime.now();
+    bool isRecurring = income?.frequency != 'once';
+    int recurringDuration = 12;
+    String durationType = 'months';
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.85,
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 12),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Text(
-                      isEdit ? 'Edit Income' : 'Add Income',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-              ),
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => StatefulBuilder(
+          builder: (context, setModalState) => Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: Row(
                     children: [
+                      Text(
+                        isEdit ? 'Edit Income' : 'Add Income',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 20),
+                        onPressed: () => Navigator.pop(context),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: EdgeInsets.only(
+                      left: 20,
+                      right: 20,
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+                    ),
+                    children: [
+                      const SizedBox(height: 12),
                       _buildTextField(
                         nameController,
                         'Source Name',
                         Icons.work,
                         hint: 'e.g., Salary, Freelance',
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                       _buildTextField(
                         amountController,
                         'Amount (${widget.currency})',
                         Icons.attach_money,
                         keyboardType: TextInputType.number,
+                        hint: '0',
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Type',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 14,
+                      const SizedBox(height: 12),
+                      // One-time vs Recurring Toggle
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.blue.shade50,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              isRecurring ? Icons.repeat : Icons.event,
+                              color: Colors.blue,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Recurring Income',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                            const Spacer(),
+                            Transform.scale(
+                              scale: 0.8,
+                              child: Switch(
+                                value: isRecurring,
+                                onChanged: (v) {
+                                  setModalState(() {
+                                    isRecurring = v;
+                                    if (!v) {
+                                      frequency = 'once';
+                                    } else {
+                                      frequency = 'monthly';
+                                    }
+                                  });
+                                },
+                                activeColor: Colors.blue,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        children: [
-                          ChoiceChip(
-                            label: const Text('One-Time'),
-                            selected: incomeType == 'once',
-                            onSelected: (v) =>
-                                setModalState(() => incomeType = 'once'),
+                      if (isRecurring) ...[
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Frequency',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
                           ),
-                          ChoiceChip(
-                            label: const Text('Recurring'),
-                            selected: incomeType == 'recurring',
-                            onSelected: (v) =>
+                        ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 4,
+                          children: ['weekly', 'monthly', 'yearly']
+                              .map(
+                                (f) => ChoiceChip(
+                                  label: Text(
+                                    f[0].toUpperCase() + f.substring(1),
+                                    style: const TextStyle(fontSize: 11),
+                                  ),
+                                  selected: frequency == f,
+                                  selectedColor: Colors.blue.shade100,
+                                  onSelected: (v) =>
+                                      setModalState(() => frequency = f),
+                                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Duration',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                height: 36,
+                                padding: const EdgeInsets.symmetric(horizontal: 6),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<int>(
+                                    value: recurringDuration,
+                                    isExpanded: true,
+                                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                                    items: [
+                                      for (int i = 1; i <= 24; i++)
+                                        DropdownMenuItem(
+                                          value: i,
+                                          child: Text('$i'),
+                                        ),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        setModalState(() => recurringDuration = v);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                height: 36,
+                                padding: const EdgeInsets.symmetric(horizontal: 6),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey.shade300),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    value: durationType,
+                                    isExpanded: true,
+                                    style: const TextStyle(fontSize: 12, color: Colors.black),
+                                    items: const [
+                                      DropdownMenuItem(
+                                        value: 'months',
+                                        child: Text('Months'),
+                                      ),
+                                      DropdownMenuItem(
+                                        value: 'years',
+                                        child: Text('Years'),
+                                      ),
+                                    ],
+                                    onChanged: (v) {
+                                      if (v != null) {
+                                        setModalState(() => durationType = v);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Repeats for ${recurringDuration} ${durationType}',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade600,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Date',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      InkWell(
+                        onTap: () async {
+                          final picked = await showDatePicker(
+                            context: context,
+                            initialDate: selectedDate,
+                            firstDate: DateTime(2020),
+                            lastDate: DateTime.now(),
+                          );
+                          if (picked != null) {
+                            setModalState(() => selectedDate = picked);
+                          }
+                        },
+                        child: Container(
+                          height: 36,
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade300),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                color: Colors.grey.shade600,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                formatDate(selectedDate),
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          textStyle: const TextStyle(fontSize: 14),
+                        ),
+                        onPressed: () {
+                          final amount = double.tryParse(amountController.text);
+                          if (nameController.text.isEmpty ||
+                              amount == null ||
+                              amount <= 0) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill all fields'),
+                              ),
+                            );
+                            return;
+                          }
+                          HapticFeedback.mediumImpact();
+                          final incomeSource = IncomeSource(
+                            id: income?.id,
+                            name: nameController.text.trim(),
+                            amount: amount,
+                            frequency: isRecurring ? frequency : 'once',
+                            date: selectedDate,
+                          );
+                          if (isEdit) {
+                            onUpdate(incomeSource);
+                          } else {
+                            onAdd(incomeSource);
+                          }
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(ctx).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Income ${isEdit ? "updated" : "added"} successfully!',
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(isEdit ? 'Save Changes' : 'Add Income'),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
                                 setModalState(() => incomeType = 'recurring'),
                           ),
                         ],
